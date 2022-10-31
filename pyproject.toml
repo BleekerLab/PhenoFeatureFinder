@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "phloemfinder"
+version = "0.1.0"
+description = "Find plant metabolites related to whitefly pest resistance"
+authors = ["Marc Galland"]
+license = "Apache License 2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
