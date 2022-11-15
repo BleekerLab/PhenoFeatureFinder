@@ -11,14 +11,15 @@ import matplotlib.pyplot as plt
 
 def _extract_samples_to_condition(df, name_grouping_var='genotype', separator_replicates='_'):
     '''
-    A 
-    Utility function to melt (wide to long) and split grouping variable from biological replicates using specified separator
+    A utility function to extract the grouping factor (e.g. 'genotype') from sample names. 
+    
+    Uses melting (wide to long) and split grouping variable from biological replicates using specified separator.
     
     Parameters
     ----------
-    name_grouping_var: str, optional. 
+    name_grouping_var: str, optional 
         Name of the variable used as grouping variable (default is 'genotype').
-    separator_replicates: str, optional.
+    separator_replicates: str, optional
         The separator between the grouping variable and the biological replicates ( default is underscore '_')
     
     Returns
@@ -49,7 +50,6 @@ def _extract_samples_to_condition(df, name_grouping_var='genotype', separator_re
     melted_df[[name_grouping_var, 'rep']] = melted_df["sample"].str.split(pat=separator_replicates, expand=True)
     melted_df_parsed = melted_df.drop(["feature_id", "value"], axis=1)
     melted_df_parsed_dedup = melted_df_parsed.drop_duplicates()
-
     return melted_df_parsed_dedup
 
 ###################
@@ -119,13 +119,6 @@ class MetaboliteAnalysis:
     scikit PCA: https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
     
     '''
-    # Class attribute shared among all instances of the class
-
-    metabolome_validated=False
-    blank_features_filtered=False
-    unreliable_features_filtered=False
-    samples_to_conditions=None
-    pca_performed=False
 
     ##########################
     # Class constructor method

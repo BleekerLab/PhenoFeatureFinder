@@ -2,7 +2,7 @@
 name = "phloemfinder"
 version = "0.1.0"
 description = "Find plant metabolites related to whitefly pest resistance"
-authors = ["Marc Galland"]
+authors = ["Marc Galland", "Lissy-Anne Denkers"]
 license = "Apache License 2.0"
 readme = "README.md"
 
@@ -15,6 +15,10 @@ auto-sklearn = ">=0.15.0"
 
 [tool.poetry.dev-dependencies]
 pytest = ">=7.2.0"
+sphinx-autoapi = ">=2.0.0"
+sphinx-rtd-theme = ">=1.1.1"
+myst-nb = {version = "^0.17.1", python = "^3.9"}
+sphinx-markdown-tables = "^0.0.17"
  
 [build-system]
 requires = ["poetry-core>=1.0.0"]
