@@ -9,63 +9,118 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
+def _extract_samples_to_condition(df, name_grouping_var='genotype', separator_replicates='_'):
+    '''
+    A 
+    Utility function to melt (wide to long) and split grouping variable from biological replicates using specified separator
+    
+    Parameters
+    ----------
+    name_grouping_var: str, optional. 
+        Name of the variable used as grouping variable (default is 'genotype').
+    separator_replicates: str, optional.
+        The separator between the grouping variable and the biological replicates ( default is underscore '_')
+    
+    Returns
+    -------
+    A dataframe with the correspondence between samples and experimental condition (grouping variable).
+
+    Notes
+    -------
+    Input dataframe
+                        | genotypeA_rep1 | genotypeA_rep2 | genotypeA_rep3 | genotypeA_rep4 |
+                        |----------------|----------------|----------------|----------------|
+          feature_id
+        | metabolite1   |   1246         | 1245           | 12345          | 12458          |
+        | metabolite2   |   0            | 0              | 0              | 0              |
+        | metabolite3   |   10           | 0              | 0              | 154            |
+    
+    Output dataframe
+        
+        | sample_id          | genotype       | replicate      |
+        |--------------------|----------------|----------------|
+        | genotypeA_rep1     |   genotypeA    | rep1           |
+        | genotypeA_rep2     |   genotypeA    | rep2           |
+        | genotypeA_rep3     |   genotypeA    | rep3           |
+        | genotypeA_rep4     |   genotypeA    | rep4           |
+        | etc.
+    '''
+    melted_df = pd.melt(df.reset_index(), id_vars='feature_id', var_name="sample")
+    melted_df[[name_grouping_var, 'rep']] = melted_df["sample"].str.split(pat=separator_replicates, expand=True)
+    melted_df_parsed = melted_df.drop(["feature_id", "value"], axis=1)
+    melted_df_parsed_dedup = melted_df_parsed.drop_duplicates()
+
+    return melted_df_parsed_dedup
+
 ###################
 ## Class definition 
 ###################
 
 class MetaboliteAnalysis:
     '''
-    A class to streamline the filtering and exploration of a metabolome dataset.  
-    - Offers shortcuts to perform a Principal Component Analysis on the metabolite data. 
-    - Offers filtering of the metabolic dataset to remove noisy features.
-    
+    A class to streamline the filtering and exploration of a metabolome dataset.   
 
     Parameters
     ----------
-    metabolome_csv: string
-        A path to a .csv file with the metabolome data (scaled or unscaled)
+    metabolome_csv: `str`
+        A path to a .csv file with the metabolome data (scaled or unscaled).
         Shape of the dataframe is usually (n_samples, n_features) with n_features >> n_samples
-    metabolome_feature_id_col: string, default='feature_id'
-        The name of the column that contains the feature identifiers.
+    metabolome_feature_id_col: `str`, optional
+        The name of the column that contains the feature identifiers (default is 'feature_id').
         Feature identifiers should be unique (=not duplicated).
 
     Attributes
     ----------
-    metabolome: dataframe
+    metabolome: `pandas.core.frame.DataFrame`, (n_samples, n_features)
       The metabolome Pandas dataframe imported from the .csv file. 
-
-    metabolome_validated: boolean, default=False
+    metabolome_validated: `bool`
       Is the metabolome dataset validated?
-    
-    blank_features_filtered: boolean, default=False
+      Default is False.
+    blank_features_filtered: `bool`
       Are the features present in blank samples filtered out from the metabolome data?
-
-    unreliable_features_filtered: boolean, default=False
+      Default by False.
+    unreliable_features_filtered: `bool`
       Are the features not reliably present within one group filtered out from the metabolome data?
-    
-    pca_performed: boolean, default=False
+    pca_performed: `bool`
       Has PCA been performed on the metabolome data?
-    
-    samples_to_conditions: dataframe, default=None
-      A dataframe listing the correspondence between sample ids and their experimental conditions.
-      Grouping variable is often an experimental factor e.g. 'genotype'
-      The second factor is an arbitrary number distinguishing the different biological replicates e.g '1'. 
-      This dataframe is obtained by running the extract_samples_to_condition() method.
-    
-    exp_variance: dataframe with explained variance per Principal Component
-      The index of the df contains the PC index (PC1, PC2, etc.)
-      The second column contains the percentage of the explained variance per PC
-    
-    metabolome_pca_reduced: Numpy array with sample coordinates in reduced dimensions
+      Default is False. 
+    exp_variance: `pandas.core.frame.DataFrame`, (n_pc, 1)
+      A Pandas dataframe with explained variance per Principal Component.
+      The index of the df contains the PC index (PC1, PC2, etc.).
+      The second column contains the percentage of the explained variance per PC.
+    metabolome_pca_reduced: `numpy.ndarray`, (n_samples, n_pc)
+      Numpy array with sample coordinates in reduced dimensions.
       The dimension of the numpy array is the minimum of the number of samples and features. 
 
 
+    Methods
+    -------
+    validate_input_metabolome_df
+      Check if the provided metabolome file is suitable. 
+      Turns attribute metabolome_validated to True. 
+    discard_features_detected_in_blanks
+      Removes features only detected in blank samples. 
+    filter_out_unreliable_features()
+      Filter out features not reliably detectable in replicates of the same grouping factor. 
+      For instance, if a feature is detected less than 4 times within 4 biological replicates.  
+    write_clean_metabolome_to_csv()
+       
 
-
+    Examples
+    --------
+    >>> from metabolome_analysis import MetaboliteAnalysis
+    >>> met = MetaboliteAnalysis(
+        metabolome_csv="raw_data_processed_for_machine_learning.csv",
+        metabolome_feature_id_col="feature_id")
+    >>> met.
+    
+    See also
+    --------
+    scikit PCA: https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
+    
     '''
     # Class attribute shared among all instances of the class
-    # By default the metabolome and phenotype data imported from .csv files will have to be validated
-    # By default all filters have not been executed (blank filtering, etc.)
+
     metabolome_validated=False
     blank_features_filtered=False
     unreliable_features_filtered=False
@@ -79,6 +134,16 @@ class MetaboliteAnalysis:
         self, 
         metabolome_csv, 
         metabolome_feature_id_col='feature_id'):
+        """
+        Constructor method. 
+        Returns a Python instance of class MetabolomeAnalysis 
+        """
+        # By default the metabolome and phenotype data imported from .csv files will have to be validated
+        # By default all filters have not been executed (blank filtering, etc.)
+        self.metabolome_validated = False
+        self.blank_features_filtered = False
+        self.unreliable_features_filtered = False
+        self.pca_performed = False
         
         # Import metabolome dataframe and verify presence of feature id column
         self.metabolome = pd.read_csv(metabolome_csv)
@@ -91,16 +156,21 @@ class MetaboliteAnalysis:
         '''
         Validates the dataframe containing the feature identifiers, metabolite values and sample names.
         Will place the 'feature_id_col' column as the index of the validated dataframe. 
-        The validated metabolome dataframe is stored as the 'validated_metabolome' attribute 
+        The validated metabolome dataframe is stored as the 'validated_metabolome' attribute. 
         
         Parameters
         ----------
-        metabolome_feature_id: string, default='feature_id'
-            The name of the column that contains the feature identifiers.
+        metabolome_feature_id: str, optional 
+            The name of the column that contains the feature identifiers (default is 'feature_id').
             Feature identifiers should be unique (=not duplicated).
+            
+        Returns
+        -------
+        self: object
+          Object with attribute metabolome_validated set to True if tests are passed. 
         
-        Examples
-        ----------------------------------------
+        Notes
+        -----
         Example of a valid input metabolome dataframe
 
 
@@ -118,49 +188,6 @@ class MetaboliteAnalysis:
         else:
             self.metabolome_validated = True
 
-    def extract_samples_to_condition(self, name_grouping_var='genotype', separator_replicates='_'):
-        '''
-        Utility function to melt (wide to long) and split grouping variable from biological replicates using specified separator
-
-        Parameters
-        ----------
-        name_grouping_var: string, default='genotype'
-        Name of the variable used as grouping variable.
-        separator_replicates: string, default='_'
-        The separator between the grouping variable and the biological replicates e.g. '_' 
-
-        Returns
-        -------
-        A dataframe with the correspondence between samples and experimental condition (grouping variable)
-
-        Example
-        -------
-        Input dataframe
-                          | genotypeA_rep1 | genotypeA_rep2 | genotypeA_rep3 | genotypeA_rep4 |
-                          |----------------|----------------|----------------|----------------|
-              feature_id
-            | metabolite1 |   1246         | 1245           | 12345          | 12458          |
-            | metabolite2 |   0            | 0              | 0              | 0              |
-            | metabolite3 |   10           | 0              | 0              | 154            |
-        
-        Output dataframe
-            | sample_id          | genotype       | replicate      |
-            |--------------------|----------------|----------------|
-            | genotypeA_rep1     |   genotypeA    | rep1           |
-            | genotypeA_rep2     |   genotypeA    | rep2           |
-            | genotypeA_rep3     |   genotypeA    | rep3           |
-            | genotypeA_rep4     |   genotypeA    | rep4           |
-            | etc.
-        '''
-        df = self.metabolome
-
-        melted_df = pd.melt(df.reset_index(), id_vars='feature_id', var_name="sample")
-        melted_df[[name_grouping_var, 'rep']] = melted_df["sample"].str.split(pat=separator_replicates, expand=True)
-        melted_df_parsed = melted_df.drop(["feature_id", "value"], axis=1)
-        melted_df_parsed_dedup = melted_df_parsed.drop_duplicates()
-
-        self.samples_to_conditions = melted_df_parsed_dedup
-
     #############################################
     ### Filter features detected in blank samples
     #############################################
@@ -168,18 +195,22 @@ class MetaboliteAnalysis:
         self, 
         blank_sample_contains='blank'):
         '''
-        Sum the abundance of each feature in the blank samples.
-        Makes a list of features to be discarded (features with a positive summed abundance)
-        Returns a filtered Pandas dataframe with only features not detected in blank samples
+        Removes 
+        Steps:
+          1. Sum the abundance of each feature in the blank samples.
+          2. Makes a list of features to be discarded (features with a positive summed abundance).
+          3. Returns a filtered Pandas dataframe with only features not detected in blank samples
 
         Parameters
         ----------
-        blank_sample_contains: string
-            Column names with this name will be considered blank samples
+        blank_sample_contains: str, optional.
+            Column names with this name will be considered blank samples.
+            Default is='blank'
         
         Returns
         -------
-        A filtered Pandas dataframe without these features and with the blank samples removed. 
+        metabolome: ndarray
+            A filtered Pandas dataframe without features detected in blank samples and with the blank samples removed. 
         '''
 
         if self.metabolome_validated == True:
@@ -209,7 +240,9 @@ class MetaboliteAnalysis:
         nb_times_detected=4,
         separator_replicates='_'):
         '''
-        Takes a dataframe with feature identifiers in index and samples as columns
+        Removes features not reliably detectable in multiple biological replicates from the same grouping factor. 
+
+        Takes a dataframe with feature identifiers in index and samples as columns.
         Step 1: First melt and split the sample names to generate the grouping variable
         Step 2: count number of times a metabolite is detected in the groups. 
         If number of times detected in a group = number of biological replicates then it is considered as reliable
@@ -218,9 +251,11 @@ class MetaboliteAnalysis:
 
         Params
         ------
-        name_grouping_var: string
-            The name used when splitting between replicate and main factor e.g. "genotype" when splitting MM_rep1 into 'MM' and 'rep1'
-        nb_times_detected: integer, default=4
+        name_grouping_var: str, optional
+            The name used when splitting between replicate and main factor.
+            For example "genotype" when splitting MM_rep1 into 'MM' and 'rep1'.
+            Default is 
+        nb_times_detected: int, optionaldefault=4
             Number of times a metabolite should be detected to be considered 'reliable'. 
             Should be equal to the number of biological replicates for a given group of interest (e.g. genotype)
         separator_replicates: string, default="_"
@@ -229,10 +264,11 @@ class MetaboliteAnalysis:
 
         Returns
         -------
-        A Pandas dataframe with only features considered as reliable, sample names and their values. 
+        metabolome: ndarray
+            A Pandas dataframe with only features considered as reliable, sample names and their values. 
         
-        Example 
-        -------
+        Notes 
+        -----
         Input dataframe
 
                              	| MM_1  	| MM_2  	| MM_3  	| MM_4  	| LA1330_1 	| LA1330_2 	|
@@ -307,6 +343,12 @@ class MetaboliteAnalysis:
         '''
         A function that verify that the metabolome dataset has been cleaned up. 
         Writes the metabolome data as a comma-separated value file on disk
+
+        Parameters
+        ----------
+        path_of_cleaned_csv: str, optional
+            The path and filename of the .csv file to save.
+            Default to "./filtered_metabolome.csv" 
         '''
         try:
             self.blank_features_filtered == True
@@ -328,26 +370,32 @@ class MetaboliteAnalysis:
 
     def compute_pca_on_metabolites(self, scale=True, n_principal_components=10, auto_transpose=True):
         """
-        Performs a Principal Component Analysis on the metabolome data. 
+        Performs a Principal Component Analysis (PCA) on the metabolome data. 
+        
+        The PCA analysis will return transformed coordinates of the samples in a new space. 
+        It will also give the percentage of variance explained by each Principal Component. 
         Assumes that number of samples < number of features/metabolites
         Performs a transpose of the metabolite dataframe if n_samples > n_features (this can be turned off with auto_transpose)
         
         Parameters
         ----------
-        scale: boolean, default=True
-            Perform scaling (standardize) the metabolite values to zero mean and unit variance
-        n_principal_components:
+        scale: `bool`, optional
+            Perform scaling (standardize) the metabolite values to zero mean and unit variance. 
+            Default is True. 
+        n_principal_components: int, optional
             number of principal components to keep in the PCA analysis.
             if number of PCs > min(n_samples, n_features) then set to the minimum of (n_samples, n_features)
-        auto_transpose: boolean, default=True
+            Default is to calculate 10 components.
+        auto_transpose: `bool`, optional. 
             If n_samples > n_features, performs a transpose of the feature matrix.
+            Default is True (meaning that transposing will occur if n_samples > n_features).
     
         Returns
         -------
         self: object
-          .exp_variance: dataframe with explained variance per Principal Component
+          Object with .exp_variance: dataframe with explained variance per Principal Component
           .metabolome_pca_reduced: dataframe with samples in reduced dimensions
-          .pca_performed: boolean set to True
+          .pca_performed: `bool`ean set to True
         """
         # Verify that samples are in rows and features in columns
         # Usually n_samples << n_features so we should have n_rows << n_cols
@@ -429,64 +477,57 @@ class MetaboliteAnalysis:
 
     def create_sample_score_plot(
         self, 
-        name_grouping_var='genotype', 
         pc_x_axis=1, 
         pc_y_axis=2, 
+        name_grouping_var='genotype',
+        separator_replicates="_",
         plot_file_name=None):
         '''
         Returns a sample score plot of the samples on PCx vs PCy. 
-        Samples are colored based on the grouping variable (e.g. genotype) using the samples_to_condition attribute
+        Samples are colored based on the grouping variable (e.g. genotype)
 
         Parameters
         ----------
-        name_grouping_var: string, default="genotype"
-          Name of the variable used to color samples
-          This variable has to be present in the .samples_to_condition attribute
-          (see method .extract_samples_to_condition())
-        pc_x_axis: integer, default=1
-            Principal component on the x-axis of the scatterplot.
-        pc_y_axis: integer, default=2
-            Principal component on the y-axis of the scatterplot.
-        plot_file_name: string, default='None'
-          A file name and its path to save the sample score plot. 
+        pc_x_axis: int, optional 
+          Principal Component to plot on the x-axis (default is 1 so PC1 will be plotted).
+        pc_y_axis: int, optional.
+           Principal Component to plot on the y-axis (default is 2 so PC2 will be plotted).
+        name_grouping_var: str, optional
+          Name of the variable used to color samples (Default is "genotype"). 
+        separator_replicates: str, optional.
+          String separator that separates grouping factor from biological replicates (default is underscore "_").
+        plot_file_name: str, optional 
+          A file name and its path to save the sample score plot (default is None).
           For instance "mydir/sample_score_plot.pdf"
-          Path is relative to current working directory
+          Path is relative to current working directory.
         
         Returns
         -------
         The PCA scoreplot with samples colored by grouping variable. 
         Optionally a saved image of the plot. 
+
+
         '''
-        try:
-            self.pca_performed
-        except: 
+        if self.pca_performed:
+            pass
+        else:
             raise AttributeError("Please compute the PCA first using the compute_pca_on_metabolites() method.") 
 
         n_features = self.metabolome.shape[0]
         n_samples = self.metabolome.shape[1]
         min_of_samples_and_features = np.minimum(n_samples, n_features)
 
-        try:
-            pc_x_axis != pc_y_axis
-        except:
+        samples_to_conditions = _extract_samples_to_condition(df=self.metabolome, name_grouping_var=name_grouping_var, separator_replicates=separator_replicates)
+
+        if pc_x_axis == pc_y_axis:
             raise ValueError("Values for Principal Components on x axis and y axis have to be different.")
-        try: 
-            pc_x_axis <= min_of_samples_and_features
-        except:
+        if pc_x_axis > min_of_samples_and_features:
             raise ValueError("Your principal component for x axis should be lower than {0}".format(min_of_samples_and_features))
-        try:
-            pc_y_axis <= np.minimum(n_samples, n_features)
-        except:
+        if pc_y_axis > np.minimum(n_samples, n_features):
             raise ValueError("Your principal component for y axis should be lower than {0}".format(min_of_samples_and_features))
-
-
-        ### Extract grouping variable levels to color the sample dots       
-        try:
-            self.samples_to_conditions != None
-        except:
-            raise ValueError("Please run the extract_samples_to_condition() method first.")
+       
         
-        if not name_grouping_var in self.samples_to_conditions.columns:
+        if not name_grouping_var in samples_to_conditions.columns:
             raise IndexError("The grouping variable '{0}' is not present in the samples_to_condition dataframe".format(name_grouping_var))
         else:
             # Build the plot
@@ -495,7 +536,7 @@ class MetaboliteAnalysis:
             self.scatter_plot = sns.scatterplot(
             x=self.metabolome_pca_reduced[:,pc_x_axis-1],
             y=self.metabolome_pca_reduced[:,pc_y_axis-1],
-            hue=self.samples_to_conditions[name_grouping_var],
+            hue=samples_to_conditions[name_grouping_var],
             s=200)
 
             plt.xlabel("PC" + str(pc_x_axis) + ": " + str(self.exp_variance.iloc[pc_x_axis,0].round(2)) + "% variance") 
