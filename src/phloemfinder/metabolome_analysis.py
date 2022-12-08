@@ -8,7 +8,6 @@ from sklearn.preprocessing import StandardScaler
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-
 def _extract_samples_to_condition(df, name_grouping_var='genotype', separator_replicates='_'):
     '''
     A utility function to extract the grouping factor (e.g. 'genotype') from sample names. 
@@ -17,6 +16,7 @@ def _extract_samples_to_condition(df, name_grouping_var='genotype', separator_re
     
     Parameters
     ----------
+    df: 'pandas.core.DataFrame'
     name_grouping_var: str, optional 
         Name of the variable used as grouping variable (default is 'genotype').
     separator_replicates: str, optional
@@ -65,6 +65,7 @@ class MetaboliteAnalysis:
     metabolome_csv: `str`
         A path to a .csv file with the metabolome data (scaled or unscaled).
         Shape of the dataframe is usually (n_samples, n_features) with n_features >> n_samples
+        
     metabolome_feature_id_col: `str`, optional
         The name of the column that contains the feature identifiers (default is 'feature_id').
         Feature identifiers should be unique (=not duplicated).
@@ -113,6 +114,36 @@ class MetaboliteAnalysis:
         metabolome_csv="raw_data_processed_for_machine_learning.csv",
         metabolome_feature_id_col="feature_id")
     >>> met.
+    
+    Notes
+    -----
+    Example of an input metabolome input format (from a csv file)
+
+    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
+    | feature_id           | blank_1 | blank_2 | blank_3 | blank_4 | MM_1  | MM_2  | MM_3  | MM_4  | LA1330_1 | LA1330_2 | LA1330_3 | LA1330_4 |
+    +======================+=========+=========+=========+=========+=======+=======+=======+=======+==========+==========+==========+==========+
+    | rt-0.04_mz-241.88396 | 280     | 694     | 502     | 604     | 554   | 678   | 674   | 936   | 824      | 940      | 794      | 828      |
+    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
+    | rt-0.05_mz-143.95911 | 1036    | 1566    | 1326    | 1490    | 1364  | 1340  | 1692  | 1948  | 1928     | 1956     | 1730     | 1568     |
+    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
+    | rt-0.06_mz-124.96631 | 1308    | 992     | 1060    | 1010    | 742   | 990   | 0     | 888   | 786      | 668      | 762      | 974      |
+    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
+    | rt-0.08_mz-553.45905 | 11340   | 12260   | 10962   | 11864   | 10972 | 11190 | 12172 | 11820 | 12026    | 11604    | 11122    | 11260    |
+    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
+    | rt-0.08_mz-413.26631 | 984     | 1162    | 1292    | 1104    | 1090  | 1106  | 1290  | 1170  | 1282     | 924      | 1172     | 1062     |
+    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
+    | rt-0.08_mz-343.22434 | 3078    | 2660    | 2786    | 3096    | 3084  | 3190  | 3072  | 2940  | 3620     | 3200     | 3154     | 3146     |
+    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
+    | rt-0.08_mz-287.16171 | 1506    | 1510    | 1546    | 1420    | 1582  | 1786  | 1512  | 1288  | 1606     | 1824     | 1404     | 1356     |
+    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
+    | rt-0.08_mz-629.84892 | 1306    | 2088    | 0       | 1750    | 1514  | 1546  | 0     | 0     | 1292     | 1818     | 1378     | 0        |
+    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
+    | rt-0.08_mz-498.39989 | 1042    | 1274    | 1138    | 1016    | 964   | 1166  | 1076  | 1052  | 1348     | 984      | 1114     | 1042     |
+    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
+    | rt-0.08_mz-497.39637 | 2670    | 2414    | 2646    | 2656    | 2462  | 2836  | 2744  | 2854  | 3188     | 2872     | 2516     | 2946     |
+    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
+    | rt-0.08_mz-318.98083 | 946     | 1068    | 1190    | 1058    | 834   | 858   | 852   | 968   | 784      | 1006     | 1102     | 936      |
+    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
     
     See also
     --------
@@ -496,8 +527,10 @@ class MetaboliteAnalysis:
         
         Returns
         -------
-        The PCA scoreplot with samples colored by grouping variable. 
-        Optionally a saved image of the plot. 
+        matplotlib Axes
+            Returns the Axes object with the sample score plot drawn onto it.
+            Samples are colored by specified grouping variable. 
+            Optionally a saved image of the plot. 
 
 
         '''
@@ -509,7 +542,7 @@ class MetaboliteAnalysis:
         n_features = self.metabolome.shape[0]
         n_samples = self.metabolome.shape[1]
         min_of_samples_and_features = np.minimum(n_samples, n_features)
-
+        
         samples_to_conditions = _extract_samples_to_condition(df=self.metabolome, name_grouping_var=name_grouping_var, separator_replicates=separator_replicates)
 
         if pc_x_axis == pc_y_axis:

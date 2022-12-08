@@ -1,6 +1,5 @@
 #!/usr/bin/env python3 
 
-from enum import auto
 import os
 from warnings import WarningMessage
 import numpy as np
@@ -15,8 +14,6 @@ from sklearn.inspection import permutation_importance
 
 from autosklearn.classification import AutoSklearnClassifier
 from autosklearn.metrics import balanced_accuracy, precision, recall, f1
-
-from utils import compute_performance_metrics
 
 class MetabolitePhenotypeFeatureSelection:
     '''
