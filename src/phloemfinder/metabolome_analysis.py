@@ -337,7 +337,7 @@ class MetaboliteAnalysis:
           temp_df = temp_df.drop('rep', axis=1)
 
           # number of values above 0 across all groups
-          min_number_of_values_above_0_across_all_groups = temp_df[temp_df['value'] > 0].groupby(by=name_grouping_var)[name_grouping_var].count().min()
+          min_number_of_values_above_0_across_all_groups = temp_df[temp_df['value'] > 0].groupby(by=name_grouping_var)[name_grouping_var].count().max()
 
           # If the feature is detected a minimum of times equal to the number of biological replicates
           # This means the feature is reliably detectable in at least one group (e.g. one genotype)
