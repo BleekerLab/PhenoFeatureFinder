@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-import sys
 
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestClassifier
@@ -14,6 +13,8 @@ from sklearn.inspection import permutation_importance
 
 from autosklearn.classification import AutoSklearnClassifier
 from autosklearn.metrics import balanced_accuracy, precision, recall, f1
+
+from utils import compute_metrics_classification 
 
 class MetabolitePhenotypeFeatureSelection:
     '''
@@ -48,17 +49,17 @@ class MetabolitePhenotypeFeatureSelection:
 
     Class attributes
     ----------
-    metabolome_validated: boolean, default=False
-      Is the metabolome file valid for Machine Learning?
+    metabolome_validated: bool, optional
+      Is the metabolome file valid for Machine Learning? (default is False)
     
-    phenotype_validated: boolean, default=False
-      Is the phenotype file valid for Machine Learning?
+    phenotype_validated: bool, optional
+      Is the phenotype file valid for Machine Learning? (default is False)
 
-    baseline_performance: float, default=None
+    baseline_performance: float 
       The baseline performance computed with get_baseline_performance() i.e. using a simple Random Forest model. 
       Search for the best ML model using search_best_model() should perform better than this baseline performance. 
 
-    best_ensemble_models_searched: boolean, default=False
+    best_ensemble_models_searched: bool
       Is the search for best ensemble model using auto-sklearn already performed?
 
     Notes
@@ -116,7 +117,7 @@ class MetabolitePhenotypeFeatureSelection:
             try: 
                 self.phenotype.set_index(phenotype_sample_id, inplace=True)
             except:
-                raise IndexError("Values for sample identifiers have to be unique. Check your",phenotype_sample_id,"column.")
+                raise IndexError("Values for sample identifiers have to be unique. Check your ", phenotype_sample_id, " column.")
 
     ################
     ## Verify inputs
@@ -205,18 +206,19 @@ class MetabolitePhenotypeFeatureSelection:
     #################
     def get_baseline_performance(self, kfold=5, scoring_metric='balanced_accuracy'):
         '''
-        Takes the phenotype and metabolome dataset and compute a simplistic Random Forest analysis. 
+        Takes the phenotype and metabolome dataset and compute a simple Random Forest analysis with default hyperparameters. 
         This will give a base performance for a Machine Learning model that has then to be optimised using autosklearn
 
-        k-fold cross-validation is performed to accomodate for split effects on small datasets. 
+        k-fold cross-validation is performed to mitigate split effects on small datasets. 
 
         Parameters
         ----------
-        fkold: int, default=5
-          Cross-validation strategy. 
-          Default is to use a 5-fold cross-validation. 
-        scoring_metric: string, default="balanced_accuracy"
-          A valid scoring value. To get a complete list, type:
+        fkold: int, optional
+          Cross-validation strategy. Default is to use a 5-fold cross-validation. 
+
+        scoring_metric: str, optional
+          A valid scoring value (default="balanced_accuracy")
+          To get a complete list, type:
           >> from sklearn.metrics import SCORERS 
           >> sorted(SCORERS.keys()) 
           balanced accuracy is the average of recall obtained on each class. 
@@ -224,7 +226,16 @@ class MetabolitePhenotypeFeatureSelection:
         Returns
         -------
         self: object
-          Object with baseline_performance attribute
+          Object with baseline_performance attribute.
+        
+        Example
+        -------
+        >>> fs = MetabolitePhenotypeFeatureSelection(
+                   metabolome_csv="../tests/clean_metabolome.csv", 
+                   phenotype_csv="../tests/phenotypes_test_data.csv", 
+                   phenotype_sample_id='sample')
+            fs.get_baseline_performance()
+
         '''
         try:
             self.metabolome_validated == True
@@ -241,12 +252,13 @@ class MetabolitePhenotypeFeatureSelection:
 
         clf = RandomForestClassifier(n_estimators=1000, random_state=42)
         scores = cross_val_score(clf, X, y, scoring=scoring_metric, cv=kfold)
-        average_scores = np.average(scores).round(3)
+        average_scores = np.average(scores).round(3) * 100
+        stddev_scores = np.std(scores).round(3) * 100
 
         print("Performing a simple Random Forest model training")
         print("N samples: {0}".format(str(X.shape[0])))
         print("N features: {0}".format(str(X.shape[1])))
-        print("Average {0} score of the default model is: {1} %".format(scoring_metric, average_scores))
+        print("Average {0} score of the default model is: {1} % -/+ {2}".format(scoring_metric, average_scores, stddev_scores))
 
         self.baseline_performance = average_scores
 
@@ -264,18 +276,19 @@ class MetabolitePhenotypeFeatureSelection:
 
     #TODO: make decorator function to check arguments
     #See -> https://www.pythonforthelab.com/blog/how-to-use-decorators-to-validate-input/
-    def search_best_model_and_calculate_feature_importances(
+    def search_best_classification_model(
         self, 
+        class_of_interest,
+        scoring_metric=balanced_accuracy,
         time_left_for_this_task=300,  
-        kfolds=5, 
-        class_of_interest='resistant',
+        kfolds=5,
         train_size=0.7,
         n_permutations=10, 
         random_state=123):
         '''
         Wrapper function around the AutoSklearnClassifier() autosklearn function. 
-        Helpful since the best model will be stored as an class attribute. 
-        The best model is actually an ensemble of models 
+        Helpful since the best model will be stored as a class attribute. 
+        The best model is actually an ensemble of models. 
 
         Input function arguments have to comply with both names and value type of the 
         original AutoSklearnClassifier() function 
@@ -301,30 +314,34 @@ class MetabolitePhenotypeFeatureSelection:
 
         Parameters
         ----------
-        time_left_for_this_task: int, default=300
-          Time (in seconds) allocated to search for the best model. 
-        
-        metric: string, default='balanced_accuracy'
-          Scorer metric. One value such as 'accuracy' or 'balanced_accuracy'
-          See https://automl.github.io/auto-sklearn/master/api.html#built-in-metrics
-        
-        kfolds: integer, default=5
-          Number of folds for the stratified K-Folds cross-validation strategy
-          Has to be comprised between 3 and 10 i.e. 3 <= kfolds =< 10
-          See https://scikit-learn.org/stable/modules/cross_validation.html
-        
-        class_of_interest: str, default='resistant'
+        class_of_interest: str
           The name of the class of interest also called "positive class".
           This class will be used to calculate recall_score and precision_score. 
           Recall score = TP / (TP + FN) with TP: true positives and FN: false negatives.
           Precision score = TP / (TP + FP) with TP: true positives and FP: false positives. 
         
-        train_size: float, default=0.7
-          If float, should be between 0.5 and 1.0 and represent the proportion of the dataset to include in the train split. If int, represents the absolute number of train samples. If None, the value is automatically set to the complement of the test size.
+        time_left_for_this_task: int, optional
+          Time (in seconds) allocated to search for the best model. Default is 300 seconds. 
+
+        metric: str, optional
+          Scorer metric. One value such as 'accuracy' or 'balanced_accuracy'. Default is 'balanced_accuracy'
+          If changed, has to be one of autosklearn.metrics
+          See https://automl.github.io/auto-sklearn/master/api.html#built-in-metrics
         
-        random_state: int, default=123
+        kfolds: int, optional
+          Number of folds for the stratified K-Folds cross-validation strategy. Default is 5-fold cross-validation. 
+          Has to be comprised between 3 and 10 i.e. 3 <= kfolds =< 10
+          See https://scikit-learn.org/stable/modules/cross_validation.html
+              
+        train_size: float or int, optional
+          If float, should be between 0.5 and 1.0 and represent the proportion of the dataset to include in the train split.
+          If int, represents the absolute number of train samples. If None, the value is automatically set to the complement of the test size.
+          Default is 0.7 (70% of the data used for training).
+        
+        random_state: int, optional
           Controls both the randomness of the train/test split  samples used when building trees (if bootstrap=True) and the sampling of the features to consider when looking for the best split at each node (if max_features < n_features). See Glossary for details.
-          You can change this value several times to see how it affects the best ensemble model performance
+          You can change this value several times to see how it affects the best ensemble model performance.
+          Default is 123.
 
         Returns
         ------
@@ -340,7 +357,7 @@ class MetabolitePhenotypeFeatureSelection:
         >> fs.validate_input_phenotype_df()
         >> fs.validate_input_metabolome_df()
         >> fs.get_baseline_performance(scoring_metric='accuracy')
-        >> fs.search_best_model(time_left_for_this_task=120)
+        >> fs.search_best_classification_model(class_of_interest='resistant', time_left_for_this_task=120)
         '''
 
         X = self.metabolome.transpose().to_numpy(dtype='float64')
@@ -366,64 +383,69 @@ class MetabolitePhenotypeFeatureSelection:
 
         ### CV resampling strategy depends on number of samples ###
         n_samples = int(len(y))
-        # Only a train and test set if n_samples < 30 
+        # Only a train and test set if n_samples > 30 
         # Less than 30 samples is not enough to create distinct train/validation/test sets
         if n_samples > 30:
           X_train, X_test, y_train, y_test = train_test_split(
-            X, y, 
-            train_size=train_size, 
-            random_state=random_state, 
-            stratify=y)
+              X, y, 
+              train_size=train_size, 
+              random_state=random_state, 
+              stratify=y)
           automl = AutoSklearnClassifier(
               time_left_for_this_task=time_left_for_this_task, 
-              metric=balanced_accuracy,
-              scoring_functions=[precision, recall, f1],
+              metric=scoring_metric, scoring_functions=[precision, recall, f1],
               seed=random_state,
-              resampling_strategy='cv', 
-              resampling_strategy_arguments={'train_size': train_size, 'folds': kfolds}
+              resampling_strategy='cv', resampling_strategy_arguments={'train_size': train_size, 'folds': kfolds}
               )
           automl.fit(X_train, y_train, dataset_name="metabopheno")
           automl.refit(X_train, y_train) # to fit on the whole train dataset (not only on individual k-folds)
-          predictions = automl.predict(X_test)
-          compute_performance_metrics(predictions=predictions, y_test=y_test, positive_label=class_of_interest)
+          model_predictions = automl.predict(X_test)
+          print("============ Best ML model metrics =========")
+          print(compute_metrics_classification(y_predictions=model_predictions, y_trues=y_test, positive_class=class_of_interest))
+          print("============================================")
         else:
           # All data is used to train the model. 
-          # This is prone to overfitting
+          # This is prone to overfitting since all data is used (model performance is over-estimated)
           X_train = X
           y_train = y 
           automl = AutoSklearnClassifier(
               time_left_for_this_task=time_left_for_this_task, 
-              metric=balanced_accuracy,
+              metric=scoring_metric,
               seed=random_state,
               scoring_functions=[precision, recall, f1],
               resampling_strategy='cv', 
               resampling_strategy_arguments={'train_size': train_size, 'folds': kfolds}
               )
-          automl.fit(X, y, dataset_name="metabopheno")
-          predictions = automl.predict(X_test)
-          compute_performance_metrics(predictions=predictions, y_test=y_test, positive_label=class_of_interest)
+          automl.fit(X=X_train, y=y_train, dataset_name="metabopheno")
+          # Refit all models found with fit to new data. 
+          # Necessary when using cross-validation https://automl.github.io/auto-sklearn/master/api.html#autosklearn.classification.AutoSklearnClassifier.refit
+          automl.refit(X=X_train, y=y_train)  
+          model_predictions = automl.predict(X_test)
           print("============ Warning =========")
-          print("This is prone to overfitting since no external test dataset can be made from less than 30 samples")
+          print("Model performance is over-estimated since no data is available for testing (less than 30 samples)")
+          print("============ Warning =========")
+          print(compute_metrics_classification(y_predictions=model_predictions, y_trues=y_test, positive_class=class_of_interest))
         
-
+        ### Print best model statistics
+        
         ### Get feature importances ###
         # This has to be done from the same test/train split if n_samples > 30
         # See https://scikit-learn.org/stable/modules/permutation_importance.html 
-        if n_samples > 30:
-            feature_importances = permutation_importance(
-            automl, 
-            X=X_train, 
-            y=y_train,
-            scoring=balanced_accuracy,
-            n_repeats=n_permutations, 
-            random_state=random_state)
-        feature_importances_df = pd.DataFrame.from_dict(feature_importances["importances"])
-        feature_importances_df.set_index(self.metabolome.index.values, inplace=True)
-        feature_importances_df.columns = ["permutation_" + str(i+1) for i in range(n_permutations)]
+      #  if n_samples > 30:
+      #      feature_importances = permutation_importance(
+      #      automl, 
+      #      X=X_train, 
+      #      y=y_train,
+      #      scoring=balanced_accuracy,
+      #      n_repeats=n_permutations, 
+      #      random_state=random_state)
+      #  feature_importances_df = pd.DataFrame.from_dict(feature_importances["importances"])
+      #  feature_importances_df.set_index(self.metabolome.index.values, inplace=True)
+      #  feature_importances_df.columns = ["permutation_" + str(i+1) for i in range(n_permutations)]
 
         self.automated_ml_obj = automl
         self.best_ensemble_models_searched = True
-        self.feature_importances = feature_importances_df
+      #  self.feature_importances = feature_importances_df
 
 
 
@@ -438,5 +460,5 @@ class MetabolitePhenotypeFeatureSelection:
         raise ValueError("Please search best ML model using the search_best")
         
 
-        
+#  compute_performance_metrics(predictions=predictions, y_test=y_test, positive_label=class_of_interest)
 

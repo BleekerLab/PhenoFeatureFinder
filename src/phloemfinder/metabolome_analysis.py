@@ -60,6 +60,7 @@ class MetaboliteAnalysis:
     '''
     A class to streamline the filtering and exploration of a metabolome dataset.   
 
+
     Parameters
     ----------
     metabolome_csv: `str`
@@ -70,6 +71,7 @@ class MetaboliteAnalysis:
         The name of the column that contains the feature identifiers (default is 'feature_id').
         Feature identifiers should be unique (=not duplicated).
 
+    
     Attributes
     ----------
     metabolome: `pandas.core.frame.DataFrame`, (n_samples, n_features)
