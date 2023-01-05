@@ -567,8 +567,8 @@ class MetaboliteAnalysis:
             hue=samples_to_conditions[name_grouping_var],
             s=200)
 
-            plt.xlabel("PC" + str(pc_x_axis) + ": " + str(self.exp_variance.iloc[pc_x_axis,0].round(2)) + "% variance") 
-            plt.ylabel("PC" + str(pc_y_axis) + ": " + str(self.exp_variance.iloc[pc_y_axis,0].round(2)) + "% variance")
+            plt.xlabel("PC" + str(pc_x_axis) + ": " + str(self.exp_variance.iloc[pc_x_axis-1,0].round(2)) + "% variance") 
+            plt.ylabel("PC" + str(pc_y_axis) + ": " + str(self.exp_variance.iloc[pc_y_axis-1,0].round(2)) + "% variance")
             plt.title("PC" + str(pc_x_axis) + " vs PC" + str(pc_y_axis))
 
             # Optionally save the plot

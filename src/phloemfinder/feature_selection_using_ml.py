@@ -395,14 +395,17 @@ class MetabolitePhenotypeFeatureSelection:
               time_left_for_this_task=time_left_for_this_task, 
               metric=scoring_metric, scoring_functions=[precision, recall, f1],
               seed=random_state,
-              resampling_strategy='cv', resampling_strategy_arguments={'train_size': train_size, 'folds': kfolds}
+              resampling_strategy='cv', 
+              resampling_strategy_arguments={'train_size': train_size, 'folds': kfolds}
               )
           automl.fit(X_train, y_train, dataset_name="metabopheno")
+          # Refit all models found with fit to new data. 
+          # Necessary when using cross-validation https://automl.github.io/auto-sklearn/master/api.html#autosklearn.classification.AutoSklearnClassifier.refit
           automl.refit(X_train, y_train) # to fit on the whole train dataset (not only on individual k-folds)
-          model_predictions = automl.predict(X_test)
-          print("============ Best ML model metrics =========")
-          print(compute_metrics_classification(y_predictions=model_predictions, y_trues=y_test, positive_class=class_of_interest))
-          print("============================================")
+          model_predictions_on_test_data = automl.predict(X_test)
+          print("============ Performance of ML model on test data =============")
+          print(compute_metrics_classification(y_predictions=model_predictions_on_test_data, y_trues=y_test, positive_class=class_of_interest))
+          print("===============================================================")
         else:
           # All data is used to train the model. 
           # This is prone to overfitting since all data is used (model performance is over-estimated)
@@ -419,14 +422,11 @@ class MetabolitePhenotypeFeatureSelection:
           automl.fit(X=X_train, y=y_train, dataset_name="metabopheno")
           # Refit all models found with fit to new data. 
           # Necessary when using cross-validation https://automl.github.io/auto-sklearn/master/api.html#autosklearn.classification.AutoSklearnClassifier.refit
-          automl.refit(X=X_train, y=y_train)  
-          model_predictions = automl.predict(X_test)
-          print("============ Warning =========")
-          print("Model performance is over-estimated since no data is available for testing (less than 30 samples)")
-          print("============ Warning =========")
-          print(compute_metrics_classification(y_predictions=model_predictions, y_trues=y_test, positive_class=class_of_interest))
-        
-        ### Print best model statistics
+          automl.refit(X=X_train, y=y_train)          
+          print("============ Performance of ML model on train data =========")
+          print("Warning: model performance is over-estimated since no data is available for testing (less than 30 samples)")
+          print(automl.sprint_statistics())
+          print("============================================================")
         
         ### Get feature importances ###
         # This has to be done from the same test/train split if n_samples > 30
