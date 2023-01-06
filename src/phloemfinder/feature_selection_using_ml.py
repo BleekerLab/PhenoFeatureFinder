@@ -9,12 +9,17 @@ import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.pipeline import make_pipeline
 from sklearn.inspection import permutation_importance
 
 from autosklearn.classification import AutoSklearnClassifier
 from autosklearn.metrics import balanced_accuracy, precision, recall, f1
 
+from tpot import TPOTClassifier
+from tpot.export_utils import set_param_recursive
+
 from utils import compute_metrics_classification 
+
 
 class MetabolitePhenotypeFeatureSelection:
     '''
@@ -47,12 +52,12 @@ class MetabolitePhenotypeFeatureSelection:
         Sample identifiers should be unique (=not duplicated).
 
 
-    Class attributes
+    Attributes
     ----------
-    metabolome_validated: bool, optional
-      Is the metabolome file valid for Machine Learning? (default is False)
-    
-    phenotype_validated: bool, optional
+    metabolome_validated: bool
+      Is the metabolome file valid for Machine Learning? (default is False)   
+
+    phenotype_validated: bool
       Is the phenotype file valid for Machine Learning? (default is False)
 
     baseline_performance: float 
@@ -60,7 +65,46 @@ class MetabolitePhenotypeFeatureSelection:
       Search for the best ML model using search_best_model() should perform better than this baseline performance. 
 
     best_ensemble_models_searched: bool
-      Is the search for best ensemble model using auto-sklearn already performed?
+      Is the search for best ensemble model using auto-sklearn already performed? (default is False)
+
+    metabolome: pandas.core.frame.DataFrame
+      The validated metabolome dataframe of shape (n_features, n_samples).
+    
+    phenotype: pandas.core.frame.DataFrame
+      A validated phenotype dataframe of shape (n_samples, 1)
+      Sample names in the index and one column named 'phenotype' with the sample classes.
+    
+    baseline_performance: str
+      Average balanced accuracy score (-/+ standard deviation) of the basic Random Forest model. 
+    
+    best_model: sklearn.pipeline.Pipeline
+      A scikit-learn pipeline that contains one or more steps.
+      It is the best performing pipeline found by TPOT automated ML search.
+
+    feature_importances: pandas.core.frame.DataFrame
+       A Pandas dataframe that contains feature importance information using scikit-learn permutation_importance()
+        Mean of feature importance over n_repeats.
+        Standard deviation over n_repeats.
+        Raw permutation importance scores.
+    
+    
+    Methods
+    --------
+    validate_input_metabolome_df()
+      Validates the dataframe read from the 'metabolome_csv' input file.
+    
+    validate_input_phenotype_df()
+      Validates the phenotype dataframe read from the 'phenotype_csv' input file.
+    
+    get_baseline_performance()
+      Fits a basic Random Forest model to get default performance metrics. 
+    
+    search_best_model_with_tpot_and_get_feature_importances()
+      Search for the best ML pipeline using TPOT genetic programming method.
+      Computes and output performance metrics from the best pipeline.
+      Extracts feature importances using scikit-learn permutation_importance() method. 
+
+    
 
     Notes
     --------
@@ -164,7 +208,7 @@ class MetabolitePhenotypeFeatureSelection:
         self: object
           Object with phenotype_validated set to True
 
-        Examples
+        Notes
         --------
         Example of an input phenotype dataframe
         
@@ -190,7 +234,13 @@ class MetabolitePhenotypeFeatureSelection:
         | genotypeB_rep1 | resistant |   
         | genotypeB_rep2 | resistant |
 
-
+        Example
+        -------
+        >> fs = MetabolitePhenotypeFeatureSelection(
+        >>        metabolome_csv="clean_metabolome.csv", 
+        >>        phenotype_csv="phenotypes_test_data.csv", 
+        >>        phenotype_sample_id='sample')
+        >> fs.validate_input_phenotype_df()
 
         '''
         n_distinct_classes = self.phenotype[phenotype_class_col].nunique()
@@ -204,7 +254,13 @@ class MetabolitePhenotypeFeatureSelection:
     #################
     ## Baseline model
     #################
-    def get_baseline_performance(self, kfold=5, scoring_metric='balanced_accuracy'):
+    def get_baseline_performance(
+      self, 
+      class_of_interest,
+      kfold=5, 
+      train_size=0.8,
+      random_state=123,
+      scoring_metric='balanced_accuracy'):
         '''
         Takes the phenotype and metabolome dataset and compute a simple Random Forest analysis with default hyperparameters. 
         This will give a base performance for a Machine Learning model that has then to be optimised using autosklearn
@@ -213,8 +269,25 @@ class MetabolitePhenotypeFeatureSelection:
 
         Parameters
         ----------
-        fkold: int, optional
+        class_of_interest: str
+          The name of the class of interest also called "positive class".
+          This class will be used to calculate recall_score and precision_score. 
+          Recall score = TP / (TP + FN) with TP: true positives and FN: false negatives.
+          Precision score = TP / (TP + FP) with TP: true positives and FP: false positives. 
+
+        kfold: int, optional
           Cross-validation strategy. Default is to use a 5-fold cross-validation. 
+        
+        train_size: float or int, optional
+          If float, should be between 0.5 and 1.0 and represent the proportion of the dataset to include in the train split.
+          If int, represents the absolute number of train samples. If None, the value is automatically set to the complement of the test size.
+          Default is 0.8 (80% of the data used for training).
+
+        random_state: int, optional
+          Controls both the randomness of the train/test split  samples used when building trees (if bootstrap=True) and the sampling of the features to consider when looking for the best split at each node (if max_features < n_features). See Glossary for details.
+          You can change this value several times to see how it affects the best ensemble model performance.
+          Default is 123.
+
 
         scoring_metric: str, optional
           A valid scoring value (default="balanced_accuracy")
@@ -249,216 +322,199 @@ class MetabolitePhenotypeFeatureSelection:
 
         X = self.metabolome.transpose()
         y = self.phenotype.values.ravel() # ravel makes the array contiguous
+        X_train, X_test, y_train, y_test = train_test_split(
+          X, y, 
+          train_size=train_size, 
+          random_state=random_state, 
+          stratify=y)
 
-        clf = RandomForestClassifier(n_estimators=1000, random_state=42)
-        scores = cross_val_score(clf, X, y, scoring=scoring_metric, cv=kfold)
+        # Train model and assess performance
+        clf = RandomForestClassifier(n_estimators=1000, random_state=random_state)
+        scores = cross_val_score(clf, X_train, y_train, scoring=scoring_metric, cv=kfold)
         average_scores = np.average(scores).round(3) * 100
         stddev_scores = np.std(scores).round(3) * 100
+        print("====== Training a basic Random Forest model =======")
+        baseline_performance = "Average {0} score on training data is: {1:.3f} % -/+ {2:.2f}".format(scoring_metric, average_scores, stddev_scores)
+        print(baseline_performance)
+        print("\n")
+        print("====== Performance on test data of the basic Random Forest model =======")
+        clf.fit(X_train, y_train)
+        predictions = clf.predict(X_test)
+        model_balanced_accuracy_score = balanced_accuracy(y_true=y_test, y_pred=predictions).round(3) * 100 
+        print("Average {0} score on test data is: {1:.3f} %".format(scoring_metric, model_balanced_accuracy_score))
+        self.baseline_performance = baseline_performance
 
-        print("Performing a simple Random Forest model training")
-        print("N samples: {0}".format(str(X.shape[0])))
-        print("N features: {0}".format(str(X.shape[1])))
-        print("Average {0} score of the default model is: {1} % -/+ {2}".format(scoring_metric, average_scores, stddev_scores))
-
-        self.baseline_performance = average_scores
-
-
-    #FIXME
-    # def get_base_confusion_matrix(self):
-        '''
-        Plot the confusion matrix coming from the simplistic baseline Random Forest model.
-        
-        A confusion matrix 
-        Returns
-        -------
-        The confusion matrix plot. 
-        '''
-
-    #TODO: make decorator function to check arguments
-    #See -> https://www.pythonforthelab.com/blog/how-to-use-decorators-to-validate-input/
-    def search_best_classification_model(
-        self, 
+    # TODO: make decorator function to check arguments     
+    # See -> https://www.pythonforthelab.com/blog/how-to-use-decorators-to-validate-input/
+    def search_best_model_with_tpot_and_get_feature_importances(
+        self,
         class_of_interest,
-        scoring_metric=balanced_accuracy,
-        time_left_for_this_task=300,  
-        kfolds=5,
-        train_size=0.7,
-        n_permutations=10, 
-        random_state=123):
-        '''
-        Wrapper function around the AutoSklearnClassifier() autosklearn function. 
-        Helpful since the best model will be stored as a class attribute. 
-        The best model is actually an ensemble of models. 
+        scoring_metric='balanced_accuracy',
+        kfolds=3,
+        train_size=0.8,
+        max_time_mins=5,
+        max_eval_time_mins=1,
+        random_state=123,
+        tpot_config_dict=None,
+        n_permutations=10):
+      '''
+      Search for the best ML model with TPOT genetic programming methodology and extracts feature importances. 
 
-        Input function arguments have to comply with both names and value type of the 
-        original AutoSklearnClassifier() function 
-        e.g. 'time_left_for_this_task' has to be named as such and takes integer values for time in seconds 
-        https://automl.github.io/auto-sklearn/master/api.html
+      A resampling strategy called "cross-validation" will be performed on a subset of the data (training data) to increase 
+      the model generalisation performance. Finally, the model performance is tested on the unseen test data subset.  
+      
+      By default, TPOT will make use of a set of preprocessors (e.g. Normalizer, PCA) and algorithms (e.g. RandomForestClassifier)
+      defined in the default config (classifier.py).
+      See: https://github.com/EpistasisLab/tpot/blob/master/tpot/config/classifier.py
 
-        The "balanced_accuracy" from autosklearn.metrics will be used as scorer to find the best model.
-        https://automl.github.io/auto-sklearn/master/api.html#built-in-metrics
-
-        A resampling strategy called "cross-validation" will be performed to increase 
-        the model generalisation performance. 
-        Depending on the number of samples, different data subsets will be produced:
-          - if n_samples > 30, then a train and a test set are produced. 
-            The training set will be subjected to k-fold cv which means that, for each k-fold: 
-              part of the training data will be used to train a model. 
-              the left out fold will be used as a validation set to compute a model score. 
-            Finally, the complete cv model will be evaluated on the never seen test set. 
-            This avoids "test data leakage" during the training step of the model.
-          - if n_samples =< 30, then only a train set will be produced. 
-            Scores will be produced during cv. 
-            This is prone to overfitting (overestimated performance on the model) since
-            test data "leaks" during model training.  
-
-        Parameters
-        ----------
-        class_of_interest: str
+      Parameters
+      ----------
+      class_of_interest: str
           The name of the class of interest also called "positive class".
           This class will be used to calculate recall_score and precision_score. 
           Recall score = TP / (TP + FN) with TP: true positives and FN: false negatives.
           Precision score = TP / (TP + FP) with TP: true positives and FP: false positives. 
-        
-        time_left_for_this_task: int, optional
-          Time (in seconds) allocated to search for the best model. Default is 300 seconds. 
 
-        metric: str, optional
-          Scorer metric. One value such as 'accuracy' or 'balanced_accuracy'. Default is 'balanced_accuracy'
-          If changed, has to be one of autosklearn.metrics
-          See https://automl.github.io/auto-sklearn/master/api.html#built-in-metrics
-        
+      scoring_metric: str, optional
+        Function used to evaluate the quality of a given pipeline for the classification problem. 
+        Default is 'balanced accuracy'. 
+        The following built-in scoring functions can be used:
+          'accuracy', 'adjusted_rand_score', 'average_precision', 'balanced_accuracy', 
+          'f1', 'f1_macro', 'f1_micro', 'f1_samples', 'f1_weighted', 'neg_log_loss', 
+          'precision' etc. (suffixes apply as with ‘f1’), 'recall' etc. (suffixes apply as with ‘f1’), 
+          ‘jaccard’ etc. (suffixes apply as with ‘f1’), 'roc_auc', ‘roc_auc_ovr’, ‘roc_auc_ovo’, ‘roc_auc_ovr_weighted’, ‘roc_auc_ovo_weighted’ 
+
+      kfolds: int, optional
         kfolds: int, optional
-          Number of folds for the stratified K-Folds cross-validation strategy. Default is 5-fold cross-validation. 
-          Has to be comprised between 3 and 10 i.e. 3 <= kfolds =< 10
-          See https://scikit-learn.org/stable/modules/cross_validation.html
-              
-        train_size: float or int, optional
-          If float, should be between 0.5 and 1.0 and represent the proportion of the dataset to include in the train split.
-          If int, represents the absolute number of train samples. If None, the value is automatically set to the complement of the test size.
-          Default is 0.7 (70% of the data used for training).
-        
-        random_state: int, optional
+        Number of folds for the stratified K-Folds cross-validation strategy. Default is 3-fold cross-validation. 
+        Has to be comprised between 3 and 10 i.e. 3 <= kfolds =< 10
+        See https://scikit-learn.org/stable/modules/cross_validation.html
+      
+      train_size: float or int, optional
+        If float, should be between 0.5 and 1.0 and represent the proportion of the dataset to include in the train split.
+        If int, represents the absolute number of train samples. If None, the value is automatically set to the complement of the test size.
+        Default is 0.8 (80% of the data used for training).
+
+      max_time_mins: int, optional
+        How many minutes TPOT has to optimize the pipeline (in total). Default is 5 minutes.
+        This setting will allow TPOT to run until max_time_mins minutes elapsed and then stop.
+        Try short time intervals (5, 10, 15min) and then see if the model score on the test data improves. 
+      
+      max_eval_time_mins: float, optional 
+        How many minutes TPOT has to evaluate a single pipeline. Default is 1min. 
+        This time has to be smaller than the 'max_time_mins' setting.
+
+      random_state: int, optional
           Controls both the randomness of the train/test split  samples used when building trees (if bootstrap=True) and the sampling of the features to consider when looking for the best split at each node (if max_features < n_features). See Glossary for details.
           You can change this value several times to see how it affects the best ensemble model performance.
           Default is 123.
 
-        Returns
+      n_permutations: int, optional
+        Number of permutations used to compute feature importances from the best model using scikit-learn permutation_importance() method.
+        Default is 10 permutations.
+      
+      tpot_config_dict: Python dictionary, str or None, optional.
+        A configuration dictionary for customizing the operators and parameters that TPOT searches. 
+        Default is None meaning that TPOT will buse the default configuration. See https://epistasislab.github.io/tpot/using/#customizing-tpots-operators-and-parameters 
+        A customized Python dictionary can be made and passed to TPOTClassifier. See https://epistasislab.github.io/tpot/using/#customizing-tpots-operators-and-parameters
+       
+
+       Returns
         ------
         self: object
-          The object with a new attribute called 'automated_ml_obj' that contains the fitted AutoSklearnClassifier 
+          The object with best model searched and feature importances computed. 
 
-        Example
-        -------
-        >> fs = MetabolitePhenotypeFeatureSelection(
-        >>        metabolome_csv="clean_metabolome.csv", 
-        >>        phenotype_csv="phenotypes_test_data.csv", 
-        >>        phenotype_sample_id='sample')
-        >> fs.validate_input_phenotype_df()
-        >> fs.validate_input_metabolome_df()
-        >> fs.get_baseline_performance(scoring_metric='accuracy')
-        >> fs.search_best_classification_model(class_of_interest='resistant', time_left_for_this_task=120)
-        '''
+       See also
+       --------
 
-        X = self.metabolome.transpose().to_numpy(dtype='float64')
-        y = self.phenotype.values.ravel()
-        
-        # Verify input arguments
-        try:
-          3 <= kfolds <= 10
-        except:
-          raise ValueError('kfolds argument has to be comprised between 3 and 10')
-        
-        try:
-          0.5 < train_size < 0.9
-        except:
-          raise ValueError('train_size has to be comprised between 0.5 and 0.9')
-
-        try:
-          class_of_interest in set(y)
-        except:
-          raise ValueError('The class_of_interest value "{0}" has to be in the phenotype labels {1}'.format(class_of_interest, set(y)))
-    
-
-
-        ### CV resampling strategy depends on number of samples ###
-        n_samples = int(len(y))
-        # Only a train and test set if n_samples > 30 
-        # Less than 30 samples is not enough to create distinct train/validation/test sets
-        if n_samples > 30:
-          X_train, X_test, y_train, y_test = train_test_split(
-              X, y, 
-              train_size=train_size, 
-              random_state=random_state, 
-              stratify=y)
-          automl = AutoSklearnClassifier(
-              time_left_for_this_task=time_left_for_this_task, 
-              metric=scoring_metric, scoring_functions=[precision, recall, f1],
-              seed=random_state,
-              resampling_strategy='cv', 
-              resampling_strategy_arguments={'train_size': train_size, 'folds': kfolds}
-              )
-          automl.fit(X_train, y_train, dataset_name="metabopheno")
-          # Refit all models found with fit to new data. 
-          # Necessary when using cross-validation https://automl.github.io/auto-sklearn/master/api.html#autosklearn.classification.AutoSklearnClassifier.refit
-          automl.refit(X_train, y_train) # to fit on the whole train dataset (not only on individual k-folds)
-          model_predictions_on_test_data = automl.predict(X_test)
-          print("============ Performance of ML model on test data =============")
-          print(compute_metrics_classification(y_predictions=model_predictions_on_test_data, y_trues=y_test, positive_class=class_of_interest))
-          print("===============================================================")
-        else:
-          # All data is used to train the model. 
-          # This is prone to overfitting since all data is used (model performance is over-estimated)
-          X_train = X
-          y_train = y 
-          automl = AutoSklearnClassifier(
-              time_left_for_this_task=time_left_for_this_task, 
-              metric=scoring_metric,
-              seed=random_state,
-              scoring_functions=[precision, recall, f1],
-              resampling_strategy='cv', 
-              resampling_strategy_arguments={'train_size': train_size, 'folds': kfolds}
-              )
-          automl.fit(X=X_train, y=y_train, dataset_name="metabopheno")
-          # Refit all models found with fit to new data. 
-          # Necessary when using cross-validation https://automl.github.io/auto-sklearn/master/api.html#autosklearn.classification.AutoSklearnClassifier.refit
-          automl.refit(X=X_train, y=y_train)          
-          print("============ Performance of ML model on train data =========")
-          print("Warning: model performance is over-estimated since no data is available for testing (less than 30 samples)")
-          print(automl.sprint_statistics())
-          print("============================================================")
-        
-        ### Get feature importances ###
-        # This has to be done from the same test/train split if n_samples > 30
-        # See https://scikit-learn.org/stable/modules/permutation_importance.html 
-      #  if n_samples > 30:
-      #      feature_importances = permutation_importance(
-      #      automl, 
-      #      X=X_train, 
-      #      y=y_train,
-      #      scoring=balanced_accuracy,
-      #      n_repeats=n_permutations, 
-      #      random_state=random_state)
-      #  feature_importances_df = pd.DataFrame.from_dict(feature_importances["importances"])
-      #  feature_importances_df.set_index(self.metabolome.index.values, inplace=True)
-      #  feature_importances_df.columns = ["permutation_" + str(i+1) for i in range(n_permutations)]
-
-        self.automated_ml_obj = automl
-        self.best_ensemble_models_searched = True
-      #  self.feature_importances = feature_importances_df
-
-
-
-    def extract_feature_importances(self, ):
+       Notes
+       -----
+       Permutation importances are calculated on the training set
+       Permutation importances can be computed either on the training set or on a held-out testing or validation set.
+       Using a held-out set makes it possible to highlight which features contribute the most to the generalization power of the inspected model. 
+       Features that are important on the training set but not on the held-out set might cause the model to overfit.
+       https://scikit-learn.org/stable/modules/permutation_importance.html#permutation-importance 
+          
       '''
-      Extracts feature importances from a fitted ensemble model obtained using the search_best_model() method
-
-      Parameters
-      ---------- 
-      '''
-      if self.best_ensemble_models_searched == False:
-        raise ValueError("Please search best ML model using the search_best")
+      X = self.metabolome.transpose().to_numpy(dtype='float64')
+      y = self.phenotype.values.ravel()
         
+      # Verify input arguments
+      try:
+        3 <= kfolds <= 10
+      except:
+        raise ValueError('kfolds argument has to be comprised between 3 and 10')
+        
+      try:
+        0.5 < train_size < 0.9
+      except:
+        raise ValueError('train_size has to be comprised between 0.5 and 0.9')
 
-#  compute_performance_metrics(predictions=predictions, y_test=y_test, positive_label=class_of_interest)
+      try:
+        class_of_interest in set(y)
+      except:
+        raise ValueError('The class_of_interest value "{0}" has to be in the phenotype labels {1}'.format(class_of_interest, set(y)))
+      
+      ### Automated search for best model/pipeline
+      X_train, X_test, y_train, y_test = train_test_split(
+          X, y, 
+          train_size=train_size, 
+          random_state=random_state, 
+          stratify=y)
+      tpot = TPOTClassifier(
+        generations=None, # If None, the parameter max_time_mins must be defined as the runtime limit. 
+        max_time_mins=max_time_mins,
+        max_eval_time_mins=max_eval_time_mins,
+        cv=kfolds,        # Number of folds in an unshuffled StratifiedKFold.
+        config_dict=tpot_config_dict,
+        random_state=random_state, 
+        verbosity=0)
+      tpot.fit(X_train, y_train)
+      best_pipeline = make_pipeline(tpot.fitted_pipeline_)
+      
+      ### Fit best model/pipeline
+      if len(best_pipeline) == 1:
+        # one step pipeline thus one model  
+        one_step_pipeline = best_pipeline["pipeline"][-1]
+        one_step_pipeline.fit(X_train, y_train)
+        print(one_step_pipeline.score(X_test, y_test))
+        predictions = one_step_pipeline.predict(X_test)
+        print("============ Performance of ML model on train data =============")
+        print("Train {0} score {1:.3f}".format(scoring_metric, one_step_pipeline.score(X_train, y_train).round(3)*100))
+        print("\n")
+        print("============ Performance of ML model on test data =============")
+        print(compute_metrics_classification(y_predictions=predictions, y_trues=y_test, positive_class=class_of_interest))
+        self.best_model = one_step_pipeline
+      else:
+        # multiple steps pipeline
+        n_steps_pipeline = make_pipeline(tpot.fitted_pipeline_)
+        set_param_recursive(best_pipeline, 'random_state', random_state)
+        n_steps_pipeline.fit(X_train, y_train)
+        predictions = n_steps_pipeline.predict(X_test)
+        training_score = n_steps_pipeline.score(X_train, y_train).round(3) * 100
+        print("============ Performance of ML model on train data =============")
+        print("Train {0} score {1:.3f}".format(scoring_metric, training_score))
+        print("\n")
+        print("============ Performance of ML model on test data =============")
+        print(compute_metrics_classification(y_predictions=predictions, y_trues=y_test, positive_class=class_of_interest))
+        self.best_model = n_steps_pipeline
 
+      ### Compute feature importances
+      # Has to be done on the same train/test split. 
+      print("\n")
+      print("======== Computing feature importances on the training set =======")
+      feature_importances_training_set = permutation_importance(
+        self.best_model, 
+        X=X_train, 
+        y=y_train, 
+        scoring=scoring_metric, 
+        n_repeats=n_permutations, 
+        random_state=random_state)
+      mean_imp = pd.DataFrame(feature_importances_training_set.importances_mean, columns=["mean_var_imp"])
+      std_imp = pd.DataFrame(feature_importances_training_set.importances_std, columns=["std_var_imp"])
+      raw_imp = pd.DataFrame(feature_importances_training_set.importances, columns=["perm" + str(i) for i in range(n_permutations)])
+
+      feature_importances = pd.concat([mean_imp, std_imp], axis=1).set_index(self.metabolome.index.values).sort_values('mean_var_imp', ascending=False)
+
+      self.feature_importances = feature_importances
+      self.feature_importances_permutations = raw_imp

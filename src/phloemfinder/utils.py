@@ -44,8 +44,9 @@ def compute_metrics_classification(y_predictions, y_trues, positive_class):
     
     model_metrics_dict = {"balanced_accuracy": balanced_accuracy, "precision": precision, "recall": recall, "f1 score": f1}
     model_metrics_df = pd.DataFrame.from_dict(model_metrics_dict, orient="index", columns=["value"])
+    model_metrics_df_rounded = model_metrics_df.round(3)
 
-    return model_metrics_df 
+    return model_metrics_df_rounded 
 
 def plot_confusion_matrix(y_predictions, y_trues):
     '''
