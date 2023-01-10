@@ -8,49 +8,8 @@ from sklearn.preprocessing import StandardScaler
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-def _extract_samples_to_condition(df, name_grouping_var='genotype', separator_replicates='_'):
-    '''
-    A utility function to extract the grouping factor (e.g. 'genotype') from sample names. 
-    
-    Uses melting (wide to long) and split grouping variable from biological replicates using specified separator.
-    
-    Parameters
-    ----------
-    df: 'pandas.core.DataFrame'
-    name_grouping_var: str, optional 
-        Name of the variable used as grouping variable (default is 'genotype').
-    separator_replicates: str, optional
-        The separator between the grouping variable and the biological replicates ( default is underscore '_')
-    
-    Returns
-    -------
-    A dataframe with the correspondence between samples and experimental condition (grouping variable).
+from utils import median_of_ratios_normalisation, calculate_percentile, extract_samples_to_condition
 
-    Notes
-    -------
-    Input dataframe
-                        | genotypeA_rep1 | genotypeA_rep2 | genotypeA_rep3 | genotypeA_rep4 |
-                        |----------------|----------------|----------------|----------------|
-          feature_id
-        | metabolite1   |   1246         | 1245           | 12345          | 12458          |
-        | metabolite2   |   0            | 0              | 0              | 0              |
-        | metabolite3   |   10           | 0              | 0              | 154            |
-    
-    Output dataframe
-        
-        | sample_id          | genotype       | replicate      |
-        |--------------------|----------------|----------------|
-        | genotypeA_rep1     |   genotypeA    | rep1           |
-        | genotypeA_rep2     |   genotypeA    | rep2           |
-        | genotypeA_rep3     |   genotypeA    | rep3           |
-        | genotypeA_rep4     |   genotypeA    | rep4           |
-        | etc.
-    '''
-    melted_df = pd.melt(df.reset_index(), id_vars='feature_id', var_name="sample")
-    melted_df[[name_grouping_var, 'rep']] = melted_df["sample"].str.split(pat=separator_replicates, expand=True)
-    melted_df_parsed = melted_df.drop(["feature_id", "value"], axis=1)
-    melted_df_parsed_dedup = melted_df_parsed.drop_duplicates()
-    return melted_df_parsed_dedup
 
 ###################
 ## Class definition 
@@ -63,11 +22,11 @@ class MetaboliteAnalysis:
 
     Parameters
     ----------
-    metabolome_csv: `str`
+    metabolome_csv: str
         A path to a .csv file with the metabolome data (scaled or unscaled).
         Shape of the dataframe is usually (n_samples, n_features) with n_features >> n_samples
         
-    metabolome_feature_id_col: `str`, optional
+    metabolome_feature_id_col: str, optional
         The name of the column that contains the feature identifiers (default is 'feature_id').
         Feature identifiers should be unique (=not duplicated).
 
@@ -82,6 +41,11 @@ class MetaboliteAnalysis:
     blank_features_filtered: `bool`
       Are the features present in blank samples filtered out from the metabolome data?
       Default by False.
+    normalised_by_median_of_ratios_method: bool
+      Are the feature peak areas normalised by the median of ratios method (from DESeq2)?
+      Default is False.
+    filtered_by_percentile_value: bool
+      Are the features filtered by percentile value?
     unreliable_features_filtered: `bool`
       Are the features not reliably present within one group filtered out from the metabolome data?
     pca_performed: `bool`
@@ -99,24 +63,16 @@ class MetaboliteAnalysis:
     Methods
     -------
     validate_input_metabolome_df
-      Check if the provided metabolome file is suitable. 
-      Turns attribute metabolome_validated to True. 
+      Check if the provided metabolome file is suitable. Turns attribute metabolome_validated to True. 
     discard_features_detected_in_blanks
       Removes features only detected in blank samples. 
     filter_out_unreliable_features()
       Filter out features not reliably detectable in replicates of the same grouping factor. 
       For instance, if a feature is detected less than 4 times within 4 biological replicates.  
     write_clean_metabolome_to_csv()
+      Write the filtered and analysis-ready metabolome data to a .csv file. 
        
-
-    Examples
-    --------
-    >>> from metabolome_analysis import MetaboliteAnalysis
-    >>> met = MetaboliteAnalysis(
-        metabolome_csv="raw_data_processed_for_machine_learning.csv",
-        metabolome_feature_id_col="feature_id")
-    >>> met.
-    
+   
     Notes
     -----
     Example of an input metabolome input format (from a csv file)
@@ -134,24 +90,32 @@ class MetaboliteAnalysis:
     +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
     | rt-0.08_mz-413.26631 | 984     | 1162    | 1292    | 1104    | 1090  | 1106  | 1290  | 1170  | 1282     | 924      | 1172     | 1062     |
     +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
-    | rt-0.08_mz-343.22434 | 3078    | 2660    | 2786    | 3096    | 3084  | 3190  | 3072  | 2940  | 3620     | 3200     | 3154     | 3146     |
-    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
-    | rt-0.08_mz-287.16171 | 1506    | 1510    | 1546    | 1420    | 1582  | 1786  | 1512  | 1288  | 1606     | 1824     | 1404     | 1356     |
-    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
-    | rt-0.08_mz-629.84892 | 1306    | 2088    | 0       | 1750    | 1514  | 1546  | 0     | 0     | 1292     | 1818     | 1378     | 0        |
-    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
-    | rt-0.08_mz-498.39989 | 1042    | 1274    | 1138    | 1016    | 964   | 1166  | 1076  | 1052  | 1348     | 984      | 1114     | 1042     |
-    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
-    | rt-0.08_mz-497.39637 | 2670    | 2414    | 2646    | 2656    | 2462  | 2836  | 2744  | 2854  | 3188     | 2872     | 2516     | 2946     |
-    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
-    | rt-0.08_mz-318.98083 | 946     | 1068    | 1190    | 1058    | 834   | 858   | 852   | 968   | 784      | 1006     | 1102     | 936      |
-    +----------------------+---------+---------+---------+---------+-------+-------+-------+-------+----------+----------+----------+----------+
+
     
+    Example
+    -------
+    >>> met = MetaboliteAnalysis(
+        metabolome_csv='my_metabolome_data.csv', 
+        metabolome_feature_id_col='feature_id')
+    >>> met.validate_input_metabolome_df()
+    Metabolome input data validated
+
+
     See also
     --------
-    scikit PCA: https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
+    scikit-learn PCA: https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
     
     '''
+    ### Class attributes
+    # By default the metabolome and phenotype data imported from .csv files will have to be validated
+    # By default all filters have not been executed (blank filtering, etc.)
+    metabolome_validated = False
+    blank_features_filtered = False
+    normalised_by_median_of_ratios_method = False
+    filtered_by_percentile_value = False
+    unreliable_features_filtered = False
+    pca_performed = False
+
 
     ##########################
     # Class constructor method
@@ -163,14 +127,7 @@ class MetaboliteAnalysis:
         """
         Constructor method. 
         Returns a Python instance of class MetabolomeAnalysis 
-        """
-        # By default the metabolome and phenotype data imported from .csv files will have to be validated
-        # By default all filters have not been executed (blank filtering, etc.)
-        self.metabolome_validated = False
-        self.blank_features_filtered = False
-        self.unreliable_features_filtered = False
-        self.pca_performed = False
-        
+        """     
         # Import metabolome dataframe and verify presence of feature id column
         self.metabolome = pd.read_csv(metabolome_csv)
         if metabolome_feature_id_col not in self.metabolome.columns:
@@ -212,6 +169,7 @@ class MetaboliteAnalysis:
         if np.any(self.metabolome.values < 0):
             raise ValueError("Sorry, metabolite values have to be zero or positive integers (>=0)")
         else:
+            print("Metabolome input data validated.")
             self.metabolome_validated = True
 
     #############################################
@@ -235,28 +193,191 @@ class MetaboliteAnalysis:
         
         Returns
         -------
-        metabolome: ndarray
+        metabolome: pandas.core.frame.DataFrame
             A filtered Pandas dataframe without features detected in blank samples and with the blank samples removed. 
         '''
-
         if self.metabolome_validated == True:
             pass
         else:
             self.validate_input_metabolome_df()
-        
         blank_cols = [col for col in self.metabolome.columns.values.tolist() if blank_sample_contains in col]
-
         # If the sum of a feature in blank samples is higher than 0 then 
         # this feature should be removed
         # only keep features that are not detectable in blank samples
         self.metabolome["sum_features"] = self.metabolome[blank_cols].sum(axis=1)
         self.metabolome = self.metabolome.query("sum_features == 0")
-        
         # Remove columns with blank samples and the sum column used for filtering
         self.metabolome = self.metabolome.drop(blank_cols, axis=1)
         self.metabolome = self.metabolome.drop("sum_features", axis=1)    
 
     
+    ########################################
+    ### Normalise by median of ratios method
+    ########################################
+    def normalise_values_by_median_of_ratios_method(self):
+        '''
+        Use DESeq2 median of ratios method to normalise feature peak area values.
+
+        Returns
+        -------
+        self: object
+          Object with metabolome values normalised and median_of_ratios_normalised attribute set to True. 
+        
+        Example
+        -------
+        >>> met = MetaboliteAnalysis(
+            metabolome_csv='tests/metabolome_test_data.csv', 
+            metabolome_feature_id_col='feature_id')
+        >>> met.validate_input_metabolome_df()
+        Metabolome input data validated
+        >>> met.normalise_values_by_median_of_ratios_method()
+        >>> met.normalised_by_median_of_ratios_method
+        True
+
+        See also
+        --------
+        Median of ratios method explained:
+          - https://scienceparkstudygroup.github.io/rna-seq-lesson/05-descriptive-plots/index.html#54-generate-normalized-counts
+          - https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html 
+        '''
+        if self.normalised_by_median_of_ratios_method == True:
+            print("Data is already normalised (median of ratios)")
+        else:
+            df_to_normalize = self.metabolome
+            normalised_df = median_of_ratios_normalisation(df_to_normalize)
+            self.metabolome = normalised_df
+            self.normalised_by_median_of_ratios_method = True
+
+    #######################################################################
+    # Create density plots of feature peak areas for each grouping variable
+    #######################################################################
+    def create_density_plot(self, name_grouping_var="genotype", n_cols=3, nbins=1000):
+        '''
+        For each grouping variable (e.g. genotype), creates a histogram and density plot of all feature peak areas.
+        This plot helps to see whether some groups have a value distribution different from the rest. 
+        The percentage is indicated on the y-axis (bar heights sum to 100).
+        
+        Parameters
+        ----------
+        name_grouping_var: str, optional
+            The name used when splitting between replicate and main factor.
+            For example "genotype" when splitting MM_rep1 into 'MM' and 'rep1'.
+            Default is 'genotype'. 
+        n_cols: int, optional
+            The number of columns for the final plot.
+        nbins: int, optional
+            The number of bins to create. 
+        
+        Returns
+        -------
+        matplotlib Axes
+            Returns the Axes object with the density plots drawn onto it.
+        '''
+        df = self.metabolome
+        melted_df = pd.melt(
+            df.reset_index(), 
+            id_vars=df.index.name, 
+            var_name='sample')
+        samples2conditions = extract_samples_to_condition(df)
+        melted_df_with_cond = melted_df.merge(samples2conditions, on='sample')
+        fig = plt.figure()
+        g = sns.FacetGrid(melted_df_with_cond, col='genotype', col_wrap=3)
+        g = g.map_dataframe(sns.histplot, x='value', kde=True, stat='percent', bins=nbins)
+        g.set_titles(col_template="{col_name}")
+        g.set_xlabels("Peak area value (AU, log scale)")
+        g.set_ylabels("Percentage of total (%)")
+        plt.xscale('log')
+
+    
+    ###########################################################
+    ### Filter features that are lower than a certain threshold
+    ###########################################################
+    def filter_features_per_group_by_percentile(
+        self, 
+        name_grouping_var="genotype",
+        separator_replicates="_",
+        percentile=50):
+        '''
+        Filter metabolome dataframe based on a selected percentile threshold.
+        Features with a peak area values lower than the selected percentile will be discarded. 
+        The percentile value is calculated per grouping variable. 
+
+        For instance, selecting the 50th percentile (median) will discard 50% of the features with a peak area
+        lower than the median/50th percentile in each group. 
+
+        Parameters
+        ----------
+        name_grouping_var: str, optional
+            The name of the grouping variable (default is "genotype")
+        separator_replicates: str, optional
+            The character used to separate the main grouping variable from biological replicates. 
+            Default is "_: (underscore)
+        percentile: float, optional
+            The percentile threshold. Has to be comprised 0 and 100.
+
+        Returns
+        -------
+        self: object
+            The object with the .metabolome attribute filtered and the filtered_by_percentile_value set to True. 
+
+        Example
+        -------
+        >>> met = MetaboliteAnalysis(
+            metabolome_csv='tests/metabolome_test_data.csv', 
+            metabolome_feature_id_col='feature_id')
+        >>> met.validate_input_metabolome_df()
+        Metabolome input data validated
+        >>> met.discard_features_detected_in_blanks(blank_sample_contains="blank")
+        >> met.metabolome.shape
+        (7544, 32)
+        >>> met.filter_features_based_on_peak_area_level(percentile=90)
+        >>> met.metabolome.shape
+        (3171, 32)
+
+        
+        See also
+        --------
+        create_density_plot() method to decide on a suitable percentile value. 
+        '''
+        df = self.metabolome
+        my_percentile_threshold = calculate_percentile(
+            df, 
+            my_percentile=percentile)
+        # melt to tidy/long format (one value per row, one column per variable)
+        # add grouping variable name
+        melted_df = pd.melt(
+            df.reset_index(), 
+            id_vars='feature_id', 
+            var_name='sample', 
+            value_name='value')
+        sample2condition = extract_samples_to_condition(df, name_grouping_var=name_grouping_var, separator_replicates=separator_replicates)
+        melted_df_with_group = melted_df.merge(sample2condition, on="sample")
+        
+        # calculate selected percentile value per group 
+        percentiles_per_group = melted_df_with_group.groupby('genotype').apply(lambda df: calculate_percentile(df["value"], my_percentile=percentile))
+
+        # extract features per group which abundance is strictly higher than the selected percentile value
+        # do that for each group e.g. each genotype
+        # deduplicate the final list of features to keep 
+        features_to_keep = []
+        all_groups = percentiles_per_group.index.values
+        feature_id_colname = df.index.name
+        for my_group in all_groups:
+            sub_df = melted_df_with_group[melted_df_with_group[name_grouping_var] == my_group]
+            my_group_percentile = percentiles_per_group.loc[my_group]
+            sub_df_filtered = sub_df.loc[sub_df["value"] > my_group_percentile]
+            good_features = sub_df_filtered[feature_id_colname]
+            for good_feature in good_features:
+                features_to_keep.append(good_feature)
+        features_to_keep = list(set(features_to_keep)) # deduplicate
+        df_filtered = df.loc[features_to_keep,:]
+
+        self.metabolome = df_filtered
+        self.filtered_by_percentile_value = True
+
+
+
+
     #######################################################################################
     ### Filter features that are not reliable (detected less than nb replicates in a group)
     ######################################################################################
@@ -280,7 +401,7 @@ class MetaboliteAnalysis:
         name_grouping_var: str, optional
             The name used when splitting between replicate and main factor.
             For example "genotype" when splitting MM_rep1 into 'MM' and 'rep1'.
-            Default is 
+            Default is 'genotype'. 
         nb_times_detected: int, optionaldefault=4
             Number of times a metabolite should be detected to be considered 'reliable'. 
             Should be equal to the number of biological replicates for a given group of interest (e.g. genotype)
@@ -476,6 +597,12 @@ class MetaboliteAnalysis:
         plot_file_name: string, default='None'
           Path to a file where the plot will be saved.
           For instance 'my_scree_plot.pdf'
+
+        Returns
+        -------
+        matplotlib Axes
+            Returns the Axes object with the scree plot drawn onto it.
+            Optionally a saved image of the plot. 
         '''
         try:
             self.pca_performed
@@ -545,7 +672,7 @@ class MetaboliteAnalysis:
         n_samples = self.metabolome.shape[1]
         min_of_samples_and_features = np.minimum(n_samples, n_features)
         
-        samples_to_conditions = _extract_samples_to_condition(df=self.metabolome, name_grouping_var=name_grouping_var, separator_replicates=separator_replicates)
+        samples_to_conditions = extract_samples_to_condition(df=self.metabolome, name_grouping_var=name_grouping_var, separator_replicates=separator_replicates)
 
         if pc_x_axis == pc_y_axis:
             raise ValueError("Values for Principal Components on x axis and y axis have to be different.")
