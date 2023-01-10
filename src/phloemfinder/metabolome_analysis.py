@@ -3,6 +3,9 @@
 import os
 import numpy as np
 import pandas as pd
+
+from numpy import count_nonzero
+
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 import seaborn as sns
@@ -58,6 +61,8 @@ class MetaboliteAnalysis:
     metabolome_pca_reduced: `numpy.ndarray`, (n_samples, n_pc)
       Numpy array with sample coordinates in reduced dimensions.
       The dimension of the numpy array is the minimum of the number of samples and features. 
+    sparsity: float
+      Metabolome matrix sparsity.
 
 
     Methods
@@ -115,6 +120,7 @@ class MetaboliteAnalysis:
     filtered_by_percentile_value = False
     unreliable_features_filtered = False
     pca_performed = False
+    sparsity=None
 
 
     ##########################
@@ -374,8 +380,6 @@ class MetaboliteAnalysis:
 
         self.metabolome = df_filtered
         self.filtered_by_percentile_value = True
-
-
 
 
     #######################################################################################
@@ -709,3 +713,27 @@ class MetaboliteAnalysis:
 
             plt.show()
 
+
+    #######################################################################################
+    ### Determine sparsity (number of non-zero)
+    ######################################################################################
+    def compute_metabolome_sparsity(self):
+        '''
+        Determine the sparsity of the metabolome matrix. 
+        Formula: number of non zero values/number of values * 100
+        The higher the sparsity, the more zero values 
+        
+        Returns
+        -------
+        self: object
+            Object with sparsity attribute filled (sparsity is a float).
+
+        References
+        ----------
+        https://stackoverflow.com/questions/38708621/how-to-calculate-percentage-of-sparsity-for-a-numpy-array-matrix
+        '''
+        number_of_non_zero_values = count_nonzero(self.metabolome)
+        total_number_of_values = self.metabolome.size
+        sparsity = number_of_non_zero_values/total_number_of_values
+        print("Sparsity of the metabolome matrix is equal to {0:.3f}".format(sparsity))
+        self.sparsity=sparsity
