@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "phloemfinder"
-version = "0.1.0"
+version = "0.3.1"
 description = "Find plant metabolites related to whitefly pest resistance"
 authors = ["Marc Galland <m.galland@uva.nl>", "Lissy-Anne Denkers <l.a.m.denkers@uva.nl>"]
 repository = "https://github.com/BleekerLab/phloemfinder"

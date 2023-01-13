@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from utils import median_of_ratios_normalisation, calculate_percentile, extract_samples_to_condition
+from phloemfinder.utils import median_of_ratios_normalisation, calculate_percentile, extract_samples_to_condition
 
 
 ###################
