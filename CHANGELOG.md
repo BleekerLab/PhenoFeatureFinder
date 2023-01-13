@@ -1,5 +1,7 @@
 # Changelog
 
+<!--next-version-placeholder-->
+
 ## v0.3.0 (09-01-2023)
 
 - Add a function to compute metabolome matrix sparsity.
