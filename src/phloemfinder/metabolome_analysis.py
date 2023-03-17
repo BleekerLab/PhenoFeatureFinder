@@ -11,7 +11,10 @@ from sklearn.preprocessing import StandardScaler
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from phloemfinder.utils import median_of_ratios_normalisation, calculate_percentile, extract_samples_to_condition
+
+from utils import median_of_ratios_normalisation, calculate_percentile, extract_samples_to_condition
+#from phloemfinder.utils import median_of_ratios_normalisation, calculate_percentile, extract_samples_to_condition
+
 
 
 ###################
@@ -73,9 +76,16 @@ class MetaboliteAnalysis:
       Removes features only detected in blank samples. 
     filter_out_unreliable_features()
       Filter out features not reliably detectable in replicates of the same grouping factor. 
-      For instance, if a feature is detected less than 4 times within 4 biological replicates.  
+      For instance, if a feature is detected less than 4 times within 4 biological replicates, it is discarded with argument nb_times_detected=4.  
+    filter_features_per_group_by_percentile
+      Filter out features whose abundance within the same grouping factor is lower than a certain percentile value.
+      For instance, features lower than the 90th percentile within a single group are discarded with argument percentile=90. 
+    normalise_values_by_median_of_ratios_method
+      Uses DESeq2 median of ratios method to normalise feature peak area values.
+    compute_metabolome_sparsity
+      Computes the sparsity percentage of the metabolome matrix (percentage of 0 values e.g. 100% for an matrix full of 0 values)
     write_clean_metabolome_to_csv()
-      Write the filtered and analysis-ready metabolome data to a .csv file. 
+      Write the filtered and analysis-ready metabolome data to a .csv file.  
        
    
     Notes
@@ -345,12 +355,9 @@ class MetaboliteAnalysis:
         --------
         create_density_plot() method to decide on a suitable percentile value. 
         '''
-        df = self.metabolome
-        my_percentile_threshold = calculate_percentile(
-            df, 
-            my_percentile=percentile)
         # melt to tidy/long format (one value per row, one column per variable)
         # add grouping variable name
+        df = self.metabolome
         melted_df = pd.melt(
             df.reset_index(), 
             id_vars='feature_id', 
@@ -734,6 +741,6 @@ class MetaboliteAnalysis:
         '''
         number_of_non_zero_values = count_nonzero(self.metabolome)
         total_number_of_values = self.metabolome.size
-        sparsity = number_of_non_zero_values/total_number_of_values
-        print("Sparsity of the metabolome matrix is equal to {0:.3f}".format(sparsity))
+        sparsity = (1 - (number_of_non_zero_values/total_number_of_values)) * 100
+        print("Sparsity of the metabolome matrix is equal to {0:.3f} %".format(sparsity))
         self.sparsity=sparsity

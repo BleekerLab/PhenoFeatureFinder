@@ -1,6 +1,10 @@
 #!/usr/bin/env python3 
 
+#########################################
+# Libraries and TPOT AutoML configuration
+#########################################
 import os
+import sys
 from warnings import WarningMessage
 import numpy as np
 import pandas as pd
@@ -11,6 +15,7 @@ from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.inspection import permutation_importance
+from sklearn.decomposition import PCA
 
 from autosklearn.classification import AutoSklearnClassifier
 from autosklearn.metrics import balanced_accuracy, precision, recall, f1
@@ -18,7 +23,101 @@ from autosklearn.metrics import balanced_accuracy, precision, recall, f1
 from tpot import TPOTClassifier
 from tpot.export_utils import set_param_recursive
 
-from phloemfinder.utils import compute_metrics_classification 
+from utils import compute_metrics_classification 
+#from phloemfinder.utils import compute_metrics_classification 
+
+
+# TPOT automated ML custom configuration dictionary
+# These classifiers and pre-processing steps work best on multidimensional omics datasets (correlated features, N samples << p features)
+## See https://epistasislab.github.io/tpot/using/#built-in-tpot-configurations
+tpot_custom_config = {
+   # Models to test 
+   'sklearn.ensemble.RandomForestClassifier': {
+        'n_estimators': [1000],
+        'criterion': ["gini", "entropy"],
+        'max_features': np.arange(0.05, 1.01, 0.05),
+        'min_samples_split': range(2, 21),
+        'min_samples_leaf':  range(1, 21),
+        'bootstrap': [True, False]
+    },
+    'sklearn.ensemble.GradientBoostingClassifier': {
+        'n_estimators': [1000],
+        'learning_rate': [1e-3, 1e-2, 1e-1, 0.5, 1.],
+        'max_depth': range(1, 11),
+        'min_samples_split': range(2, 21),
+        'min_samples_leaf': range(1, 21),
+        'subsample': np.arange(0.05, 1.01, 0.05),
+        'max_features': np.arange(0.05, 1.01, 0.05)
+    }, 
+    'xgboost.XGBClassifier': {
+        'n_estimators': [1000],
+        'max_depth': range(1, 11),
+        'learning_rate': [1e-3, 1e-2, 1e-1, 0.5, 1.],
+        'subsample': np.arange(0.05, 1.01, 0.05),
+        'min_child_weight': range(1, 21),
+        'n_jobs': [1],
+        'verbosity': [0]
+    },
+
+    # Preprocesssors
+    'sklearn.preprocessing.Binarizer': {
+        'threshold': np.arange(0.0, 1.01, 0.05)
+    },
+
+    'sklearn.cluster.FeatureAgglomeration': {
+        'linkage': ['ward', 'complete', 'average'],
+        'affinity': ['euclidean', 'l1', 'l2', 'manhattan', 'cosine']
+    },
+
+    'sklearn.preprocessing.MaxAbsScaler': {
+    },
+
+    'sklearn.preprocessing.MinMaxScaler': {
+    },
+
+    'sklearn.preprocessing.Normalizer': {
+        'norm': ['l1', 'l2', 'max']
+    },
+
+    'sklearn.kernel_approximation.Nystroem': {
+        'kernel': ['rbf', 'cosine', 'chi2', 'laplacian', 'polynomial', 'poly', 'linear', 'additive_chi2', 'sigmoid'],
+        'gamma': np.arange(0.0, 1.01, 0.05),
+        'n_components': range(1, 11)
+    },
+
+    'sklearn.decomposition.PCA': {
+        'svd_solver': ['randomized'],
+        'iterated_power': range(1, 11)
+    },
+
+    'sklearn.preprocessing.PolynomialFeatures': {
+        'degree': [2],
+        'include_bias': [False],
+        'interaction_only': [False]
+    },
+
+    'sklearn.kernel_approximation.RBFSampler': {
+        'gamma': np.arange(0.0, 1.01, 0.05)
+    },
+
+    'sklearn.preprocessing.RobustScaler': {
+    },
+
+    'sklearn.preprocessing.StandardScaler': {
+    },
+
+    'tpot.builtins.ZeroCount': {
+    },
+
+    'tpot.builtins.OneHotEncoder': {
+        'minimum_fraction': [0.05, 0.1, 0.15, 0.2, 0.25],
+        'sparse': [False],
+        'threshold': [10]
+    }
+}
+####################################
+# End of library and config sections
+####################################
 
 class MetabolitePhenotypeFeatureSelection:
     '''
@@ -80,12 +179,14 @@ class MetabolitePhenotypeFeatureSelection:
       A scikit-learn pipeline that contains one or more steps.
       It is the best performing pipeline found by TPOT automated ML search.
 
-    feature_importances: pandas.core.frame.DataFrame
-       A Pandas dataframe that contains feature importance information using scikit-learn permutation_importance()
-        Mean of feature importance over n_repeats.
+    pc_importances: pandas.core.frame.DataFrame
+       A Pandas dataframe that contains Principal Components importances using scikit-learn permutation_importance()
+        Mean of PC importance over n_repeats.
         Standard deviation over n_repeats.
         Raw permutation importance scores.
     
+    feature_loadings: pandas.core.frame.DataFrame
+       A Pandas dataframe that contains feature loadings related to Principal Components
     
     Methods
     --------
@@ -177,6 +278,9 @@ class MetabolitePhenotypeFeatureSelection:
         self: object
           Object with metabolome_validated set to True
 
+        
+        Notes
+        -----
         Example of a validated output metabolome dataframe
 
                       | genotypeA_rep1 | genotypeA_rep2 | genotypeA_rep3 | genotypeA_rep4 |
@@ -342,10 +446,11 @@ class MetabolitePhenotypeFeatureSelection:
         model_balanced_accuracy_score = balanced_accuracy(y_true=y_test, y_pred=predictions).round(3) * 100 
         print("Average {0} score on test data is: {1:.3f} %".format(scoring_metric, model_balanced_accuracy_score))
         self.baseline_performance = baseline_performance
+    
 
     # TODO: make decorator function to check arguments     
     # See -> https://www.pythonforthelab.com/blog/how-to-use-decorators-to-validate-input/
-    def search_best_model_with_tpot_and_get_feature_importances(
+    def search_best_model_with_tpot_and_compute_pc_importances(
         self,
         class_of_interest,
         scoring_metric='balanced_accuracy',
@@ -354,10 +459,13 @@ class MetabolitePhenotypeFeatureSelection:
         max_time_mins=5,
         max_eval_time_mins=1,
         random_state=123,
-        tpot_config_dict=None,
         n_permutations=10):
       '''
-      Search for the best ML model with TPOT genetic programming methodology and extracts feature importances. 
+      Search for the best ML model with TPOT genetic programming methodology and extracts best Principal Components.
+ 
+      A characteristic of metabolomic data is to have a high number of features strongly correlated to each other.
+      This makes it difficult to extract the individual true feature importance. 
+      Here, this method implements a dimensionality reduction method (PCA) and the importances of each PC is computed. 
 
       A resampling strategy called "cross-validation" will be performed on a subset of the data (training data) to increase 
       the model generalisation performance. Finally, the model performance is tested on the unseen test data subset.  
@@ -412,108 +520,134 @@ class MetabolitePhenotypeFeatureSelection:
         Number of permutations used to compute feature importances from the best model using scikit-learn permutation_importance() method.
         Default is 10 permutations.
       
-      tpot_config_dict: Python dictionary, str or None, optional.
-        A configuration dictionary for customizing the operators and parameters that TPOT searches. 
-        Default is None meaning that TPOT will buse the default configuration. See https://epistasislab.github.io/tpot/using/#customizing-tpots-operators-and-parameters 
-        A customized Python dictionary can be made and passed to TPOTClassifier. See https://epistasislab.github.io/tpot/using/#customizing-tpots-operators-and-parameters
-       
 
-       Returns
-        ------
-        self: object
+      Returns
+      ------
+      self: object
           The object with best model searched and feature importances computed. 
 
-       See also
-       --------
+      See also
+      --------
 
-       Notes
-       -----
-       Permutation importances are calculated on the training set
-       Permutation importances can be computed either on the training set or on a held-out testing or validation set.
-       Using a held-out set makes it possible to highlight which features contribute the most to the generalization power of the inspected model. 
-       Features that are important on the training set but not on the held-out set might cause the model to overfit.
-       https://scikit-learn.org/stable/modules/permutation_importance.html#permutation-importance 
+      Notes
+      -----
+      Principal Component importances are calculated on the training set
+      Permutation importances can be computed either on the training set or on a held-out testing or validation set.
+      Using a held-out set makes it possible to highlight which features contribute the most to the generalization power of the inspected model. 
+      Features that are important on the training set but not on the held-out set might cause the model to overfit.
+      https://scikit-learn.org/stable/modules/permutation_importance.html#permutation-importance 
           
       '''
       X = self.metabolome.transpose().to_numpy(dtype='float64')
       y = self.phenotype.values.ravel()
         
       # Verify input arguments
-      try:
-        3 <= kfolds <= 10
-      except:
-        raise ValueError('kfolds argument has to be comprised between 3 and 10')
-        
-      try:
-        0.5 < train_size < 0.9
-      except:
-        raise ValueError('train_size has to be comprised between 0.5 and 0.9')
+      if max_time_mins > max_eval_time_mins:
+         pass # continue execution
+      else:
+        print("ValueError: max_time_mins (all pipelines) has to be higher than max_eval_time_mins (single pipeline)")
+      
+      if 3 <= kfolds <= 10:
+        pass
+      else:
+        print("ValueError: kfolds argument has to be comprised between 3 and 10")
+      
+      if 0.5 < train_size < 0.9:
+        pass
+      else: 
+        print("ValueError: train_size has to be comprised between 0.5 and 0.9")
 
-      try:
-        class_of_interest in set(y)
-      except:
-        raise ValueError('The class_of_interest value "{0}" has to be in the phenotype labels {1}'.format(class_of_interest, set(y)))
+      if class_of_interest in set(y):
+        pass 
+      else:
+        print('The class_of_interest value "{0}" has to be in the phenotype labels {1}'.format(class_of_interest, set(y)))
       
       ### Automated search for best model/pipeline
+      # First step is a PCA to avoid to work with correlated features 
+      # Feature importances become Principal Component importances
+      number_of_components = np.min(X.shape) # minimum of (n_samples, n_features)
+      pca = PCA(n_components=number_of_components)
+      X_reduced = pca.fit_transform(X)
+      
       X_train, X_test, y_train, y_test = train_test_split(
-          X, y, 
+          X_reduced, y, 
           train_size=train_size, 
           random_state=random_state, 
-          stratify=y)
-      tpot = TPOTClassifier(
-        generations=None, # If None, the parameter max_time_mins must be defined as the runtime limit. 
-        max_time_mins=max_time_mins,
-        max_eval_time_mins=max_eval_time_mins,
-        cv=kfolds,        # Number of folds in an unshuffled StratifiedKFold.
-        config_dict=tpot_config_dict,
-        random_state=random_state, 
-        verbosity=0)
+          stratify=y)    
+      tpot = TPOTClassifier(generations=None, max_time_mins=max_time_mins, max_eval_time_mins=max_eval_time_mins, cv=kfolds, config_dict=tpot_custom_config, random_state=random_state, verbosity=0)
       tpot.fit(X_train, y_train)
-      best_pipeline = make_pipeline(tpot.fitted_pipeline_)
+      best_pipeline = tpot.fitted_pipeline_
+      set_param_recursive(best_pipeline.steps, 'random_state', random_state)
       
-      ### Fit best model/pipeline
-      if len(best_pipeline) == 1:
-        # one step pipeline thus one model  
-        one_step_pipeline = best_pipeline["pipeline"][-1]
-        one_step_pipeline.fit(X_train, y_train)
-        print(one_step_pipeline.score(X_test, y_test))
-        predictions = one_step_pipeline.predict(X_test)
-        print("============ Performance of ML model on train data =============")
-        print("Train {0} score {1:.3f}".format(scoring_metric, one_step_pipeline.score(X_train, y_train).round(3)*100))
-        print("\n")
-        print("============ Performance of ML model on test data =============")
-        print(compute_metrics_classification(y_predictions=predictions, y_trues=y_test, positive_class=class_of_interest))
-        self.best_model = one_step_pipeline
-      else:
-        # multiple steps pipeline
-        n_steps_pipeline = make_pipeline(tpot.fitted_pipeline_)
-        set_param_recursive(best_pipeline, 'random_state', random_state)
-        n_steps_pipeline.fit(X_train, y_train)
-        predictions = n_steps_pipeline.predict(X_test)
-        training_score = n_steps_pipeline.score(X_train, y_train).round(3) * 100
-        print("============ Performance of ML model on train data =============")
-        print("Train {0} score {1:.3f}".format(scoring_metric, training_score))
-        print("\n")
-        print("============ Performance of ML model on test data =============")
-        print(compute_metrics_classification(y_predictions=predictions, y_trues=y_test, positive_class=class_of_interest))
-        self.best_model = n_steps_pipeline
+      ### Model performance
+      predictions = best_pipeline.predict(X_test)
+      training_score = best_pipeline.score(X_train, y_train).round(3) * 100
+      print("============ Performance of ML model on train data =============")
+      print("Train {0} score {1:.3f} %".format(scoring_metric, training_score))
+      print("\n")
+      print("============ Performance of ML model on test data =============")
+      print(compute_metrics_classification(y_predictions=predictions, y_trues=y_test, positive_class=class_of_interest))
 
-      ### Compute feature importances
+      ### Compute Principal Components importances
       # Has to be done on the same train/test split. 
       print("\n")
       print("======== Computing feature importances on the training set =======")
-      feature_importances_training_set = permutation_importance(
-        self.best_model, 
+      pc_importances_training_set = permutation_importance(
+        best_pipeline, 
         X=X_train, 
         y=y_train, 
         scoring=scoring_metric, 
         n_repeats=n_permutations, 
         random_state=random_state)
-      mean_imp = pd.DataFrame(feature_importances_training_set.importances_mean, columns=["mean_var_imp"])
-      std_imp = pd.DataFrame(feature_importances_training_set.importances_std, columns=["std_var_imp"])
-      raw_imp = pd.DataFrame(feature_importances_training_set.importances, columns=["perm" + str(i) for i in range(n_permutations)])
+      mean_imp = pd.DataFrame(pc_importances_training_set.importances_mean, columns=["mean_var_imp"])
+      std_imp = pd.DataFrame(pc_importances_training_set.importances_std, columns=["std_var_imp"])
+      raw_imp = pd.DataFrame(pc_importances_training_set.importances, columns=["perm" + str(i) for i in range(n_permutations)])
+      pc_importances = pd.concat([mean_imp, std_imp, raw_imp], axis=1).sort_values('mean_var_imp', ascending=False)
+      pc_importances["pc"] = ["PC" + str(i) for i in pc_importances.index.values]
+      pc_importances.set_index("pc", inplace=True)
 
-      feature_importances = pd.concat([mean_imp, std_imp], axis=1).set_index(self.metabolome.index.values).sort_values('mean_var_imp', ascending=False)
+      self.best_model = best_pipeline
+      self.pc_importances = pc_importances
+      self.loadings = np.absolute(pca.components_) # required for downstream analyses (extraction of important features based on their loadings)
+    
+    def get_names_of_top_n_features_from_selected_pc(self, selected_pc=1, top_n=5):
+        """
+        Get the names of features with highest loading scores on selected PC  
 
-      self.feature_importances = feature_importances
-      self.feature_importances_permutations = raw_imp
+        Takes the matrix of loading scores of shape (n_samples, n_features) and the metabolome dataframe of shape (n_features, n_samples)
+        and extract the names of features. 
+        The loadings matrix is available after running the search_best_model_with_tpot_and_compute_pc_importances() method.
+
+        Params
+        ------
+        selected_pc: int, optional
+          Principal Component to keep. 1-based index (1 selects PC1, 2 selected PC2, etc.)
+          Default is 1.
+        top_n: int, optional
+          Number of features to select. 
+          The top_n features with the highest absolute loadings will be selected from the selected_pc PC. 
+          For instance, the top 5 features from PC1 will be selected with selected_pc=1 and top_n=5.
+          Default is 5.
+
+        Returns:
+          A list of feature names. 
+        """
+        metabolite_df = self.metabolome.transpose() # to have shape (n_samples, n_features) same as loadings 
+        loadings = self.loadings
+        if loadings is None:
+          print("Please run the search_best_model_with_tpot_and_compute_pc_importances() method first.")
+
+        assert isinstance(selected_pc, int), "Please select an integer higher or equal to 1 for the selected_pc argument"
+        assert isinstance(top_n, int), "Please select an integer higher or equal to 1 for the top_n argument"
+        assert selected_pc > 0, "Please select a PC equal or higher than 1"
+        assert top_n > 0, "Please select a number of top features to return equal or higher than 1"
+
+
+        zero_off_selected_pc = selected_pc - 1 # avoid 1-off error
+
+        loadings_of_selected_pc = self.loadings[zero_off_selected_pc]
+        loadings_indices_top_n_of_selected_pc = np.argsort(loadings_of_selected_pc)[::-1][:top_n] # argsort returns the indices
+        top_features_selected_pc = metabolite_df.iloc[:, loadings_indices_top_n_of_selected_pc].columns.tolist()
+        
+        print("Here are the metabolite names with the top {0} absolute loadings on PC{1}".format(top_n, selected_pc))
+        return top_features_selected_pc

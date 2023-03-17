@@ -1,0 +1,14 @@
+feature_id,blank_1,blank_2,blank_3,blank_4,moneymaker_rep1,moneymaker_rep2,moneymaker_rep3,moneymaker_rep4,moneyberg_rep1,moneyberg_rep2,moneyberg_rep3,moneyberg_rep4,microtom_rep1,microtom_rep2,microtom_rep3,microtom_rep4,sanmarzano_rep1,sanmarzano_rep2,sanmarzano_rep3,sanmarzano_rep4,LA1777_rep1,LA1777_rep2,LA1777_rep3,LA1777_rep4,PI127826_rep1,PI127826_rep2,PI127826_rep3,PI127826_rep4,LA1718_rep1,LA1718_rep2,LA1718_rep3,LA1718_rep4,LA2167_rep1,LA2167_rep2,LA2167_rep3,LA2167_rep4
+metabolite01_out_with_filter_blank_method,280,694,502,604,554,678,674,936,824,940,794,828,554,678,674,936,824,940,794,828,1044,1048,756,778,898,906,1276,792,1044,1048,756,778,898,906,1276,792
+metabolite02_keep_with_present_at_least_n_times_in_group(nb_times_detected=4)_method,0,0,0,0,1364,0,0,1948,1928,1956,1730,1568,1364,0,0,1948,1928,1956,1730,1568,1460,1536,0,0,1712,1844,2526,1800,1460,1536,0,0,1712,1844,2526,1800
+metabolite03_drop_with_present_at_least_n_times_in_group(nb_times_detected=4)_method,0,0,0,0,0,0,0,0,786,0,0,974,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+metabolite04_drop_with_filter_features_per_group_by_percentile(percentile=50),0,0,0,0,200,100,50,100,786,668,762,974,152,1254,125,156,786,668,762,974,0,0,0,0,584,584,914,744,0,0,0,0,584,584,914,744
+metabolite05_filter_reliability_drop,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+metabolite06_presence_in_class,0,0,0,0,152,1254,125,156,786,668,762,974,786,668,762,974,1928,1956,1730,1568,1460,1536,1234,1245,1712,1844,2526,1800,1460,1536,1460,1536,1712,1844,2526,1800
+metabolite07_presence_in_class,0,0,0,0,152,1254,125,156,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,125,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
