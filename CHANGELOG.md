@@ -5,8 +5,8 @@
 ## v0.4.0 (17-03-2023)
 
 - Since features are highly correlated, it is very difficult to estimate the individual feature importance using permutation_importance directly on the feature data. Rather a dimensionality reduction method is being used and importance is calculated directly on the Principal Components. This still gives an idea of the model performance. 
-- Add a function to extract the features most important per Principal Component. 
-- Add a unit test for the get_names_of_top_n_features_from_selected_pc() function. 
+- Add a function to extract the features most important per Principal Component. function is called `get_names_of_top_n_features_from_selected_pc()`
+- Add a unit test for the `get_names_of_top_n_features_from_selected_pc()` function. 
 
 ## v0.3.0 (09-01-2023)
 
