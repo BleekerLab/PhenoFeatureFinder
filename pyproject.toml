@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "phloemfinder"
-version = "0.4.0"
+version = "0.4.1"
 description = "Find plant metabolites related to whitefly pest resistance"
 authors = ["Marc Galland <m.galland@uva.nl>", "Lissy-Anne Denkers <l.a.m.denkers@uva.nl>"]
 repository = "https://github.com/BleekerLab/phloemfinder"
@@ -11,6 +11,7 @@ readme = "README.md"
 python = ">=3.9"
 seaborn = ">=0.12.1"
 pandas = ">=1.5.1"
+numpy = "<1.24.0"
 scikit-learn = ">=0.24.1"
 TPOT = ">=0.11.7"
 
