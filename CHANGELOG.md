@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.3 (24-03-2023)
+
+- Fix issue with utils import error in feature_selection_using_ml module.
+
 ## v0.4.2 (24-03-203)
 
 - Fix AttributeError issue with numpy 1.24. Specify version lower than 1.24 in pyproject.toml.
@@ -9,7 +13,7 @@
 ## v0.4.1 (24-03-203)
 
 - Remove median of ratios normalization method (not used).  
-- Fix utils module import error.    
+- Fix utils module import error in metabolome_analysis module.
    
 ## v0.4.0 (17-03-2023)
 
