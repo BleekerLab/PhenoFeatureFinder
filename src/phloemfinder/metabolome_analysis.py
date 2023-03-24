@@ -11,9 +11,7 @@ from sklearn.preprocessing import StandardScaler
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-
-from utils import median_of_ratios_normalisation, calculate_percentile, extract_samples_to_condition
-#from phloemfinder.utils import median_of_ratios_normalisation, calculate_percentile, extract_samples_to_condition
+from phloemfinder.utils import calculate_percentile, extract_samples_to_condition
 
 
 
@@ -47,9 +45,6 @@ class MetaboliteAnalysis:
     blank_features_filtered: `bool`
       Are the features present in blank samples filtered out from the metabolome data?
       Default by False.
-    normalised_by_median_of_ratios_method: bool
-      Are the feature peak areas normalised by the median of ratios method (from DESeq2)?
-      Default is False.
     filtered_by_percentile_value: bool
       Are the features filtered by percentile value?
     unreliable_features_filtered: `bool`
@@ -80,8 +75,6 @@ class MetaboliteAnalysis:
     filter_features_per_group_by_percentile
       Filter out features whose abundance within the same grouping factor is lower than a certain percentile value.
       For instance, features lower than the 90th percentile within a single group are discarded with argument percentile=90. 
-    normalise_values_by_median_of_ratios_method
-      Uses DESeq2 median of ratios method to normalise feature peak area values.
     compute_metabolome_sparsity
       Computes the sparsity percentage of the metabolome matrix (percentage of 0 values e.g. 100% for an matrix full of 0 values)
     write_clean_metabolome_to_csv()
@@ -126,7 +119,6 @@ class MetaboliteAnalysis:
     # By default all filters have not been executed (blank filtering, etc.)
     metabolome_validated = False
     blank_features_filtered = False
-    normalised_by_median_of_ratios_method = False
     filtered_by_percentile_value = False
     unreliable_features_filtered = False
     pca_performed = False
@@ -226,43 +218,6 @@ class MetaboliteAnalysis:
         self.metabolome = self.metabolome.drop(blank_cols, axis=1)
         self.metabolome = self.metabolome.drop("sum_features", axis=1)    
 
-    
-    ########################################
-    ### Normalise by median of ratios method
-    ########################################
-    def normalise_values_by_median_of_ratios_method(self):
-        '''
-        Use DESeq2 median of ratios method to normalise feature peak area values.
-
-        Returns
-        -------
-        self: object
-          Object with metabolome values normalised and median_of_ratios_normalised attribute set to True. 
-        
-        Example
-        -------
-        >>> met = MetaboliteAnalysis(
-            metabolome_csv='tests/metabolome_test_data.csv', 
-            metabolome_feature_id_col='feature_id')
-        >>> met.validate_input_metabolome_df()
-        Metabolome input data validated
-        >>> met.normalise_values_by_median_of_ratios_method()
-        >>> met.normalised_by_median_of_ratios_method
-        True
-
-        See also
-        --------
-        Median of ratios method explained:
-          - https://scienceparkstudygroup.github.io/rna-seq-lesson/05-descriptive-plots/index.html#54-generate-normalized-counts
-          - https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html 
-        '''
-        if self.normalised_by_median_of_ratios_method == True:
-            print("Data is already normalised (median of ratios)")
-        else:
-            df_to_normalize = self.metabolome
-            normalised_df = median_of_ratios_normalisation(df_to_normalize)
-            self.metabolome = normalised_df
-            self.normalised_by_median_of_ratios_method = True
 
     #######################################################################
     # Create density plots of feature peak areas for each grouping variable

@@ -2,6 +2,11 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.1 (24-03-203)
+
+- Remove median of ratios normalization method (not used).  
+- Fix utils module import error.    
+   
 ## v0.4.0 (17-03-2023)
 
 - Since features are highly correlated, it is very difficult to estimate the individual feature importance using permutation_importance directly on the feature data. Rather a dimensionality reduction method is being used and importance is calculated directly on the Principal Components. This still gives an idea of the model performance. 
