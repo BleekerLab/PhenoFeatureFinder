@@ -23,8 +23,7 @@ from autosklearn.metrics import balanced_accuracy, precision, recall, f1
 from tpot import TPOTClassifier
 from tpot.export_utils import set_param_recursive
 
-from utils import compute_metrics_classification 
-#from phloemfinder.utils import compute_metrics_classification 
+from phloemfinder.utils import compute_metrics_classification 
 
 
 # TPOT automated ML custom configuration dictionary
@@ -115,6 +114,7 @@ tpot_custom_config = {
         'threshold': [10]
     }
 }
+
 ####################################
 # End of library and config sections
 ####################################
