@@ -8,17 +8,16 @@ import sys
 from warnings import WarningMessage
 import numpy as np
 import pandas as pd
+
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.pipeline import make_pipeline
 from sklearn.inspection import permutation_importance
 from sklearn.decomposition import PCA
-
-from autosklearn.classification import AutoSklearnClassifier
-from autosklearn.metrics import balanced_accuracy, precision, recall, f1
+from sklearn.metrics import balanced_accuracy_score
 
 from tpot import TPOTClassifier
 from tpot.export_utils import set_param_recursive
@@ -443,7 +442,7 @@ class MetabolitePhenotypeFeatureSelection:
         print("====== Performance on test data of the basic Random Forest model =======")
         clf.fit(X_train, y_train)
         predictions = clf.predict(X_test)
-        model_balanced_accuracy_score = balanced_accuracy(y_true=y_test, y_pred=predictions).round(3) * 100 
+        model_balanced_accuracy_score = balanced_accuracy_score(y_true=y_test, y_pred=predictions).round(3) * 100 
         print("Average {0} score on test data is: {1:.3f} %".format(scoring_metric, model_balanced_accuracy_score))
         self.baseline_performance = baseline_performance
     
@@ -566,7 +565,7 @@ class MetabolitePhenotypeFeatureSelection:
       # First step is a PCA to avoid to work with correlated features 
       # Feature importances become Principal Component importances
       number_of_components = np.min(X.shape) # minimum of (n_samples, n_features)
-      pca = PCA(n_components=number_of_components)
+      pca = PCA(n_components=number_of_components, random_state=random_state)
       X_reduced = pca.fit_transform(X)
       
       X_train, X_test, y_train, y_test = train_test_split(
@@ -591,7 +590,7 @@ class MetabolitePhenotypeFeatureSelection:
       ### Compute Principal Components importances
       # Has to be done on the same train/test split. 
       print("\n")
-      print("======== Computing feature importances on the training set =======")
+      print("======== Computing Principal Components importances on the training set =======")
       pc_importances_training_set = permutation_importance(
         best_pipeline, 
         X=X_train, 
@@ -605,10 +604,11 @@ class MetabolitePhenotypeFeatureSelection:
       pc_importances = pd.concat([mean_imp, std_imp, raw_imp], axis=1).sort_values('mean_var_imp', ascending=False)
       pc_importances["pc"] = ["PC" + str(i) for i in pc_importances.index.values]
       pc_importances.set_index("pc", inplace=True)
-
+      # Save results
       self.best_model = best_pipeline
       self.pc_importances = pc_importances
       self.loadings = np.absolute(pca.components_) # required for downstream analyses (extraction of important features based on their loadings)
+
     
     def get_names_of_top_n_features_from_selected_pc(self, selected_pc=1, top_n=5):
         """
