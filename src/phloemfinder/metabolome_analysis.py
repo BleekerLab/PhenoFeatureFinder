@@ -6,8 +6,11 @@ import pandas as pd
 
 from numpy import count_nonzero
 
+
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+from sklearn.impute import SimpleImputer
+
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -69,6 +72,8 @@ class MetaboliteAnalysis:
       Check if the provided metabolome file is suitable. Turns attribute metabolome_validated to True. 
     discard_features_detected_in_blanks
       Removes features only detected in blank samples. 
+    impute_missing_values_with_median
+      Impute missing values with the median value of the feature.
     filter_out_unreliable_features()
       Filter out features not reliably detectable in replicates of the same grouping factor. 
       For instance, if a feature is detected less than 4 times within 4 biological replicates, it is discarded with argument nb_times_detected=4.  
@@ -137,7 +142,7 @@ class MetaboliteAnalysis:
         Returns a Python instance of class MetabolomeAnalysis 
         """     
         # Import metabolome dataframe and verify presence of feature id column
-        self.metabolome = pd.read_csv(metabolome_csv)
+        self.metabolome = pd.read_csv(metabolome_csv, low_memory=False)
         if metabolome_feature_id_col not in self.metabolome.columns:
             raise ValueError("The specified column with feature identifiers {0} is not present in your '{1}' file.".format(metabolome_feature_id_col,os.path.basename(metabolome_csv)))
         else:
@@ -179,6 +184,35 @@ class MetaboliteAnalysis:
         else:
             print("Metabolome input data validated.")
             self.metabolome_validated = True
+
+    ####################################################
+    ### (Optional) Impute missing values with the median
+    ### This is necessary for PCA to work
+    ###################################################
+    def impute_missing_values_with_median(self, missing_value_str='np.nan'):
+        '''
+        Imputes missing values with the median of the column.
+        
+        Params
+        ------
+        missing_value_str: str, optional
+            The string that represents missing values in the input dataframe.
+            All occurrences of missing_values will be imputed. 
+            For pandas’ dataframes with nullable integer dtypes with missing values, missing_values can be set to either np.nan or pd.NA.
+
+        Returns
+        -------
+        self: object with attribute 'metabolome' updated with imputed values.
+        '''
+        feature_ids = self.metabolome.index
+        sample_ids = self.metabolome.columns
+
+        imputer = SimpleImputer(missing_values=missing_value_str, strategy='median')
+        metabolome_not_imputed = self.metabolome
+        metabolome_imputed = imputer.fit_transform(metabolome_not_imputed)
+        metabolome_imputed_df = pd.DataFrame(metabolome_imputed, index=feature_ids, columns=sample_ids)
+        self.metabolome = metabolome_imputed_df
+
 
     #############################################
     ### Filter features detected in blank samples
@@ -600,6 +634,7 @@ class MetaboliteAnalysis:
         pc_y_axis=2, 
         name_grouping_var='genotype',
         separator_replicates="_",
+        show_color_legend=True,
         plot_file_name=None):
         '''
         Returns a sample score plot of the samples on PCx vs PCy. 
@@ -615,6 +650,8 @@ class MetaboliteAnalysis:
           Name of the variable used to color samples (Default is "genotype"). 
         separator_replicates: str, optional.
           String separator that separates grouping factor from biological replicates (default is underscore "_").
+        show_color_legend: bool, optional.
+          Add legend for hue (default is True).
         plot_file_name: str, optional 
           A file name and its path to save the sample score plot (default is None).
           For instance "mydir/sample_score_plot.pdf"
@@ -663,6 +700,9 @@ class MetaboliteAnalysis:
             plt.xlabel("PC" + str(pc_x_axis) + ": " + str(self.exp_variance.iloc[pc_x_axis-1,0].round(2)) + "% variance") 
             plt.ylabel("PC" + str(pc_y_axis) + ": " + str(self.exp_variance.iloc[pc_y_axis-1,0].round(2)) + "% variance")
             plt.title("PC" + str(pc_x_axis) + " vs PC" + str(pc_y_axis))
+
+            if not show_color_legend:
+                plt.legend().remove()
 
             # Optionally save the plot
             if plot_file_name != None:
