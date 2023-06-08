@@ -37,6 +37,9 @@ class PhenotypeAnalysis:
         # Import bioassay dataframe 
         self.bioassay = pd.read_csv(bioassay_csv)
 
+        # safe path to bioassay_csv to self
+        self.bioassay_csv = bioassay_csv
+
 
 
     def reshape_to_wide(
@@ -89,27 +92,27 @@ class PhenotypeAnalysis:
         
         # check if specified columns exist in dataframe
         if sample_id not in self.bioassay.columns:
-            raise ValueError("The specified column with sample identifiers {0} is not present in your '{1}' file.".format(sample_id,os.path.basename(bioassay_csv)))
+            raise ValueError("The specified column with sample identifiers {0} is not present in your '{1}' file.".format(sample_id,os.path.basename(self.bioassay_csv)))
         else:
             self.sample_id = sample_id
 
         if grouping_variable not in self.bioassay.columns:
-            raise ValueError("The specified column with grouping variable names {0} is not present in your '{1}' file.".format(grouping_variable,os.path.basename(bioassay_csv)))
+            raise ValueError("The specified column with grouping variable names {0} is not present in your '{1}' file.".format(grouping_variable,os.path.basename(self.bioassay_csv)))
         else:
             pass
 
         if developmental_stages not in self.bioassay.columns:
-            raise ValueError("The specified column with developmental stages {0} is not present in your '{1}' file.".format(developmental_stages,os.path.basename(bioassay_csv)))
+            raise ValueError("The specified column with developmental stages {0} is not present in your '{1}' file.".format(developmental_stages,os.path.basename(self.bioassay_csv)))
         else:
             pass
 
         if count_values not in self.bioassay.columns:
-            raise ValueError("The specified column with values {0} is not present in your '{1}' file.".format(count_values,os.path.basename(bioassay_csv)))
+            raise ValueError("The specified column with values {0} is not present in your '{1}' file.".format(count_values,os.path.basename(self.bioassay_csv)))
         else:
             pass
 
         if time not in self.bioassay.columns:
-            raise ValueError("The specified column with time values (e.g. days after infection) {0} is not present in your '{1}' file.".format(time,os.path.basename(bioassay_csv)))
+            raise ValueError("The specified column with time values (e.g. days after infection) {0} is not present in your '{1}' file.".format(time,os.path.basename(self.bioassay_csv)))
         else:
             pass
 
