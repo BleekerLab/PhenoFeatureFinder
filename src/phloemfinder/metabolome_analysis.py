@@ -16,6 +16,9 @@ import matplotlib.pyplot as plt
 
 from phloemfinder.utils import calculate_percentile, extract_samples_to_condition
 
+import upsetplot
+from upsetplot import plot, from_indicators
+
 
 
 ###################
@@ -739,3 +742,68 @@ class MetaboliteAnalysis:
         sparsity = (1 - (number_of_non_zero_values/total_number_of_values)) * 100
         print("Sparsity of the metabolome matrix is equal to {0:.3f} %".format(sparsity))
         self.sparsity=sparsity
+
+    
+    #######################################################################################
+    ### Plot features present per group in an UpSet plot
+    ######################################################################################
+    def plot_features_in_upset_plot(
+        self,
+        seperator_replicates="_",
+        plot_file_name=None):
+        '''
+        Visuallises the presence of features per group in an UpSet plot. 
+        A feature is considered present in a group if the median>0.
+
+        Params
+        ------
+        separator_replicates: string, default="_"
+            The separator to split sample names into a grouping variable (e.g. genotype) and the biological replicate number (e.g. 1)
+        plot_file_name: str, optional 
+          A file name and its path to save the sample score plot (default is None).
+          For instance "mydir/feature_upset_plot.pdf"
+          Path is relative to current working directory.
+        
+
+        Returns
+        -------
+        Plot:
+            UpSet plot with features presence per group.
+        
+        Notes 
+        -----
+        Input dataframe
+
+                             	| MM_1  	| MM_2  	| MM_3  	| MM_4  	| LA1330_1 	| LA1330_2 	|
+                            	|----------	|----------	|----------	|----------	|----------	|----------	|
+          feature_id           	 
+        | rt-0.04_mz-241.88396 	| 554   	| 678   	| 674   	| 936   	| 824      	| 940      	|
+        | rt-0.05_mz-143.95911 	| 1364  	| 1340  	| 1692  	| 1948  	| 1928     	| 1956     	|
+        | rt-0.06_mz-124.96631 	| 0      	| 0     	| 0     	| 888   	| 786      	| 668      	|
+        | rt-0.08_mz-553.45905 	| 10972 	| 11190 	| 12172 	| 11820 	| 12026    	| 11604    	|
+
+
+        '''
+        df = self.metabolome
+
+        # Create dataframe with median of each feature per group
+        df.columns = self.metabolome.columns.str.split(seperator_replicates,expand=True).get_level_values(0)
+        df = df.T.groupby(by=df.columns).median().T
+
+        # Cenvert the values to boolean with median>0 as True
+        df = df.gt(0)
+        
+        plot(from_indicators(lambda df: df.select_dtypes(bool), data=df), show_counts=True)
+        
+        # Optionally save the plot
+        if plot_file_name != None:
+            plot_dirname = os.path.dirname(plot_file_name)
+            if plot_dirname == '': # means file will be saved in current working directory
+                plt.savefig(plot_file_name)
+            else:
+                os.makedirs(plot_dirname, exist_ok=True)
+                plt.savefig(plot_file_name)
+
+        plt.show()
+
+        
