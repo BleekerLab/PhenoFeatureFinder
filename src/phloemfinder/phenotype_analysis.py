@@ -810,7 +810,7 @@ class PhenotypeAnalysis:
 
 
 
-    '''
+    
     def plot_survival_over_time_in_fitted_model(
         self, 
         sample_id='sample_id',
@@ -819,7 +819,7 @@ class PhenotypeAnalysis:
         stage_of_ineterest='fourth_instar',
         use_relative_data=True,
         make_nymphs_relative_to='first_instar'):
-        
+        '''
         Fits a 3 parameter log-logistic curve to the development over time to a specified stage. The fitted curve and the
         observed datapoints are plotted and returned with the model parameters. 
         The reduced Chi-squared is provided to asses the goodness of fit for the fitted models for each group (genotype, 
@@ -857,11 +857,11 @@ class PhenotypeAnalysis:
         | mm_1      |   mm      | 9     | NA    | 24            | 14            | 6             | 3             |
         | mm_1      |   mm      | 11    | NA    | 38            | 27            | 16            | 12            |
         
-        
+        '''
 
         # define function of model:
         def ll3(x,slope,maximum,emt50):
-             
+            ''' 
             A three parameter log-logistic function.
         
             Parameters
@@ -872,7 +872,7 @@ class PhenotypeAnalysis:
                 the maximum value of the curve
             emt50: 
                 the EmT50, the timepoint at which 50% of nymphs has developed to the stage of interest
-            
+            '''
             return(maximum/(1+np.exp(slope*(np.log(x)-np.log(emt50)))))
         
         # extract the timecourse in which the bioassay was performed. Needed to fit the model
@@ -963,7 +963,7 @@ class PhenotypeAnalysis:
         
         self.bioassay = self.bioassay.drop(columns='relative_stage')
 
-    '''
+    
 
 # Next: - add statistics to compare groups and return p-values
 #       - return sugestion for resistant/susceptible grouping
