@@ -812,13 +812,15 @@ class PhenotypeAnalysis:
 
     
     def plot_survival_over_time_in_fitted_model(
-        self, 
+        self,
+        day_first_nymph_counted, 
         sample_id='sample_id',
         grouping_variable='genotype',
         time='day',
-        stage_of_ineterest='fourth_instar',
-        use_relative_data=True,
+        stage_of_ineterest='first_instar',
+        use_relative_data=False,
         make_nymphs_relative_to='first_instar'):
+
         '''
         Fits a 3 parameter log-logistic curve to the development over time to a specified stage. The fitted curve and the
         observed datapoints are plotted and returned with the model parameters. 
@@ -876,11 +878,11 @@ class PhenotypeAnalysis:
             return(maximum/(1+np.exp(slope*(np.log(x)-np.log(emt50)))))
         
         # extract the timecourse in which the bioassay was performed. Needed to fit the model
-        x_line = arange(min(self.bioassay[time]), max(self.bioassay[time])+1, 1)
+        x_line = arange(day_first_nymph_counted, max(self.survival_data[time])+1, 1)
 
         # if relative counts should be used
         if use_relative_data==True:
-            grouped_df = self.bioassay.groupby(sample_id)
+            grouped_df = self.survival_data.groupby(sample_id)
             temp_df = pd.DataFrame()
             for name, group in grouped_df:
                 temp2_df = group
@@ -889,15 +891,15 @@ class PhenotypeAnalysis:
 
                 temp_df = pd.concat([temp_df, temp2_df], ignore_index=True)
 
-            self.bioassay = temp_df
-            self.bioassay = self.bioassay.drop(columns='index')
+            self.survival_data = temp_df
+            self.survival_data = self.survival_data.drop(columns='index')
 
         else:
-            self.bioassay['relative_stage'] = self.bioassay[stage_of_ineterest]
+            self.survival_data['relative_stage'] = self.survival_data[stage_of_ineterest]
 
 
         # add a column with standard deviations to use for the sigma in the curve_fit function
-        grouped_df = self.bioassay.groupby([grouping_variable,time])
+        grouped_df = self.survival_data.groupby([grouping_variable,time])
         stdev_df = pd.DataFrame()
         for name, group in grouped_df:
             temp_df = group
@@ -908,17 +910,17 @@ class PhenotypeAnalysis:
 
             stdev_df = pd.concat([stdev_df, temp_df], ignore_index=True)
 
-        self.bioassay = stdev_df
-        self.bioassay = self.bioassay.drop(columns='index')
+        self.survival_data = stdev_df
+        self.survival_data = self.survival_data.drop(columns='index')
 
         # the model is fitted to the individual groups to obtain the parameters for each group:
-        grouped_df = self.bioassay.groupby(grouping_variable)
+        grouped_df = self.survival_data.groupby(grouping_variable)
         fit_df = []
         fitted_df = []
         for name,group in grouped_df:
             
             # make an initial guess of the parameters as if the data is linear
-            p0 = [-(max(group['relative_stage'])/(max(self.bioassay[time])+1)), max(group['relative_stage']), (max(self.bioassay[time])+1)/2]
+            p0 = [-(max(group['relative_stage'])/(max(self.survival_data[time])+1)), max(group['relative_stage']), (max(self.survival_data[time])+1)/2]
             
             # fit the model to the data
             popt, pcov = opt.curve_fit(ll3, group[time], group['relative_stage'], p0=p0)
@@ -958,10 +960,10 @@ class PhenotypeAnalysis:
 
         
         # plot the observed data as points and the fitted models as curves
-        sns.lmplot(data=self.bioassay, x=time, y='relative_stage', hue = grouping_variable, fit_reg=False, palette="colorblind")
+        sns.lmplot(data=self.survival_data, x=time, y='relative_stage', hue = grouping_variable, fit_reg=False, palette="colorblind")
         sns.lineplot(data=fitted_df, x=time, y='value', hue=grouping_variable, palette="colorblind")
         
-        self.bioassay = self.bioassay.drop(columns='relative_stage')
+        self.survival_data = self.survival_data.drop(columns='relative_stage')
 
     
 
