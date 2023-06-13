@@ -266,7 +266,7 @@ class PhenotypeAnalysis:
         count if it is lower than the previous count.
         '''
 
-        grouped_df = self.bioassay.groupby(grouping_variable)
+        grouped_df = self.cumulative_data.groupby(grouping_variable)
         corrected_df = pd.DataFrame()
 
         for day, group in grouped_df:
@@ -285,9 +285,9 @@ class PhenotypeAnalysis:
 
             corrected_df = pd.concat([corrected_df, temp_df], ignore_index=True)
 
-        self.bioassay = corrected_df
-        self.bioassay[current_stage] = self.bioassay['test']
-        self.bioassay = self.bioassay.drop(columns=['test', 'index'])
+        self.cumulative_data = corrected_df
+        self.cumulative_data[current_stage] = self.cumulative_data['test']
+        self.cumulative_data = self.cumulative_data.drop(columns=['test', 'index'])
 
 
     def create_df_with_max_counts_per_stage(
@@ -301,7 +301,7 @@ class PhenotypeAnalysis:
         making graphs becomes easier.
         '''
 
-        grouped_df = self.bioassay.groupby(grouping_variable)
+        grouped_df = self.cumulative_data.groupby(grouping_variable)
         self.max_counts = pd.DataFrame()
 
         for day, group in grouped_df:
@@ -358,20 +358,27 @@ class PhenotypeAnalysis:
         sixth_stage: string, default='sixth_instar'
             The name of the column that contains the counts of the sixth developmental stage recorded in the bioassay.
         '''
-        
+        cumulative_data = pd.DataFrame()
+        survival_data = pd.DataFrame()
+        cumulative_data = self.bioassay
+        self.cumulative_data = cumulative_data
+
+
         # check if specified column with sample_id is present 
-        if sample_id not in self.bioassay.columns:
+        if sample_id not in self.cumulative_data.columns:
             raise ValueError("The specified column with unique sample identifiers {0} is not present in your file.".format(sample_id))
         else:
             pass
 
         if n_developmental_stages == 1:
             # check if specified columns with counts per stage are present 
-            if first_stage not in self.bioassay.columns:
+            if first_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with first stage counts {0} is not present in your file.".format(first_stage))
             else:
                 pass
 
+            survival_data = self.cumulative_data
+            self.survival_data = survival_data
 
             self.correct_cumulative_counts(current_stage=first_stage, grouping_variable=sample_id)
 
@@ -381,11 +388,11 @@ class PhenotypeAnalysis:
         elif n_developmental_stages == 2:
 
             # check if specified columns with counts per stage are present 
-            if first_stage not in self.bioassay.columns:
+            if first_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with first stage counts {0} is not present in your file.".format(first_stage))
             else:
                 pass
-            if second_stage not in self.bioassay.columns:
+            if second_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with second stage counts {0} is not present in your file.".format(second_stage))
             else:
                 pass
@@ -393,7 +400,10 @@ class PhenotypeAnalysis:
 
             # if all specified columns are present, first calculate the cumulative numbers for all stages before 
             # correcting the cumulative counts. Doing it otherwise might increase the risk of double counts.
-            self.bioassay[first_stage] = self.bioassay[[first_stage, second_stage]].sum(axis=1)
+            self.cumulative_data[first_stage] = self.cumulative_data[[first_stage, second_stage]].sum(axis=1)
+
+            survival_data = self.cumulative_data
+            self.survival_data = survival_data
 
             self.correct_cumulative_counts(current_stage=second_stage, grouping_variable=sample_id)
             self.correct_cumulative_counts(current_stage=first_stage, grouping_variable=sample_id)
@@ -404,24 +414,27 @@ class PhenotypeAnalysis:
         elif n_developmental_stages == 3:
             
             # check if specified columns with counts per stage are present 
-            if first_stage not in self.bioassay.columns:
+            if first_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with first stage counts {0} is not present in your file.".format(first_stage))
             else:
                 pass
-            if second_stage not in self.bioassay.columns:
+            if second_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with second stage counts {0} is not present in your file.".format(second_stage))
             else:
                 pass
-            if third_stage not in self.bioassay.columns:
+            if third_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with third stage counts {0} is not present in your file.".format(third_stage))
             else:
                 pass
 
             # if all specified columns are present, first calculate the cumulative numbers for all stages before 
             # correcting the cumulative counts. Doing it otherwise might increase the risk of double counts.
-            self.bioassay[first_stage] = self.bioassay[[first_stage, second_stage, third_stage]].sum(axis=1)
-            self.bioassay[second_stage] = self.bioassay[[second_stage, third_stage]].sum(axis=1)
+            self.cumulative_data[first_stage] = self.cumulative_data[[first_stage, second_stage, third_stage]].sum(axis=1)
+            self.cumulative_data[second_stage] = self.cumulative_data[[second_stage, third_stage]].sum(axis=1)
 
+            survival_data = self.cumulative_data
+            self.survival_data = survival_data
+            
             self.correct_cumulative_counts(current_stage=first_stage, grouping_variable=sample_id)
             self.correct_cumulative_counts(current_stage=second_stage, grouping_variable=sample_id)
             self.correct_cumulative_counts(current_stage=third_stage, grouping_variable=sample_id)
@@ -434,29 +447,32 @@ class PhenotypeAnalysis:
         elif n_developmental_stages == 4:
 
             # check if specified columns with counts per stage are present 
-            if first_stage not in self.bioassay.columns:
+            if first_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with first stage counts {0} is not present in your file.".format(first_stage))
             else:
                 pass
-            if second_stage not in self.bioassay.columns:
+            if second_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with second stage counts {0} is not present in your file.".format(second_stage))
             else:
                 pass
-            if third_stage not in self.bioassay.columns:
+            if third_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with third stage counts {0} is not present in your file.".format(third_stage))
             else:
                 pass
-            if fourth_stage not in self.bioassay.columns:
+            if fourth_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with fourth stage counts {0} is not present in your file.".format(fourth_stage))
             else:
                 pass
 
             # if all specified columns are present, first calculate the cumulative numbers for all stages before 
             # correcting the cumulative counts. Doing it otherwise might increase the risk of double counts.
-            self.bioassay[first_stage] = self.bioassay[[first_stage, second_stage, third_stage, fourth_stage]].sum(axis=1)
-            self.bioassay[second_stage] = self.bioassay[[second_stage, third_stage, fourth_stage]].sum(axis=1)
-            self.bioassay[third_stage] = self.bioassay[[third_stage, fourth_stage]].sum(axis=1)
+            self.cumulative_data[first_stage] = self.cumulative_data[[first_stage, second_stage, third_stage, fourth_stage]].sum(axis=1)
+            self.cumulative_data[second_stage] = self.cumulative_data[[second_stage, third_stage, fourth_stage]].sum(axis=1)
+            self.cumulative_data[third_stage] = self.cumulative_data[[third_stage, fourth_stage]].sum(axis=1)
 
+            survival_data = self.cumulative_data
+            self.survival_data = survival_data
+            
             self.correct_cumulative_counts(current_stage=first_stage, grouping_variable=sample_id)
             self.correct_cumulative_counts(current_stage=second_stage, grouping_variable=sample_id)
             self.correct_cumulative_counts(current_stage=third_stage, grouping_variable=sample_id)
@@ -468,34 +484,37 @@ class PhenotypeAnalysis:
         elif n_developmental_stages == 5:
 
             # check if specified columns with counts per stage are present 
-            if first_stage not in self.bioassay.columns:
+            if first_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with first stage counts {0} is not present in your file.".format(first_stage))
             else:
                 pass
-            if second_stage not in self.bioassay.columns:
+            if second_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with second stage counts {0} is not present in your file.".format(second_stage))
             else:
                 pass
-            if third_stage not in self.bioassay.columns:
+            if third_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with third stage counts {0} is not present in your file.".format(third_stage))
             else:
                 pass
-            if fourth_stage not in self.bioassay.columns:
+            if fourth_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with fourth stage counts {0} is not present in your file.".format(fourth_stage))
             else:
                 pass
-            if fifth_stage not in self.bioassay.columns:
+            if fifth_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with fifth stage counts {0} is not present in your file.".format(fifth_stage))
             else:
                 pass
 
             # if all specified columns are present, first calculate the cumulative numbers for all stages before 
             # correcting the cumulative counts. Doing it otherwise might increase the risk of double counts.
-            self.bioassay[first_stage] = self.bioassay[[first_stage, second_stage, third_stage, fourth_stage, fifth_stage]].sum(axis=1)
-            self.bioassay[second_stage] = self.bioassay[[second_stage, third_stage, fourth_stage, fifth_stage]].sum(axis=1)
-            self.bioassay[third_stage] = self.bioassay[[third_stage, fourth_stage, fifth_stage]].sum(axis=1)
-            self.bioassay[fourth_stage] = self.bioassay[[fourth_stage, fifth_stage]].sum(axis=1)
-
+            self.cumulative_data[first_stage] = self.cumulative_data[[first_stage, second_stage, third_stage, fourth_stage, fifth_stage]].sum(axis=1)
+            self.cumulative_data[second_stage] = self.cumulative_data[[second_stage, third_stage, fourth_stage, fifth_stage]].sum(axis=1)
+            self.cumulative_data[third_stage] = self.cumulative_data[[third_stage, fourth_stage, fifth_stage]].sum(axis=1)
+            self.cumulative_data[fourth_stage] = self.cumulative_data[[fourth_stage, fifth_stage]].sum(axis=1)
+ 
+            survival_data = self.cumulative_data
+            self.survival_data = survival_data
+            
             self.correct_cumulative_counts(current_stage=first_stage, grouping_variable=sample_id)
             self.correct_cumulative_counts(current_stage=second_stage, grouping_variable=sample_id)
             self.correct_cumulative_counts(current_stage=third_stage, grouping_variable=sample_id)
@@ -508,39 +527,42 @@ class PhenotypeAnalysis:
         elif n_developmental_stages == 6:
 
             # check if specified columns with counts per stage are present 
-            if first_stage not in self.bioassay.columns:
+            if first_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with first stage counts {0} is not present in your file.".format(first_stage))
             else:
                 pass
-            if second_stage not in self.bioassay.columns:
+            if second_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with second stage counts {0} is not present in your file.".format(second_stage))
             else:
                 pass
-            if third_stage not in self.bioassay.columns:
+            if third_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with third stage counts {0} is not present in your file.".format(third_stage))
             else:
                 pass
-            if fourth_stage not in self.bioassay.columns:
+            if fourth_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with fourth stage counts {0} is not present in your file.".format(fourth_stage))
             else:
                 pass
-            if fifth_stage not in self.bioassay.columns:
+            if fifth_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with fifth stage counts {0} is not present in your file.".format(fifth_stage))
             else:
                 pass
-            if sixth_stage not in self.bioassay.columns:
+            if sixth_stage not in self.cumulative_data.columns:
                 raise ValueError("The specified column with sixth stage counts {0} is not present in your file.".format(sixth_stage))
             else:
                 pass
 
             # if all specified columns are present, first calculate the cumulative numbers for all stages before 
             # correcting the cumulative counts. Doing it otherwise might increase the risk of double counts.
-            self.bioassay[first_stage] = self.bioassay[[first_stage, second_stage, third_stage, fourth_stage, fifth_stage, sixth_stage]].sum(axis=1)
-            self.bioassay[second_stage] = self.bioassay[[second_stage, third_stage, fourth_stage, fifth_stage, sixth_stage]].sum(axis=1)
-            self.bioassay[third_stage] = self.bioassay[[third_stage, fourth_stage, fifth_stage, sixth_stage]].sum(axis=1)
-            self.bioassay[fourth_stage] = self.bioassay[[fourth_stage, fifth_stage, sixth_stage]].sum(axis=1)
-            self.bioassay[fifth_stage] = self.bioassay[[fifth_stage, sixth_stage]].sum(axis=1)
+            self.cumulative_data[first_stage] = self.cumulative_data[[first_stage, second_stage, third_stage, fourth_stage, fifth_stage, sixth_stage]].sum(axis=1)
+            self.cumulative_data[second_stage] = self.cumulative_data[[second_stage, third_stage, fourth_stage, fifth_stage, sixth_stage]].sum(axis=1)
+            self.cumulative_data[third_stage] = self.cumulative_data[[third_stage, fourth_stage, fifth_stage, sixth_stage]].sum(axis=1)
+            self.cumulative_data[fourth_stage] = self.cumulative_data[[fourth_stage, fifth_stage, sixth_stage]].sum(axis=1)
+            self.cumulative_data[fifth_stage] = self.cumulative_data[[fifth_stage, sixth_stage]].sum(axis=1)
 
+            survival_data = self.cumulative_data
+            self.survival_data = survival_data
+            
             self.correct_cumulative_counts(current_stage=first_stage, grouping_variable=sample_id)
             self.correct_cumulative_counts(current_stage=second_stage, grouping_variable=sample_id)
             self.correct_cumulative_counts(current_stage=third_stage, grouping_variable=sample_id)
@@ -699,6 +721,161 @@ class PhenotypeAnalysis:
             return(maximum/(1+np.exp(slope*(np.log(x)-np.log(emt50)))))
         
         # extract the timecourse in which the bioassay was performed. Needed to fit the model
+        x_line = arange(min(self.cumulative_data[time]), max(self.cumulative_data[time])+1, 1)
+
+        # if relative counts should be used
+        if use_relative_data==True:
+            grouped_df = self.cumulative_data.groupby(sample_id)
+            temp_df = pd.DataFrame()
+            for name, group in grouped_df:
+                temp2_df = group
+                temp2_df = temp2_df.reset_index()
+                temp2_df['relative_stage'] = temp2_df[stage_of_ineterest]/max(temp2_df[make_nymphs_relative_to])
+
+                temp_df = pd.concat([temp_df, temp2_df], ignore_index=True)
+
+            self.cumulative_data = temp_df
+            self.cumulative_data = self.cumulative_data.drop(columns='index')
+
+        else:
+            self.cumulative_data['relative_stage'] = self.cumulative_data[stage_of_ineterest]
+
+
+        # add a column with standard deviations to use for the sigma in the curve_fit function
+        grouped_df = self.cumulative_data.groupby([grouping_variable,time])
+        stdev_df = pd.DataFrame()
+        for name, group in grouped_df:
+            temp_df = group
+            temp_df = temp_df.reset_index()
+            temp_df['stdev'] = temp_df['relative_stage'].std()
+            if temp_df['relative_stage'].std() == 0:
+                temp_df['stdev'] = 10
+
+            stdev_df = pd.concat([stdev_df, temp_df], ignore_index=True)
+
+        self.cumulative_data = stdev_df
+        self.cumulative_data = self.cumulative_data.drop(columns='index')
+
+        # the model is fitted to the individual groups to obtain the parameters for each group:
+        grouped_df = self.cumulative_data.groupby(grouping_variable)
+        fit_df = []
+        fitted_df = []
+        for name,group in grouped_df:
+            
+            # make an initial guess of the parameters as if the data is linear
+            p0 = [-(max(group['relative_stage'])/(max(self.cumulative_data[time])+1)), max(group['relative_stage']), (max(self.cumulative_data[time])+1)/2]
+            
+            # fit the model to the data
+            popt, pcov = opt.curve_fit(ll3, group[time], group['relative_stage'], p0=p0)
+            
+            # store the model parameters with their standard deviations in a df
+            temp_df = dict(zip(['slope', 'maximum', 'emt50'], popt))
+            temp2_df = dict(zip(['slope_sd', 'maximum_sd', 'emt50_sd'], np.sqrt(np.diag(pcov))))
+            temp_df['slope(±sd)'] = '%.2f' % temp_df['slope'] + "(±" + '%.2f' % temp2_df['slope_sd'] + ")"
+            temp_df['maximum(±sd)'] = '%.2f' % temp_df['maximum'] + "(±" + '%.2f' % temp2_df['maximum_sd'] + ")"
+            temp_df['emt50(±sd)'] = '%.2f' % temp_df['emt50'] + "(±" + '%.2f' % temp2_df['emt50_sd'] + ")"
+            temp_df[grouping_variable] = name
+
+            # calculate chi2 for goodness of fit of model
+            residuals = group['relative_stage']-ll3(group[time],*popt)
+            sq_residuals = residuals**2
+            chi_sq = np.sum(sq_residuals / group['stdev']**2)
+            temp_df['reduced_chi2'] = chi_sq / 3
+
+            fit_df.append(temp_df)
+
+            # store curve for plotting
+            temp3_df = dict(zip(x_line, ll3(x_line, *popt)))
+            temp3_df[grouping_variable] = name
+            fitted_df.append(temp3_df)
+
+
+        # print the model parameters and chi2 to manually compare groups
+        fit_df = pd.DataFrame(fit_df).set_index(grouping_variable)
+        fit_df = fit_df.drop(columns=['slope', 'maximum', 'emt50'])
+        print(fit_df)
+
+        
+        fitted_df = pd.DataFrame(fitted_df)
+        fitted_df = pd.melt(fitted_df, id_vars=grouping_variable, 
+                        value_vars=fitted_df.loc[:, fitted_df.columns != grouping_variable], 
+                        var_name=time, value_name='value')
+
+        
+        # plot the observed data as points and the fitted models as curves
+        sns.lmplot(data=self.cumulative_data, x=time, y='relative_stage', hue = grouping_variable, fit_reg=False, palette="colorblind")
+        sns.lineplot(data=fitted_df, x=time, y='value', hue=grouping_variable, palette="colorblind")
+        
+        self.cumulative_data = self.cumulative_data.drop(columns='relative_stage')
+
+
+
+    '''
+    def plot_survival_over_time_in_fitted_model(
+        self, 
+        sample_id='sample_id',
+        grouping_variable='genotype',
+        time='day',
+        stage_of_ineterest='fourth_instar',
+        use_relative_data=True,
+        make_nymphs_relative_to='first_instar'):
+        
+        Fits a 3 parameter log-logistic curve to the development over time to a specified stage. The fitted curve and the
+        observed datapoints are plotted and returned with the model parameters. 
+        The reduced Chi-squared is provided to asses the goodness of fit for the fitted models for each group (genotype, 
+        treatment, etc.). Optimaly, the reduced Chi-squared should approach the number of observation points per sample. A
+        much larger reduced Chi-squared indicates a bad fit. A much smaller reduced Chi-squared indicates overfitting of 
+        the model.
+        
+        Parameters
+        ----------
+        sample_id: string, default='sample_id'
+            The name of the column that contains the sample identifiers.
+        grouping_variable: string, default='genotype'
+            The name of the column that contains the names of the grouping variables.
+            Examples are genotypes or treatments.
+        time: string, default='day'
+            The name of the column that contains the time at which bioassay scoring was performed.
+            Examples are the date or the number of days after infection.
+        stage_of_ineterest: string, default='fourth_instar'
+            The name of the column that contains the data of the developmental stage of interest.
+        use_relative_data: boolean, default=True
+            If True, the counts for the stage of interest are devided by the stage indicated at 'make_nymphs_relative_to'.
+            The returned relative rate is used for plotting and curve fitting.
+        make_nymphs_relative_to: string, default='first_instar'
+            The name of the column that contains the counts of the developmental stage which should be used to calculate 
+            therelative development to all developmental stages.
+
+        
+        Examples
+        --------
+        Example of an input dataframe
+
+        | sample_id | genotype  | day   | eggs  | first_instar  | second instar | third_instar  | fourth_instar |
+        |-----------|-----------|-------|-------|---------------|---------------|---------------|---------------|
+        | mm_1      |   mm      | 5     | 45    | 15            | 7             | 0             | 0             |
+        | mm_1      |   mm      | 9     | NA    | 24            | 14            | 6             | 3             |
+        | mm_1      |   mm      | 11    | NA    | 38            | 27            | 16            | 12            |
+        
+        
+
+        # define function of model:
+        def ll3(x,slope,maximum,emt50):
+             
+            A three parameter log-logistic function.
+        
+            Parameters
+            ----------
+            slope: 
+                the slope of the curve
+            maximum: 
+                the maximum value of the curve
+            emt50: 
+                the EmT50, the timepoint at which 50% of nymphs has developed to the stage of interest
+            
+            return(maximum/(1+np.exp(slope*(np.log(x)-np.log(emt50)))))
+        
+        # extract the timecourse in which the bioassay was performed. Needed to fit the model
         x_line = arange(min(self.bioassay[time]), max(self.bioassay[time])+1, 1)
 
         # if relative counts should be used
@@ -785,6 +962,8 @@ class PhenotypeAnalysis:
         sns.lineplot(data=fitted_df, x=time, y='value', hue=grouping_variable, palette="colorblind")
         
         self.bioassay = self.bioassay.drop(columns='relative_stage')
+
+    '''
 
 # Next: - add statistics to compare groups and return p-values
 #       - return sugestion for resistant/susceptible grouping
