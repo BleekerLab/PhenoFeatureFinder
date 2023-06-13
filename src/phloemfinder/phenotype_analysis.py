@@ -813,7 +813,6 @@ class PhenotypeAnalysis:
     
     def plot_survival_over_time_in_fitted_model(
         self,
-        day_first_nymph_counted, 
         sample_id='sample_id',
         grouping_variable='genotype',
         time='day',
@@ -862,7 +861,7 @@ class PhenotypeAnalysis:
         '''
 
         # define function of model:
-        def ll3(x,slope,maximum,emt50):
+        def hazard(x,median,shape):
             ''' 
             A three parameter log-logistic function.
         
@@ -875,10 +874,10 @@ class PhenotypeAnalysis:
             emt50: 
                 the EmT50, the timepoint at which 50% of nymphs has developed to the stage of interest
             '''
-            return(maximum/(1+np.exp(slope*(np.log(x)-np.log(emt50)))))
+            return(((shape/median)*pow(x/median,shape-1))/(1+pow(x/median,shape)))
         
         # extract the timecourse in which the bioassay was performed. Needed to fit the model
-        x_line = arange(day_first_nymph_counted, max(self.survival_data[time])+1, 1)
+        x_line = arange(min(self.survival_data[time]), max(self.survival_data[time])+1, 1)
 
         # if relative counts should be used
         if use_relative_data==True:
@@ -919,22 +918,21 @@ class PhenotypeAnalysis:
         fitted_df = []
         for name,group in grouped_df:
             
-            # make an initial guess of the parameters as if the data is linear
-            p0 = [-(max(group['relative_stage'])/(max(self.survival_data[time])+1)), max(group['relative_stage']), (max(self.survival_data[time])+1)/2]
+            # make an initial guess of the parameters with the median at the middel timepoint nd the shape=4
+            p0 = [(max(self.survival_data[time])/2), 4]
             
             # fit the model to the data
-            popt, pcov = opt.curve_fit(ll3, group[time], group['relative_stage'], p0=p0)
+            popt, pcov = opt.curve_fit(hazard, group[time], group['relative_stage'], p0=p0)
             
             # store the model parameters with their standard deviations in a df
-            temp_df = dict(zip(['slope', 'maximum', 'emt50'], popt))
-            temp2_df = dict(zip(['slope_sd', 'maximum_sd', 'emt50_sd'], np.sqrt(np.diag(pcov))))
-            temp_df['slope(±sd)'] = '%.2f' % temp_df['slope'] + "(±" + '%.2f' % temp2_df['slope_sd'] + ")"
-            temp_df['maximum(±sd)'] = '%.2f' % temp_df['maximum'] + "(±" + '%.2f' % temp2_df['maximum_sd'] + ")"
-            temp_df['emt50(±sd)'] = '%.2f' % temp_df['emt50'] + "(±" + '%.2f' % temp2_df['emt50_sd'] + ")"
+            temp_df = dict(zip(['median', 'shape'], popt))
+            temp2_df = dict(zip(['median_sd', 'shape_sd'], np.sqrt(np.diag(pcov))))
+            temp_df['median(±sd)'] = '%.2f' % temp_df['median'] + "(±" + '%.2f' % temp2_df['median_sd'] + ")"
+            temp_df['shape(±sd)'] = '%.2f' % temp_df['shape'] + "(±" + '%.2f' % temp2_df['shape_sd'] + ")"
             temp_df[grouping_variable] = name
 
             # calculate chi2 for goodness of fit of model
-            residuals = group['relative_stage']-ll3(group[time],*popt)
+            residuals = group['relative_stage']-hazard(group[time],*popt)
             sq_residuals = residuals**2
             chi_sq = np.sum(sq_residuals / group['stdev']**2)
             temp_df['reduced_chi2'] = chi_sq / 3
@@ -942,14 +940,14 @@ class PhenotypeAnalysis:
             fit_df.append(temp_df)
 
             # store curve for plotting
-            temp3_df = dict(zip(x_line, ll3(x_line, *popt)))
+            temp3_df = dict(zip(x_line, hazard(x_line, *popt)))
             temp3_df[grouping_variable] = name
             fitted_df.append(temp3_df)
 
 
         # print the model parameters and chi2 to manually compare groups
         fit_df = pd.DataFrame(fit_df).set_index(grouping_variable)
-        fit_df = fit_df.drop(columns=['slope', 'maximum', 'emt50'])
+        fit_df = fit_df.drop(columns=['median', 'shape'])
         print(fit_df)
 
         
