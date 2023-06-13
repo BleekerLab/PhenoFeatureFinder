@@ -922,7 +922,7 @@ class PhenotypeAnalysis:
             p0 = [(max(self.survival_data[time])/2), 4]
             
             # fit the model to the data
-            popt, pcov = opt.curve_fit(hazard, group[time], group['relative_stage'], p0=p0)
+            popt, pcov = opt.curve_fit(hazard, group[time], group['relative_stage'], p0=p0, bounds=([min(self.survival_data[time]), 2], [max(self.survival_data[time]), 10]))
             
             # store the model parameters with their standard deviations in a df
             temp_df = dict(zip(['median', 'shape'], popt))
