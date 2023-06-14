@@ -861,20 +861,20 @@ class PhenotypeAnalysis:
         '''
 
         # define function of model:
-        def hazard(x,median,shape):
+        def hazard(x,auc,median,shape):
             ''' 
             A three parameter log-logistic function.
         
             Parameters
             ----------
-            slope: 
-                the slope of the curve
-            maximum: 
-                the maximum value of the curve
-            emt50: 
-                the EmT50, the timepoint at which 50% of nymphs has developed to the stage of interest
+            auc: 
+                area under the curve
+            median: 
+                median time point
+            shape: 
+                shape of the curve
             '''
-            return(((shape/median)*pow(x/median,shape-1))/(1+pow(x/median,shape)))
+            return((auc*(shape/median)*pow(x/median,shape-1))/(1+pow(x/median,shape)))
         
         # extract the timecourse in which the bioassay was performed. Needed to fit the model
         x_line = arange(min(self.survival_data[time]), max(self.survival_data[time])+1, 1)
@@ -919,14 +919,15 @@ class PhenotypeAnalysis:
         for name,group in grouped_df:
             
             # make an initial guess of the parameters with the median at the middel timepoint nd the shape=4
-            p0 = [(max(self.survival_data[time])/2), 4]
+            p0 = [250, (max(self.survival_data[time])/2), 4]
             
             # fit the model to the data
-            popt, pcov = opt.curve_fit(hazard, group[time], group['relative_stage'], p0=p0, bounds=([0,2],[800,10]))
+            popt, pcov = opt.curve_fit(hazard, group[time], group['relative_stage'], p0=p0)
             
             # store the model parameters with their standard deviations in a df
-            temp_df = dict(zip(['median', 'shape'], popt))
-            temp2_df = dict(zip(['median_sd', 'shape_sd'], np.sqrt(np.diag(pcov))))
+            temp_df = dict(zip(['AUC', 'median', 'shape'], popt))
+            temp2_df = dict(zip(['AUC_sd','median_sd', 'shape_sd'], np.sqrt(np.diag(pcov))))
+            temp_df['AUC(±sd)'] = '%.2f' % temp_df['AUC'] + "(±" + '%.2f' % temp2_df['AUC_sd'] + ")"
             temp_df['median(±sd)'] = '%.2f' % temp_df['median'] + "(±" + '%.2f' % temp2_df['median_sd'] + ")"
             temp_df['shape(±sd)'] = '%.2f' % temp_df['shape'] + "(±" + '%.2f' % temp2_df['shape_sd'] + ")"
             temp_df[grouping_variable] = name
@@ -947,7 +948,7 @@ class PhenotypeAnalysis:
 
         # print the model parameters and chi2 to manually compare groups
         fit_df = pd.DataFrame(fit_df).set_index(grouping_variable)
-        fit_df = fit_df.drop(columns=['median', 'shape'])
+        fit_df = fit_df.drop(columns=['AUC', 'median', 'shape'])
         print(fit_df)
 
         
