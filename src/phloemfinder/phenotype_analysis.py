@@ -573,8 +573,26 @@ class PhenotypeAnalysis:
             self.create_df_with_max_counts_per_stage(egg_column=eggs, last_stage=sixth_stage, grouping_variable=sample_id)
 
     
+    def prepare_for_plotting(
+        self,
+        order_of_groups):
+        '''
+        Preparations for more streamlined plotting
+        
+        Parameters
+        ----------
+        order_of_groups: string
+            List of the group names in the prefered order for plotting
+            For example: ['MM', 'LA', 'PI']
+        
+        '''
+
+        self.group_order = order_of_groups
+        
+
+
     def plot_counts_per_stage(
-        self, 
+        self,
         grouping_variable='genotype',
         sample_id='sample_id',
         eggs='eggs',
@@ -582,6 +600,10 @@ class PhenotypeAnalysis:
         second_stage='second_instar',
         third_stage='third_instar',
         fourth_stage='fourth_instar',
+        absolute_x_axis_label='genotype',
+        absolute_y_axis_label='counts (absolute)',
+        relative_x_axis_label='genotype',
+        relative_y_axis_label='relative number of nymphs',
         make_nymphs_relative_to='first_instar'):
         '''
         Plots the counts per nymphal stage in boxplots. The nymph counts are given as the absolute number of nymphs that 
@@ -625,15 +647,19 @@ class PhenotypeAnalysis:
         | LA_1      |   LA      | 28    | 42    | 30            | 25            | 17           | 4             |
         
         '''
-        
+        if fourth_stage==third_stage:
+            raise Warning("The specified column with the fourth counted developmental stage {0} is the same as the third developmental stage {1}. The plot_counts_per_stage funtion is currently only available for 4 stages. Solve by setting fourth_stage to other variable (for example fourth_stage='day')".format(fourth_stage, third_stage))
+        else:
+            pass
+
         self.absolute_counts = pd.DataFrame()
         self.absolute_counts = pd.melt(self.max_counts, id_vars=[sample_id, grouping_variable], 
                 value_vars=[eggs, first_stage, second_stage, third_stage, fourth_stage], 
                 var_name='developmental_stage', value_name='absolute_count')
         
         plots = sns.FacetGrid(self.absolute_counts, col='developmental_stage')
-        plots.map(sns.boxplot, grouping_variable, 'absolute_count', palette="colorblind")
-        plots.set(ylim=(0, None))
+        plots.map(sns.boxplot, grouping_variable, 'absolute_count', palette="colorblind", order=self.group_order)  
+        plots.set(ylim=(0, None), xlabel=absolute_x_axis_label, ylabel=absolute_y_axis_label)  #
         
         
         self.max_relative = pd.DataFrame()
@@ -648,8 +674,8 @@ class PhenotypeAnalysis:
                 var_name='developmental_stage', value_name='relative_count')
         
         plots = sns.FacetGrid(self.max_relative, col='developmental_stage')
-        plots.map(sns.boxplot, grouping_variable, 'relative_count', palette="colorblind")
-        plots.set(ylim=(0,1))
+        plots.map(sns.boxplot, grouping_variable, 'relative_count', palette="colorblind", order=self.group_order)
+        plots.set(ylim=(0,1), xlabel=relative_x_axis_label, ylabel=relative_y_axis_label)
 
         ## I want to add statistics here using an ANOVA with a Dunnett's post-hoc, but at this moment (Nov 1 2022) a Dunnett's
         ## test is not available on python yet. 
@@ -658,9 +684,11 @@ class PhenotypeAnalysis:
 
     def plot_development_over_time_in_fitted_model(
         self, 
-        sample_id='sample_id',
         grouping_variable='genotype',
+        sample_id='sample_id',
         time='day',
+        x_axis_label='days after infection',
+        y_axis_label='development to 4th instar stage (relative to 1st instars)',
         stage_of_ineterest='fourth_instar',
         use_relative_data=True,
         make_nymphs_relative_to='first_instar'):
@@ -674,14 +702,18 @@ class PhenotypeAnalysis:
         
         Parameters
         ----------
-        sample_id: string, default='sample_id'
-            The name of the column that contains the sample identifiers.
         grouping_variable: string, default='genotype'
             The name of the column that contains the names of the grouping variables.
-            Examples are genotypes or treatments.
+            Examples are genotypes or treatments
+        sample_id: string, default='sample_id'
+            The name of the column that contains the sample identifiers.
         time: string, default='day'
             The name of the column that contains the time at which bioassay scoring was performed.
             Examples are the date or the number of days after infection.
+        x_axis_label: string, default='days after infection'
+            Label for the x-axis
+        y_axis_label: string, default='development to 4th instar stage (relative to 1st instars)'
+            Label for the y-axis
         stage_of_ineterest: string, default='fourth_instar'
             The name of the column that contains the data of the developmental stage of interest.
         use_relative_data: boolean, default=True
@@ -791,7 +823,7 @@ class PhenotypeAnalysis:
 
 
         # print the model parameters and chi2 to manually compare groups
-        fit_df = pd.DataFrame(fit_df).set_index(grouping_variable)
+        fit_df = pd.DataFrame(fit_df).set_index(grouping_variable).reindex(index=self.group_order)
         fit_df = fit_df.drop(columns=['slope', 'maximum', 'emt50'])
         print(fit_df)
 
@@ -803,8 +835,10 @@ class PhenotypeAnalysis:
 
         
         # plot the observed data as points and the fitted models as curves
-        sns.lmplot(data=self.cumulative_data, x=time, y='relative_stage', hue = grouping_variable, fit_reg=False, palette="colorblind")
-        sns.lineplot(data=fitted_df, x=time, y='value', hue=grouping_variable, palette="colorblind")
+        sns.lmplot(data=self.cumulative_data, x=time, y='relative_stage', hue = grouping_variable, hue_order=self.group_order, fit_reg=False, palette="colorblind")
+        sns.lineplot(data=fitted_df, x=time, y='value', hue=grouping_variable, hue_order=self.group_order, palette="colorblind")
+        plt.xlabel(x_axis_label)
+        plt.ylabel(y_axis_label)
         
         self.cumulative_data = self.cumulative_data.drop(columns='relative_stage')
 
@@ -813,15 +847,17 @@ class PhenotypeAnalysis:
     
     def plot_survival_over_time_in_fitted_model(
         self,
-        sample_id='sample_id',
         grouping_variable='genotype',
+        sample_id='sample_id',
         time='day',
+        x_axis_label='days after infection',
+        y_axis_label='number of nymphs per plant',
         stage_of_ineterest='first_instar',
         use_relative_data=False,
         make_nymphs_relative_to='first_instar'):
 
         '''
-        Fits a 3 parameter log-logistic curve to the development over time to a specified stage. The fitted curve and the
+        Fits a 3 parameter log-normal curve to the number of living nymphs over time. The fitted curve and the
         observed datapoints are plotted and returned with the model parameters. 
         The reduced Chi-squared is provided to asses the goodness of fit for the fitted models for each group (genotype, 
         treatment, etc.). Optimaly, the reduced Chi-squared should approach the number of observation points per sample. A
@@ -830,14 +866,18 @@ class PhenotypeAnalysis:
         
         Parameters
         ----------
-        sample_id: string, default='sample_id'
-            The name of the column that contains the sample identifiers.
         grouping_variable: string, default='genotype'
             The name of the column that contains the names of the grouping variables.
-            Examples are genotypes or treatments.
+            Examples are genotypes or treatments
+        sample_id: string, default='sample_id'
+            The name of the column that contains the sample identifiers.
         time: string, default='day'
             The name of the column that contains the time at which bioassay scoring was performed.
             Examples are the date or the number of days after infection.
+        x_axis_label: string, default='days after infection'
+            Label for the x-axis
+        y_axis_label: string, default='development to 4th instar stage (relative to 1st instars)'
+            Label for the y-axis
         stage_of_ineterest: string, default='fourth_instar'
             The name of the column that contains the data of the developmental stage of interest.
         use_relative_data: boolean, default=True
@@ -863,7 +903,7 @@ class PhenotypeAnalysis:
         # define function of model:
         def hazard(x,auc,median,shape):
             ''' 
-            A three parameter log-logistic function.
+            A three parameter log-normal function.
         
             Parameters
             ----------
@@ -947,7 +987,7 @@ class PhenotypeAnalysis:
 
 
         # print the model parameters and chi2 to manually compare groups
-        fit_df = pd.DataFrame(fit_df).set_index(grouping_variable)
+        fit_df = pd.DataFrame(fit_df).set_index(grouping_variable).reindex(index=self.group_order)
         fit_df = fit_df.drop(columns=['AUC', 'median', 'shape'])
         print(fit_df)
 
@@ -959,8 +999,10 @@ class PhenotypeAnalysis:
 
         
         # plot the observed data as points and the fitted models as curves
-        sns.lmplot(data=self.survival_data, x=time, y='relative_stage', hue = grouping_variable, fit_reg=False, palette="colorblind")
-        sns.lineplot(data=fitted_df, x=time, y='value', hue=grouping_variable, palette="colorblind")
+        sns.lmplot(data=self.survival_data, x=time, y='relative_stage', hue = grouping_variable, hue_order=self.group_order, fit_reg=False, palette="colorblind")
+        sns.lineplot(data=fitted_df, x=time, y='value', hue=grouping_variable, hue_order=self.group_order, palette="colorblind")
+        plt.xlabel(x_axis_label)
+        plt.ylabel(y_axis_label)
         
         self.survival_data = self.survival_data.drop(columns='relative_stage')
 
