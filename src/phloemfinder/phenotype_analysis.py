@@ -577,7 +577,7 @@ class PhenotypeAnalysis:
         self,
         order_of_groups):
         '''
-        Preparations for more streamlined plotting
+        Prepare the order in which the groups should be plotted.
         
         Parameters
         ----------
@@ -632,9 +632,17 @@ class PhenotypeAnalysis:
             The name of the column that contains the counts of the third developmental stage recorded in the bioassay.
         fourth_stage: string, default='fourth_instar'
             The name of the column that contains the counts of the fourth developmental stage recorded in the bioassay.
+        absolute_x_axis_label: string, default='genotype'
+            Label for the x-axis of the boxplots with count data.
+        absolute_y_axis_label: string, default='counts (absolute)'
+            Label for the y-axis of the boxplots with count data.
+        relative_x_axis_label: string, default='genotype'
+            Label for the x-axis of the boxplots with relative development.
+        relative_y_axis_label: string, default='relative number of nymphs'
+            Label for the y-axis of the boxplots with relative development.
         make_nymphs_relative_to: string, default='first_instar'
             The name of the column that contains the counts of the developmental stage which should be used to calculate 
-            therelative development to all developmental stages.
+            the relative development to all developmental stages.
         
         Examples
         --------
@@ -676,9 +684,6 @@ class PhenotypeAnalysis:
         plots = sns.FacetGrid(self.max_relative, col='developmental_stage')
         plots.map(sns.boxplot, grouping_variable, 'relative_count', palette="colorblind", order=self.group_order)
         plots.set(ylim=(0,1), xlabel=relative_x_axis_label, ylabel=relative_y_axis_label)
-
-        ## I want to add statistics here using an ANOVA with a Dunnett's post-hoc, but at this moment (Nov 1 2022) a Dunnett's
-        ## test is not available on python yet. 
 
 
 
@@ -1008,9 +1013,13 @@ class PhenotypeAnalysis:
 
     
 
-# Next: - add statistics to compare groups and return p-values
-#       - return sugestion for resistant/susceptible grouping
-#       - return df with resistant/susceptible grouping
-#       - add more model options
-#       - option for choosing model based on best fit
-#       - option for prediction if curve is not finished
+# To do:    - add statistics to compare groups and return p-values:
+#               A funtion for a Dunnetts test will be available in scipy 1.12.0 and should be added here when released
+#           - make plot_counts_per_stage function available for n_developmental_stages != 4
+#
+#Optional additions:
+#           - return sugestion for resistant/susceptible grouping
+#           - return df with resistant/susceptible grouping
+#           - add more model options
+#           - option for choosing model based on best fit
+#           - option for prediction if curve is not finished
