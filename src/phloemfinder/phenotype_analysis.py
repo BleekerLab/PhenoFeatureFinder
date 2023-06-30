@@ -696,7 +696,8 @@ class PhenotypeAnalysis:
         y_axis_label='development to 4th instar stage (relative to 1st instars)',
         stage_of_ineterest='fourth_instar',
         use_relative_data=True,
-        make_nymphs_relative_to='first_instar'):
+        make_nymphs_relative_to='first_instar',
+        predict_for_n_days=0):
         '''
         Fits a 3 parameter log-logistic curve to the development over time to a specified stage. The fitted curve and the
         observed datapoints are plotted and returned with the model parameters. 
@@ -727,6 +728,8 @@ class PhenotypeAnalysis:
         make_nymphs_relative_to: string, default='first_instar'
             The name of the column that contains the counts of the developmental stage which should be used to calculate 
             therelative development to all developmental stages.
+        predict_for_n_days: default=o
+            Continue model for n days after final count.
 
         
         Examples
@@ -758,7 +761,7 @@ class PhenotypeAnalysis:
             return(maximum/(1+np.exp(slope*(np.log(x)-np.log(emt50)))))
         
         # extract the timecourse in which the bioassay was performed. Needed to fit the model
-        x_line = arange(min(self.cumulative_data[time]), max(self.cumulative_data[time])+1, 1)
+        x_line = arange(min(self.cumulative_data[time]), max(self.cumulative_data[time])+1+predict_for_n_days, 1)
 
         # if relative counts should be used
         if use_relative_data==True:
@@ -859,7 +862,8 @@ class PhenotypeAnalysis:
         y_axis_label='number of nymphs per plant',
         stage_of_ineterest='first_instar',
         use_relative_data=False,
-        make_nymphs_relative_to='first_instar'):
+        make_nymphs_relative_to='first_instar',
+        predict_for_n_days=0):
 
         '''
         Fits a 3 parameter log-normal curve to the number of living nymphs over time. The fitted curve and the
@@ -891,6 +895,8 @@ class PhenotypeAnalysis:
         make_nymphs_relative_to: string, default='first_instar'
             The name of the column that contains the counts of the developmental stage which should be used to calculate 
             therelative development to all developmental stages.
+        predict_for_n_days: default=o
+            Continue model for n days after final count.
 
         
         Examples
@@ -922,7 +928,7 @@ class PhenotypeAnalysis:
             return((auc*(shape/median)*pow(x/median,shape-1))/(1+pow(x/median,shape)))
         
         # extract the timecourse in which the bioassay was performed. Needed to fit the model
-        x_line = arange(min(self.survival_data[time]), max(self.survival_data[time])+1, 1)
+        x_line = arange(min(self.survival_data[time]), max(self.survival_data[time])+1+predict_for_n_days, 1)
 
         # if relative counts should be used
         if use_relative_data==True:
