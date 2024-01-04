@@ -339,8 +339,8 @@ class PhenotypeAnalysis:
         Parameters
         ----------
         n_developmental_stages: integer, default=4
-            The number of developmental stage swhich were recorded seperately. 
-            Can range from 2 till 6.
+            The number of developmental stages which were recorded seperately. 
+            Can range from 2 to 6.
         sample_id: string, default='sample_id'
             The name of the column that contains the sample identifiers.
         eggs: string, default='eggs'
@@ -862,7 +862,7 @@ class PhenotypeAnalysis:
         y_axis_label='number of nymphs per plant',
         stage_of_ineterest='first_instar',
         use_relative_data=False,
-        make_nymphs_relative_to='first_instar',
+        make_nymphs_relative_to='eggs',
         predict_for_n_days=0):
 
         '''
@@ -887,14 +887,14 @@ class PhenotypeAnalysis:
             Label for the x-axis
         y_axis_label: string, default='development to 4th instar stage (relative to 1st instars)'
             Label for the y-axis
-        stage_of_ineterest: string, default='fourth_instar'
+        stage_of_ineterest: string, default='first_instar'
             The name of the column that contains the data of the developmental stage of interest.
-        use_relative_data: boolean, default=True
+        use_relative_data: boolean, default=False
             If True, the counts for the stage of interest are devided by the stage indicated at 'make_nymphs_relative_to'.
             The returned relative rate is used for plotting and curve fitting.
-        make_nymphs_relative_to: string, default='first_instar'
+        make_nymphs_relative_to: string, default='eggs'
             The name of the column that contains the counts of the developmental stage which should be used to calculate 
-            therelative development to all developmental stages.
+            the relative development to all developmental stages.
         predict_for_n_days: default=o
             Continue model for n days after final count.
 
