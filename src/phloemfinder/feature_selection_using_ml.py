@@ -18,6 +18,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.inspection import permutation_importance
 from sklearn.decomposition import PCA
 from sklearn.metrics import balanced_accuracy_score
+from sklearn.tree import DecisionTreeClassifier
 
 from tpot import TPOTClassifier
 from tpot.export_utils import set_param_recursive
@@ -30,7 +31,13 @@ from phloemfinder.utils import compute_metrics_classification
 ## See https://epistasislab.github.io/tpot/using/#built-in-tpot-configurations
 tpot_custom_config = {
    # Models to test 
-   'sklearn.ensemble.RandomForestClassifier': {
+  'sklearn.tree.DecisionTreeClassifier': {
+        'criterion': ["gini", "entropy"],
+        'max_depth': range(1, 11),
+        'min_samples_split': range(2, 21),
+        'min_samples_leaf':  range(1, 21),
+    },
+  'sklearn.ensemble.RandomForestClassifier': {
         'n_estimators': [1000],
         'criterion': ["gini", "entropy"],
         'max_features': np.arange(0.05, 1.01, 0.05),
@@ -358,7 +365,6 @@ class MetabolitePhenotypeFeatureSelection:
     #################
     def get_baseline_performance(
       self, 
-      class_of_interest,
       kfold=5, 
       train_size=0.8,
       random_state=123,
@@ -371,12 +377,6 @@ class MetabolitePhenotypeFeatureSelection:
 
         Parameters
         ----------
-        class_of_interest: str
-          The name of the class of interest also called "positive class".
-          This class will be used to calculate recall_score and precision_score. 
-          Recall score = TP / (TP + FN) with TP: true positives and FN: false negatives.
-          Precision score = TP / (TP + FP) with TP: true positives and FP: false positives. 
-
         kfold: int, optional
           Cross-validation strategy. Default is to use a 5-fold cross-validation. 
         
@@ -491,7 +491,6 @@ class MetabolitePhenotypeFeatureSelection:
           ‘jaccard’ etc. (suffixes apply as with ‘f1’), 'roc_auc', ‘roc_auc_ovr’, ‘roc_auc_ovo’, ‘roc_auc_ovr_weighted’, ‘roc_auc_ovo_weighted’ 
 
       kfolds: int, optional
-        kfolds: int, optional
         Number of folds for the stratified K-Folds cross-validation strategy. Default is 3-fold cross-validation. 
         Has to be comprised between 3 and 10 i.e. 3 <= kfolds =< 10
         See https://scikit-learn.org/stable/modules/cross_validation.html
@@ -573,7 +572,7 @@ class MetabolitePhenotypeFeatureSelection:
           train_size=train_size, 
           random_state=random_state, 
           stratify=y)    
-      tpot = TPOTClassifier(generations=None, max_time_mins=max_time_mins, max_eval_time_mins=max_eval_time_mins, cv=kfolds, config_dict=tpot_custom_config, random_state=random_state, verbosity=0)
+      tpot = TPOTClassifier(max_time_mins=max_time_mins, max_eval_time_mins=max_eval_time_mins, cv=kfolds, config_dict=tpot_custom_config, random_state=random_state, verbosity=2)
       tpot.fit(X_train, y_train)
       best_pipeline = tpot.fitted_pipeline_
       set_param_recursive(best_pipeline.steps, 'random_state', random_state)
@@ -647,7 +646,11 @@ class MetabolitePhenotypeFeatureSelection:
 
         loadings_of_selected_pc = self.loadings[zero_off_selected_pc]
         loadings_indices_top_n_of_selected_pc = np.argsort(loadings_of_selected_pc)[::-1][:top_n] # argsort returns the indices
+        loadings_values_top_n_of_selected_pc = loadings_of_selected_pc[loadings_indices_top_n_of_selected_pc]
         top_features_selected_pc = metabolite_df.iloc[:, loadings_indices_top_n_of_selected_pc].columns.tolist()
+        names_loadings_top_features = pd.DataFrame({'feature_name': top_features_selected_pc, 
+                                                    'loading': list(loadings_values_top_n_of_selected_pc)},
+                                                    columns = ['feature_name', 'loading'])
         
         print("Here are the metabolite names with the top {0} absolute loadings on PC{1}".format(top_n, selected_pc))
-        return top_features_selected_pc
+        return names_loadings_top_features
