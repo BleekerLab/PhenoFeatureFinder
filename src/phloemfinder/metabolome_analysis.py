@@ -489,7 +489,7 @@ class MetaboliteAnalysis:
     ### Write filtered metabolomoe data to a csv file
     #################################################
 
-    def write_clean_metabolome_to_csv(self, path_of_cleaned_csv="filtered_metabolome.csv"):
+    def write_clean_metabolome_to_csv(self, path_of_cleaned_csv="./data_for_manuals/filtered_metabolome.csv"):
         '''
         A function that verify that the metabolome dataset has been cleaned up. 
         Writes the metabolome data as a comma-separated value file on disk
@@ -498,7 +498,7 @@ class MetaboliteAnalysis:
         ----------
         path_of_cleaned_csv: str, optional
             The path and filename of the .csv file to save.
-            Default to "./filtered_metabolome.csv" 
+            Default to "./data_for_manuals/filtered_metabolome.csv" 
         '''
         try:
             self.blank_features_filtered == True
