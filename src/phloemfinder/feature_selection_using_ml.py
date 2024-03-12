@@ -458,7 +458,9 @@ class MetabolitePhenotypeFeatureSelection:
         max_time_mins=5,
         max_eval_time_mins=1,
         random_state=123,
-        n_permutations=10):
+        n_permutations=10,
+        export_best_pipeline=True,
+        path_for_saving_pipeline="./best_fitting_pipeline.py"):
       '''
       Search for the best ML model with TPOT genetic programming methodology and extracts best Principal Components.
  
@@ -476,10 +478,10 @@ class MetabolitePhenotypeFeatureSelection:
       Parameters
       ----------
       class_of_interest: str
-          The name of the class of interest also called "positive class".
-          This class will be used to calculate recall_score and precision_score. 
-          Recall score = TP / (TP + FN) with TP: true positives and FN: false negatives.
-          Precision score = TP / (TP + FP) with TP: true positives and FP: false positives. 
+        The name of the class of interest also called "positive class".
+        This class will be used to calculate recall_score and precision_score. 
+        Recall score = TP / (TP + FN) with TP: true positives and FN: false negatives.
+        Precision score = TP / (TP + FP) with TP: true positives and FP: false positives. 
 
       scoring_metric: str, optional
         Function used to evaluate the quality of a given pipeline for the classification problem. 
@@ -510,13 +512,22 @@ class MetabolitePhenotypeFeatureSelection:
         This time has to be smaller than the 'max_time_mins' setting.
 
       random_state: int, optional
-          Controls both the randomness of the train/test split  samples used when building trees (if bootstrap=True) and the sampling of the features to consider when looking for the best split at each node (if max_features < n_features). See Glossary for details.
-          You can change this value several times to see how it affects the best ensemble model performance.
-          Default is 123.
+        Controls both the randomness of the train/test split  samples used when building trees (if bootstrap=True) and the sampling of the features to consider when looking for the best split at each node (if max_features < n_features). See Glossary for details.
+        You can change this value several times to see how it affects the best ensemble model performance.
+        Default is 123.
 
       n_permutations: int, optional
         Number of permutations used to compute feature importances from the best model using scikit-learn permutation_importance() method.
         Default is 10 permutations.
+
+      export_best_pipeline: `bool`, optional
+        If True, the best fitting pipeline is exported as .py file. This allows for reuse of the pipeline on new datasets.
+        Default is True. 
+      
+      path_for_saving_pipeline: str, optional
+        The path and filename of the best fitting pipeline to save.
+        The name must have a '.py' extension. 
+        Default to "./best_fitting_pipeline.py"
       
 
       Returns
@@ -607,6 +618,11 @@ class MetabolitePhenotypeFeatureSelection:
       self.best_model = best_pipeline
       self.pc_importances = pc_importances
       self.loadings = np.absolute(pca.components_) # required for downstream analyses (extraction of important features based on their loadings)
+
+      if export_best_pipeline is True:
+         tpot.export(path_for_saving_pipeline)
+      else:
+         pass
 
     
     def get_names_of_top_n_features_from_selected_pc(self, selected_pc=1, top_n=5):
