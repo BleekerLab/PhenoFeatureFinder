@@ -694,7 +694,7 @@ class PhenotypeAnalysis:
         time='day',
         x_axis_label='days after infection',
         y_axis_label='development to 4th instar stage (relative to 1st instars)',
-        stage_of_ineterest='fourth_instar',
+        stage_of_interest='fourth_instar',
         use_relative_data=True,
         make_nymphs_relative_to='first_instar',
         predict_for_n_days=0):
@@ -720,7 +720,7 @@ class PhenotypeAnalysis:
             Label for the x-axis
         y_axis_label: string, default='development to 4th instar stage (relative to 1st instars)'
             Label for the y-axis
-        stage_of_ineterest: string, default='fourth_instar'
+        stage_of_interest: string, default='fourth_instar'
             The name of the column that contains the data of the developmental stage of interest.
         use_relative_data: boolean, default=True
             If True, the counts for the stage of interest are devided by the stage indicated at 'make_nymphs_relative_to'.
@@ -770,7 +770,7 @@ class PhenotypeAnalysis:
             for name, group in grouped_df:
                 temp2_df = group
                 temp2_df = temp2_df.reset_index()
-                temp2_df['relative_stage'] = temp2_df[stage_of_ineterest]/max(temp2_df[make_nymphs_relative_to])
+                temp2_df['relative_stage'] = temp2_df[stage_of_interest]/max(temp2_df[make_nymphs_relative_to])
 
                 temp_df = pd.concat([temp_df, temp2_df], ignore_index=True)
 
@@ -778,7 +778,7 @@ class PhenotypeAnalysis:
             self.cumulative_data = self.cumulative_data.drop(columns='index')
 
         else:
-            self.cumulative_data['relative_stage'] = self.cumulative_data[stage_of_ineterest]
+            self.cumulative_data['relative_stage'] = self.cumulative_data[stage_of_interest]
 
 
         # add a column with standard deviations to use for the sigma in the curve_fit function
@@ -860,7 +860,7 @@ class PhenotypeAnalysis:
         time='day',
         x_axis_label='days after infection',
         y_axis_label='number of nymphs per plant',
-        stage_of_ineterest='first_instar',
+        stage_of_interest='first_instar',
         use_relative_data=False,
         make_nymphs_relative_to='eggs',
         predict_for_n_days=0):
@@ -887,7 +887,7 @@ class PhenotypeAnalysis:
             Label for the x-axis
         y_axis_label: string, default='development to 4th instar stage (relative to 1st instars)'
             Label for the y-axis
-        stage_of_ineterest: string, default='first_instar'
+        stage_of_interest: string, default='first_instar'
             The name of the column that contains the data of the developmental stage of interest.
         use_relative_data: boolean, default=False
             If True, the counts for the stage of interest are devided by the stage indicated at 'make_nymphs_relative_to'.
@@ -937,7 +937,7 @@ class PhenotypeAnalysis:
             for name, group in grouped_df:
                 temp2_df = group
                 temp2_df = temp2_df.reset_index()
-                temp2_df['relative_stage'] = temp2_df[stage_of_ineterest]/max(temp2_df[make_nymphs_relative_to])
+                temp2_df['relative_stage'] = temp2_df[stage_of_interest]/max(temp2_df[make_nymphs_relative_to])
 
                 temp_df = pd.concat([temp_df, temp2_df], ignore_index=True)
 
@@ -945,7 +945,7 @@ class PhenotypeAnalysis:
             self.survival_data = self.survival_data.drop(columns='index')
 
         else:
-            self.survival_data['relative_stage'] = self.survival_data[stage_of_ineterest]
+            self.survival_data['relative_stage'] = self.survival_data[stage_of_interest]
 
 
         # add a column with standard deviations to use for the sigma in the curve_fit function
