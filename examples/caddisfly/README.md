@@ -3,7 +3,7 @@
 In the paper by van der Lee et al. (2020), a model is used to study the impact of discharge dynamics in four Dutch freshwater streams on caddisfly (*Agapetus fuscipes*) populations.  
 
 ![Agapetus](./Agapetus_fuscipes.jpeg) <br>
-*Agapetus fusciceps* larvae. Source: Biopix: JC Schou
+<sup>*Agapetus fusciceps* larvae. Source: Biopix: JC Schou</sup>
 
 
 The example dataset used here is part of the modeled data based on the first year of observations, where there were large fluctuations in water discharge. Only the eggs and first four instar stages are used here, to keep the example small. <br>

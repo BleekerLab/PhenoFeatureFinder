@@ -7,6 +7,7 @@ The data used here is the reference panel of 20 Gram positive and negative bacte
 The Gram types are used as phenotypes.
 
 ![taxonomy](./taxonomy.png)
+<sup>Taxonomy of species in the reference panel. Source: Mah & Veyrrieras (2013)</sup>
 
 
 | species                       | replicates | Gram type |
