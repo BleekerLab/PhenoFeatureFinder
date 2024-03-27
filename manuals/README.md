@@ -22,7 +22,7 @@ bioassay_example_data.csv
 
 ### Manual
 
-metabolite_data_filtering_manual.ipynb
+omics_data_filtering_manual.ipynb
 
 ### Data
 
