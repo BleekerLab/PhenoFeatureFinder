@@ -125,7 +125,7 @@ tpot_custom_config = {
 # End of library and config sections
 ####################################
 
-class MetabolitePhenotypeFeatureSelection:
+class FeatureSelection:
     '''
     A class to perform metabolite feature selection using phenotyping and metabolic data. 
 
@@ -345,7 +345,7 @@ class MetabolitePhenotypeFeatureSelection:
 
         Example
         -------
-        >> fs = MetabolitePhenotypeFeatureSelection(
+        >> fs = FeatureSelection(
         >>        metabolome_csv="clean_metabolome.csv", 
         >>        phenotype_csv="phenotypes_test_data.csv", 
         >>        phenotype_sample_id='sample')
@@ -405,7 +405,7 @@ class MetabolitePhenotypeFeatureSelection:
         
         Example
         -------
-        >>> fs = MetabolitePhenotypeFeatureSelection(
+        >>> fs = FeatureSelection(
                    metabolome_csv="../tests/clean_metabolome.csv", 
                    phenotype_csv="../tests/phenotypes_test_data.csv", 
                    phenotype_sample_id='sample')

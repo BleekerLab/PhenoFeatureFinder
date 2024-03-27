@@ -9,7 +9,7 @@ The caddisfly dataset from van der Lee et al. (2020) is an example of insect dev
 
 ## MicroMass
 
-The MicroMass dataset from Mah and Veyrieras (2013) is an example of mass spectrometry data that can be filtered with the OmicsAnalysis class and analyzed with the MetabolitePhenotypeFeatureSelection class.
+The MicroMass dataset from Mah and Veyrieras (2013) is an example of mass spectrometry data that can be filtered with the OmicsAnalysis class and analyzed with the FeatureSelection class.
 
 
 ## Reference 

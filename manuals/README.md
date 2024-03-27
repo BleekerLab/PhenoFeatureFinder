@@ -3,7 +3,7 @@
 This package has three classes:
 * PhenotypeAnalysis
 * OmicsAnalysis
-* MetabolitePhenotypeFeatureSelection
+* FeatureSelection
 
 Each of the three classes has its own manual and example data to run it. 
 
@@ -29,7 +29,7 @@ metabolite_data_filtering_manual.ipynb
 metabolome_example_data.csv
 
 
-## MetabolitePhenotypeFeatureSelection
+## FeatureSelection
 
 ### Manual
 
