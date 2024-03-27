@@ -2,7 +2,7 @@
 
 This package has three classes:
 * PhenotypeAnalysis
-* MetaboliteAnalysis
+* OmicsAnalysis
 * MetabolitePhenotypeFeatureSelection
 
 Each of the three classes has its own manual and example data to run it. 
@@ -18,7 +18,7 @@ phenotype_analysis_manual.ipynb
 bioassay_example_data.csv
 
 
-## MetaboliteAnalysis
+## OmicsAnalysis
 
 ### Manual
 

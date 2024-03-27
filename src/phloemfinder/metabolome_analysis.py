@@ -25,7 +25,7 @@ from upsetplot import plot, from_indicators
 ## Class definition 
 ###################
 
-class MetaboliteAnalysis:
+class OmicsAnalysis:
     '''
     A class to streamline the filtering and exploration of a metabolome dataset.   
 
@@ -110,7 +110,7 @@ class MetaboliteAnalysis:
     
     Example
     -------
-    >>> met = MetaboliteAnalysis(
+    >>> met = OmicsAnalysis(
         metabolome_csv='my_metabolome_data.csv', 
         metabolome_feature_id_col='feature_id')
     >>> met.validate_input_metabolome_df()
@@ -330,7 +330,7 @@ class MetaboliteAnalysis:
 
         Example
         -------
-        >>> met = MetaboliteAnalysis(
+        >>> met = OmicsAnalysis(
             metabolome_csv='tests/metabolome_test_data.csv', 
             metabolome_feature_id_col='feature_id')
         >>> met.validate_input_metabolome_df()
