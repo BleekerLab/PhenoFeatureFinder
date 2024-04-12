@@ -1,8 +1,12 @@
-# phloemfinder
+# PhenoFeatureFinder
 
-Find plant metabolites related to whitefly pest resistance
+Linking developmental phenotypes to metabolic features.
+
+![Overview of the package](paper/package_figure.png)
 
 ## Installation
+
+**Needs update**
 
 ```bash
 $ pip install phloemfinder
@@ -10,7 +14,14 @@ $ pip install phloemfinder
 
 ## Usage
 
-- TODO
+PhenoFeatureFinder is divided into three classes:
+* PhenotypeAnalysis
+* OmicsAnalysis
+* FeatureSelection
+
+For each of the classes, you can find a manual with an explanation for all of their functions in the [manuals folder](manuals/).
+
+If you want to see an example of how PhenoFeatureFinder can be used for real world data, you can take a look at one of the two [examples](examples/). The first example showcases the use of the [PhenotypeAnalysis class](examples/caddisfly/) for the analysis of the development of caddisfly larvae in four freshwater streams. In the second example, the [OmicsAnalysis and FeatureSelection classes](examples/MicroMass/) are used to analyse and select interesting features from a mass spectrometry dataset of a panel of bacterial species.
 
 ## Contributing
 
