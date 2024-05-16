@@ -590,7 +590,7 @@ class FeatureSelection:
       
       ### Model performance
       predictions = best_pipeline.predict(X_test)
-      training_score = best_pipeline.score(X_train, y_train).round(3) * 100
+      training_score = best_pipeline.score(X_train, y_train) * 100
       print("============ Performance of ML model on train data =============")
       print("Train {0} score {1:.3f} %".format(scoring_metric, training_score))
       print("\n")
