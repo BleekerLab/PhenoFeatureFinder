@@ -9,11 +9,11 @@
 
 ![Overview of the package](documentation/paper/package_figure.png)
 
-`PhenotypeAnalysis` is designed to analyse the development of insects through their larval stages over time in multiple treatments. These types of analyses can be challenging, due to the many variables involved (e.g. time, developmental stages, replicates, treatments), especially for researchers whose strength does not lie with data analysis. `PhenotypeAnalysis` offers a set of functions to visualise the development while taking into account those different variables, and to perform the necessary data preprocessing steps. From the output, it is easy to manually assign binary phenotypes to your groups (treatments, genotypes, etc), if you want to use it as input for `FeatureSelection`.
+`PhenotypeAnalysis` was designed to analyse the development of insects through their larval stages over time in multiple treatments (e.g. hosts). These types of phenotyping analyses can be challenging, due to the many variables involved (e.g. time, developmental stages, replicates, treatments), especially for researchers whose strength does not lie in data analysis. `PhenotypeAnalysis` offers a set of functions to visualise the development while taking into account those different variables, and to perform the necessary data preprocessing steps. From the output, it is easy to manually assign binary phenotypes to your groups (treatments, genotypes, etc), if you want to use it as input for `FeatureSelection`. 
 
 With `OmicsAnalysis`, you can filter large untargeted metabolomics datasets and visualise the structure of the data. The filtered data and a corresponding set of binary phenotypes can then be used as input for `FeatureSelection`. With only a few lines of code, the best fitting pipeline to link the phenotypes to metabolic features is created using Automated Machine Learning with `TPOT` and `scikit-learn`.
 
-Although `OmicsAnalysis` and `FeatureSelection` are designed for metabolomics data, they might also be used for other types of omics data. The user would have to keep in mind that the functions were written for the specifics of metabolomics data (high sparsity, strongly correlated features) and might not be the best fit for all types of data. 
+Although `OmicsAnalysis` and `FeatureSelection` are designed for metabolomics data, they might also be used for other types of omics data. The user would have to keep in mind that the functions were written for the specifics of metabolomics data (high sparsity, strongly correlated features) and first assess the fit for other types of data. 
 
 ## Installation
 
@@ -27,7 +27,7 @@ $ pip install phloemfinder
 
 For each of the classes, you can find a manual with an explanation for all of their functions in the [manuals folder](documentation/manuals/).
 
-If you want to see an example of how `PhenoFeatureFinder` can be used for real world data, you can take a look at one of the two [examples](documentation/examples/). The first example showcases the use of the [`PhenotypeAnalysis` class](documentation/examples/caddisfly/) for the analysis of the development of caddisfly larvae in four freshwater streams. In the second example, the [`OmicsAnalysis` and `FeatureSelection` classes](documentation/examples/MicroMass/) are used to analyse and select interesting features from a mass spectrometry dataset of a panel of bacterial species.
+If you want to see an example of how `PhenoFeatureFinder` can be used for real-world data, you can take a look at one of the two [examples](documentation/examples/). The first example showcases the use of the [`PhenotypeAnalysis` class](documentation/examples/caddisfly/) for the analysis of the development of caddisfly larvae in four freshwater streams. In the second example, the [`OmicsAnalysis` and `FeatureSelection` classes](documentation/examples/MicroMass/) are used to analyse and select interesting features from a mass spectrometry dataset of a panel of bacterial species.
 
 ## Citation
 
