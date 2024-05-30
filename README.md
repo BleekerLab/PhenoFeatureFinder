@@ -29,6 +29,26 @@ For each of the classes, you can find a manual with an explanation for all of th
 
 If you want to see an example of how `PhenoFeatureFinder` can be used for real-world data, you can take a look at one of the two [examples](documentation/examples/). The first example showcases the use of the [`PhenotypeAnalysis` class](documentation/examples/caddisfly/) for the analysis of the development of caddisfly larvae in four freshwater streams. In the second example, the [`OmicsAnalysis` and `FeatureSelection` classes](documentation/examples/MicroMass/) are used to analyse and select interesting features from a mass spectrometry dataset of a panel of bacterial species.
 
+### Dependencies
+
+Required for all classes:
+- NumPy
+- pandas
+- Matplotlib
+- seaborn
+
+Additionally required for PhenotypeAnalysis:
+- SciPy
+
+Additionally required for OmicsAnalysis:
+- scikit-learn
+- UpSetPlot
+
+Additionally required for FeatureSelection:
+- scikit-learn
+- TPOT
+- auto-sklearn (auto-sklearn is made for Linux operating systems. On macOS it needs to be installed manually with brew and pip. You can do this by following [these instructions](https://gist.github.com/simonprovost/051952533680026b67fa58c3552b8a7b).)
+
 ## Citation
 
 Insert citation option when ready
@@ -47,5 +67,5 @@ Interested in contributing? Check out the contributing guidelines. Please note t
 
 ## Useful reading
 
-- [Autosklearn talks](https://github.com/automl/auto-sklearn-talks)
-- [Numpy docstring examples](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_numpy.html#example-numpy)
+- [Auto-sklearn talks](https://github.com/automl/auto-sklearn-talks)
+- [NumPy docstring examples](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_numpy.html#example-numpy)
