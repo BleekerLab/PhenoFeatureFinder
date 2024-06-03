@@ -1,9 +1,9 @@
 [tool.poetry]
-name = "phloemfinder"
-version = "0.4.3"
-description = "Find plant metabolites related to whitefly pest resistance"
-authors = ["Marc Galland <m.galland@uva.nl>", "Lissy-Anne Denkers <l.a.m.denkers@uva.nl>"]
-repository = "https://github.com/BleekerLab/phloemfinder"
+name = "PhenoFeatureFinder"
+version = "0.1.0"
+description = "Find metabolic features linked to insect development phenotypes"
+authors = ["Lissy-Anne Denkers", "Marc Galland", "Annabel Dekker", "Valerio Bianchi", "Petra Bleeker <p.m.bleeker@uva.nl>"]
+repository = "https://github.com/BleekerLab/PhenoFeatureFinder"
 license = "Apache License 2.0"
 readme = "README.md"
 
@@ -14,6 +14,9 @@ pandas = ">=1.5.1"
 numpy = "<1.24.0"
 scikit-learn = ">=0.24.1"
 TPOT = ">=0.11.7"
+matplotlib
+scipy
+upsetplot
 
 [tool.poetry.dev-dependencies]
 pytest = ">=7.2.0"

@@ -6,9 +6,9 @@
 
 # -- Project information -----------------------------------------------------
 
-project = u"phloemfinder"
+project = u"PhenoFeatureFinder"
 copyright = u"2022, Marc Galland"
-author = u"Marc Galland"
+author = ["Lissy-Anne Denkers", "Marc Galland", "Annabel Dekker", "Valerio Bianchi", "Petra Bleeker"]
 
 # -- General configuration ---------------------------------------------------
 
