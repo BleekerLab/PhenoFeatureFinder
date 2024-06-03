@@ -17,10 +17,8 @@ Although `OmicsAnalysis` and `FeatureSelection` are designed for metabolomics da
 
 ## Installation
 
-**Needs update**
-
 ```bash
-$ pip install phloemfinder
+$ pip install PhenoFeatureFinder
 ```
 
 ## Usage
