@@ -1,9 +1,9 @@
 ---
 title: 'PhenoFeatureFinder: a python package for linking developmental phenotypes to omics features'
 tags:
- -	insect development
- -	phenotyping
- -	metabolomics
+  -	insect development
+  -	phenotyping
+  -	metabolomics
   -	omics
   -	feature selection
   -	preprocessing
@@ -40,7 +40,7 @@ affiliations:
     index: 2
   - name: Enza Zaden R&D B.V., BTR-BM Bioinformatics, Enkhuizen, The Netherlands
     index: 3
-date: 
+date: 5 June 2024
 bibliography: paper.bib
 ---
 
