@@ -1,13 +1,12 @@
 ---
 title: 'PhenoFeatureFinder: a python package for linking developmental phenotypes to omics features'
 tags:
-  -	insect development
-  -	phenotyping
-  -	metabolomics
-  -	omics
-  -	feature selection
-  -	preprocessing
-
+  - insect development
+  - phenotyping
+  - metabolomics
+  - omics
+  - feature selection
+  - preprocessing
 authors:
   - name:
       given-names: Lissy-Anne M.
