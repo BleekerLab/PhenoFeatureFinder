@@ -21,6 +21,8 @@ Although `OmicsAnalysis` and `FeatureSelection` are designed for metabolomics da
 $ pip install PhenoFeatureFinder
 ```
 
+At this moment, `PhenoFeatureFinder` requires python 3.9.
+
 ## Usage
 
 For each of the classes, you can find a manual with an explanation for all of their functions in the [manuals folder](documentation/manuals/).
