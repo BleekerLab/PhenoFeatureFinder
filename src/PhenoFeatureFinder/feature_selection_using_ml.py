@@ -23,7 +23,7 @@ from sklearn.tree import DecisionTreeClassifier
 from tpot import TPOTClassifier
 from tpot.export_utils import set_param_recursive
 
-from PhenoFeatureFinder.utils import compute_metrics_classification 
+from phenofeaturefinder.utils import compute_metrics_classification 
 
 
 # TPOT automated ML custom configuration dictionary

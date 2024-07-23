@@ -14,7 +14,7 @@ from sklearn.impute import SimpleImputer
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from PhenoFeatureFinder.utils import calculate_percentile, extract_samples_to_condition
+from phenofeaturefinder.utils import calculate_percentile, extract_samples_to_condition
 
 import upsetplot
 from upsetplot import plot, from_indicators
