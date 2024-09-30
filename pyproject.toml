@@ -6,6 +6,9 @@ authors = ["Lissy-Anne Denkers", "Marc Galland", "Annabel Dekker", "Valerio Bian
 repository = "https://github.com/BleekerLab/PhenoFeatureFinder"
 license = "Apache License 2.0"
 readme = "README.md"
+packages = [
+    { include= "src/PhenoFeatureFinder"}
+]
 
 [tool.poetry.dependencies]
 python = "3.9"
