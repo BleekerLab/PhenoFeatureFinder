@@ -7,13 +7,13 @@ build:
   tools:
     python: "3.9"
 
+# Sphinx configuration
 sphinx:
   configuration: docs/conf.py
 
-# Configuration
-#python:
-#  version: "3.9"
-#  install:
-#    - requirements: docs/requirements.txt
-#    - method: pip
-#      path: .
+# Install requirements
+python:
+  install:
+    - requirements: docs/requirements.txt
+    - method: pip
+      path: .
