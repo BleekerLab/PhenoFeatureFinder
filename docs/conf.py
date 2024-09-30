@@ -8,7 +8,7 @@
 
 project = u"PhenoFeatureFinder"
 copyright = u"2022, Marc Galland"
-author = ["Lissy-Anne Denkers", "Marc Galland", "Annabel Dekker", "Valerio Bianchi", "Petra Bleeker"]
+author = u"Lissy-Anne Denkers, Marc Galland, Annabel Dekker, Valerio Bianchi and Petra Bleeker"
 
 # -- General configuration ---------------------------------------------------
 
