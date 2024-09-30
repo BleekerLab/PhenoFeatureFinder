@@ -17,7 +17,8 @@ build:
       # Install dependencies with 'docs' dependency group
       # https://python-poetry.org/docs/managing-dependencies/#dependency-groups
       # VIRTUAL_ENV needs to be set manually for now, see #11150
-      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry env use 3.9 install --with docs
+      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry env use 3.9
+      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --with docs
 
 # Sphinx configuration
 sphinx:
