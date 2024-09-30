@@ -19,7 +19,8 @@ extensions = [
     "myst_nb",
     "autoapi.extension",
     "sphinx.ext.napoleon",
-    "sphinx.ext.viewcode"
+    "sphinx.ext.viewcode",
+    "sphinx_autorun"
 ]
 autoapi_dirs = ["../src"]
 
@@ -29,6 +30,9 @@ autoapi_dirs = ["../src"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # -- Options for HTML output -------------------------------------------------
+
+# Allow Read the Docs to build Unicode chars
+latex_engine = 'xelatex'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
