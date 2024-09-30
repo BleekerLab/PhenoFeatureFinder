@@ -19,6 +19,7 @@ build:
       # VIRTUAL_ENV needs to be set manually for now, see #11150
       - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry env use 3.9
       - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install
+      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry lock [--no-update]
 
 # Sphinx configuration
 sphinx:
