@@ -1,3 +1,10 @@
+[![Documentation Status](https://readthedocs.org/projects/phenofeaturefinder/badge/?version=latest)](https://phenofeaturefinder.readthedocs.io/en/latest/?badge=latest)
+![PyPI - Version](https://img.shields.io/pypi/v/PhenoFeatureFinder)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/PhenoFeatureFinder)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/PhenoFeatureFinder)
+
+
+
 # PhenoFeatureFinder
 
 **Linking developmental phenotypes to metabolic features**
