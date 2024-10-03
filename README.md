@@ -32,7 +32,7 @@ At this moment, `PhenoFeatureFinder` requires python 3.9.
 
 ## Usage
 
-For each of the classes, you can find a manual with an explanation for all of their functions in the [manuals folder](documentation/manuals/). Alternatively, you can find the documentation of the classes and their functions on [Read the Docs](phenofeaturefinder.readthedocs.io).
+For each of the classes, you can find a manual with an explanation for all of their functions in the [manuals folder](documentation/manuals/). Alternatively, you can find the documentation of the classes and their functions on [Read the Docs](https://phenofeaturefinder.readthedocs.io).
 
 If you want to see an example of how `PhenoFeatureFinder` can be used for real-world data, you can take a look at one of the two [examples](documentation/examples/). The first example showcases the use of the [`PhenotypeAnalysis` class](documentation/examples/caddisfly/) for the analysis of the development of caddisfly larvae in four freshwater streams. In the second example, the [`OmicsAnalysis` and `FeatureSelection` classes](documentation/examples/MicroMass/) are used to analyse and select interesting features from a mass spectrometry dataset of a panel of bacterial species.
 
