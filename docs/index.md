@@ -1,11 +1,11 @@
-```{include} ../README.md
-```
-
 ```{toctree}
-:maxdepth: 1
+:maxdepth: 2
 :hidden:
 
-example.ipynb
+intro.rst
+docstrings.rst
+../documentation/examples/
+../documentation/manuals/
 changelog.md
 contributing.md
 conduct.md

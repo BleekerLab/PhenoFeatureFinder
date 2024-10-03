@@ -1,11 +1,18 @@
-PhenoFeatureFinder
-==================
+********
+Contents
+********
 
-A python package for linking developmental phenotypes to omics features
 
 .. toctree::
     :maxdepth: 2
     :caption: Contents:
 
-    intro
-    docstrings
+    intro.rst
+    docstrings.rst
+    ../documentation/examples/
+    ../documentation/manuals/
+    changelog.md
+    contributing.md
+    conduct.md
+    autoapi/index
+
