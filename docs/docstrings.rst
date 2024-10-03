@@ -6,10 +6,8 @@ Documentation
 PhenotypeAnalysis
 #################
 
-.. currentmodule:: phenotype_analysis
 .. automodule:: PhenotypeAnalysis
     :members:
-
 
 
 OmicsAnalysis
@@ -17,7 +15,6 @@ OmicsAnalysis
 
 .. automodule:: OmicsAnalysis
     :members:
-
 
 
 FeatureSelection
