@@ -1,4 +1,4 @@
-```{include} intro.rst
+```{include} intro.md
 ```
 
 ```{toctree}

@@ -6,6 +6,7 @@ Linking developmental phenotypes to metabolic features
 ######################################################
 
 ``PhenoFeatureFinder`` is divided into three classes:
+
 * ``PhenotypeAnalysis``
 * ``OmicsAnalysis``
 * ``FeatureSelection``
@@ -45,19 +46,23 @@ Dependencies
 ************
 
 Required for all classes:
+
 * NumPy
 * pandas
 * Matplotlib
 * seaborn
 
 Additionally required for PhenotypeAnalysis:
+
 * SciPy
 
 Additionally required for OmicsAnalysis:
+
 * scikit-learn
 * UpSetPlot
 
 Additionally required for FeatureSelection:
+
 * scikit-learn
 * TPOT
 * auto-sklearn (auto-sklearn is made for Linux operating systems. On macOS it needs to be installed manually with brew and pip. You can do this by following `these instructions <https://gist.github.com/simonprovost/051952533680026b67fa58c3552b8a7b>`_.)
