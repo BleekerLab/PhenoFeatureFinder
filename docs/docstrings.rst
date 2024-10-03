@@ -7,20 +7,20 @@ PhenotypeAnalysis
 #################
 
 .. currentmodule:: phenotype_analysis
-.. autofunction:: PhenotypeAnalysis
+.. automodule:: PhenotypeAnalysis
+    :members:
 
 
 
 OmicsAnalysis
 #############
 
-.. currentmodule:: omics_analysis
-.. autofunction:: OmicsAnalysis
+.. automodule:: OmicsAnalysis
+    :members:
 
 
 
 FeatureSelection
 ################
 
-.. currentmodule:: feature_selection_using_ml
-.. autofunction:: FeatureSelection
+.. autoclass:: feature_selection_using_ml::FeatureSelection
