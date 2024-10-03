@@ -17,8 +17,7 @@ With `OmicsAnalysis`, you can filter large untargeted metabolomics datasets and 
 
 Although `OmicsAnalysis` and `FeatureSelection` are designed for metabolomics data, they might also be used for other types of omics data. The user would have to keep in mind that the functions were written for the specifics of metabolomics data (high sparsity, strongly correlated features) and first assess the fit for other types of data. 
 
-Installation
-############
+## Installation
 
 ```bash
 $ pip install PhenoFeatureFinder
@@ -27,8 +26,7 @@ $ pip install PhenoFeatureFinder
 
 At this moment, `PhenoFeatureFinder` requires python 3.9.
 
-Usage
-#####
+## Usage
 
 For each of the classes and their functions, you can find the documentation here. Alternatively, you can find a manual for each class with an explanation for all of their functions on the [GitHub repository](https://github.com/BleekerLab/PhenoFeatureFinder) in the [manuals folder](https://github.com/BleekerLab/PhenoFeatureFinder/tree/master/documentation/manuals).
 
@@ -36,8 +34,7 @@ If you want to see an example of how `PhenoFeatureFinder` can be used for real-w
 The first example showcases the use of the [PhenotypeAnalysis class](https://github.com/BleekerLab/PhenoFeatureFinder/tree/master/documentation/examples/caddisfly) for the analysis of the development of caddisfly larvae in four freshwater streams. 
 In the second example, the [OmicsAnalysis and FeatureSelection](https://github.com/BleekerLab/PhenoFeatureFinder/tree/master/documentation/examples/MicroMass) classes are used to analyse and select interesting features from a mass spectrometry dataset of a panel of bacterial species.
 
-Dependencies
-************
+### Dependencies
 
 Required for all classes:
 
@@ -61,17 +58,14 @@ Additionally required for FeatureSelection:
 * TPOT
 * auto-sklearn (auto-sklearn is made for Linux operating systems. On macOS it needs to be installed manually with brew and pip. You can do this by following [these instructions](https://gist.github.com/simonprovost/051952533680026b67fa58c3552b8a7b).)
 
-Citation
-########
+## Citation
 
 Insert citation option when ready
 
-Contributing
-############
+## Contributing
 
 Interested in contributing? Check out the contributing guidelines. Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
 
-License
-#######
+## License
 
 `PhenoFeatureFinder` was created by Lissy-Anne Denkers and Marc Galland, with input from Annabel Dekker, Valerio Bianchi and Petra Bleeker. It is licensed under the terms of the Apache License 2.0 license.
