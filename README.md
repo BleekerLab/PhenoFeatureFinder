@@ -56,6 +56,10 @@ Additionally required for FeatureSelection:
 - TPOT
 - auto-sklearn (auto-sklearn is made for Linux operating systems. On macOS it needs to be installed manually with brew and pip. You can do this by following [these instructions](https://gist.github.com/simonprovost/051952533680026b67fa58c3552b8a7b).)
 
+### Testing
+
+Before using PhenoFeatureFinder to analyse your data, follow the [manuals](documentation/manuals/) using the [accompanying data](documentation/manuals/data_for_manuals) to test the functionality. The obtained results should be identical to those in the manual. If you run into any errors, please contact the authors.
+
 ## Citation
 
 Insert citation option when ready
