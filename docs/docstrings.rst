@@ -2,6 +2,8 @@
 Documentation
 *************
 
+Version 0.1.2
+
 
 PhenotypeAnalysis
 #################
