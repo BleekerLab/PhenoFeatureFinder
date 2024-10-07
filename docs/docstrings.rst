@@ -6,18 +6,19 @@ Documentation
 PhenotypeAnalysis
 #################
 
-.. automodule:: PhenotypeAnalysis
+.. automodule:: phenofeaturefinder.phenotype_analysis
     :members:
 
 
 OmicsAnalysis
 #############
 
-.. automodule:: OmicsAnalysis
+.. automodule:: phenofeaturefinder.omics_analysis
     :members:
 
 
 FeatureSelection
 ################
 
-.. autoclass:: feature_selection_using_ml::FeatureSelection
+.. automodule:: phenofeaturefinder.feature_selection_using_ml
+    :members:
