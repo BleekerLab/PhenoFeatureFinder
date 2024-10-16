@@ -12,14 +12,14 @@ A class to analyse data from developmental bioassays and group the samples in di
 
 
 Parameters
-----------
+**********
 
-bioassay_csv: string
+bioassay_csv: ``string``
     A path to a .csv file with the bioassay count data.
 
 
 Attributes
-----------
+**********
 
 bioassay_csv
     The path to the csv file with the input data.
@@ -34,7 +34,7 @@ max_counts
 survival_data
     A pandas dataframe with the number of living nymphs per stage at each time point per group.
 order_of_groups
-    A string with the order in which the groups should be plotted.
+    A `string` with the order in which the groups should be plotted.
 absolute_counts
     A pandas dataframe with values from max_counts in long format.
 max_relative
@@ -42,7 +42,7 @@ max_relative
 
 
 Methods
--------
+*******
 
 reshape_to_wide
     Reshapes the dataframe from a long to a wide format to make the data accessible for pre-processing. With the counts of each developmental stage in a seperate columns.
@@ -69,14 +69,14 @@ hazard
 
 
 reshape_to_wide
-***************
+---------------
 
 Reshapes the dataframe from a long to a wide format to make the data accessible for pre-processing.
 with the counts of each developmental stage in a seperate columns.
 
 
 Usage
------
+*****
 
 reshape_to_wide(
     self,
@@ -88,23 +88,23 @@ reshape_to_wide(
 
 
 Parameters
-----------
+**********
 
-sample_id: string, default='sample_id'
+sample_id: `string`, default='sample_id'
     The name of the column that contains the sample identifiers.
-grouping_variable: string, default='genotype'
+grouping_variable: `string`, default='genotype'
     The name of the column that contains the names of the grouping variables.
     Examples are genotypes or treatments
-developmental_stages: string, default='stage'
+developmental_stages: `string`, default='stage'
     The name of the column that contains the developmental stages that were scored during the bioassay.
-count_values: string, default='numbers'
+count_values: `string`, default='numbers'
     The name of the column that contains the counts.
-time: string, default='day'
+time: `string`, default='day'
     The name of the column that contains the time at which bioassay scoring was performed.
     Examples are the date or the number of days after infection.
 
 Examples
---------
+********
 
 Example of an input dataframe
 
@@ -133,7 +133,7 @@ Example of a reshaped output dataframe
 
 
 combine_seperately_counted_versions_of_last_recorded_stage
-**********************************************************
+----------------------------------------------------------
 
 Calculates the total number of nymphs developed to the final developmental stage per sample on each timepoint.
 This is used when nymphs in the (late) final nymph stage were removed after each counting moment and/or
@@ -142,7 +142,7 @@ Removal of late last stage nymphs could for example be used to prevent adults fr
 
 
 Usage
------
+*****
 
 combine_seperately_counted_versions_of_last_recorded_stage(
     self,
@@ -157,39 +157,39 @@ combine_seperately_counted_versions_of_last_recorded_stage(
 
 
 Parameters
-----------
+**********
 
-exuviea: string, default='exuviea'
+exuviea: `string`, default='exuviea'
     The name of the column that contains the exuviea counts. 
-late_last_stage: string, default='late_fourth_instar'
+late_last_stage: `string`, default='late_fourth_instar'
     The name of the column that contains the counts of the last developmental stage recorded in the bioassay.
-early_last_stage: string, default='early_fourth_instar'
+early_last_stage: `string`, default='early_fourth_instar'
     The name of the column that contains the counts of the nymphs in early last developmental stage.
     Is used when nymphs counted in late_last_stage were removed after each counting moment during the bioassay.
-new_last_stage: string, default='fourth_instar'
+new_last_stage: `string`, default='fourth_instar'
     Name for new column with the returned total final stage data
-seperate_exuviea: boolean, default=True
+seperate_exuviea: `bool`, default=True
     If True, sums exuviea and late_last_stage per sample per timepoint.
     If exuviea were counted seperately from late_last_stage, set to True.
     If exuviea count was included in late_last_stage, set to False
-late_last_stage_removed: boolean, default=True
+late_last_stage_removed: `bool`, default=True
     If True, returns the cumulative number of late_last_stage(+exuviea) per sample over time.
     If nymphs counted in late_last_stage (and exuviea if counted seperately) were removed after each counting 
     moment, set to True.
     If nymphs counted in late_last_stage (and exuviea if counted seperately) were left on the sample until
     ending the bioassay, set to False.
-early_last_stage_kept: boolean, default=True
+early_last_stage_kept: `bool`, default=True
     If True, sums the early and late last stage counts per sample per timepoint
     If late last stage nymphs were removed after each counting moment, but early last stage nymphs were left on
     sample, set to True.
     If early and late last stage nymphs were not counted seperately, set to False
-remove_individual_stage_columns: boolean, default=True
+remove_individual_stage_columns: `bool`, default=True
     If True, removes exuviea, late_last_stage, early_last_stage columns from dataframe after returning 
     new_last_stage column.
 
 
 Examples
---------
+********
 
 Example of an input dataframe
 
@@ -227,7 +227,7 @@ when exuviea and/or early and late last instar stage nymphs were counted seperat
 total_last_stage() should be used first.
 
 Usage
------
+*****
 
 def convert_counts_to_cumulative(
     self,
@@ -243,31 +243,31 @@ def convert_counts_to_cumulative(
 
 
 Parameters
-----------
+**********
 
 n_developmental_stages: integer, default=4
     The number of developmental stages which were recorded seperately. 
     Can range from 2 to 6.
-sample_id: string, default='sample_id'
+sample_id: `string`, default='sample_id'
     The name of the column that contains the sample identifiers.
-eggs: string, default='eggs'
+eggs: `string`, default='eggs'
     The name of the column that contains the counts of the eggs.
-first_stage: string, default='first_instar'
+first_stage: `string`, default='first_instar'
     The name of the column that contains the counts of the first developmental stage recorded in the bioassay.
-second_stage: string, default='second_instar'
+second_stage: `string`, default='second_instar'
     The name of the column that contains the counts of the second developmental stage recorded in the bioassay.
-third_stage: string, default='third_instar'
+third_stage: `string`, default='third_instar'
     The name of the column that contains the counts of the third developmental stage recorded in the bioassay.
-fourth_stage: string, default='fourth_instar'
+fourth_stage: `string`, default='fourth_instar'
     The name of the column that contains the counts of the fourth developmental stage recorded in the bioassay.
-fifth_stage: string, default='fifth_instar'
+fifth_stage: `string`, default='fifth_instar'
     The name of the column that contains the counts of the fifth developmental stage recorded in the bioassay.
-sixth_stage: string, default='sixth_instar'
+sixth_stage: `string`, default='sixth_instar'
     The name of the column that contains the counts of the sixth developmental stage recorded in the bioassay. 
 
 
 correct_cumulative_counts
-*************************
+-------------------------
 
 Inner function for convert_counts_to_cumulative(). If nymphs die during the bioassay, 
 they should be included in the cumulative count for the stages it had passed. 
@@ -275,7 +275,7 @@ Otherwise, the cumulative count could go down over time. This function corrects 
 count if it is lower than the previous count.
 
 Usage
------
+*****
 
 correct_cumulative_counts(
     self, 
@@ -284,14 +284,14 @@ correct_cumulative_counts(
 
 
 create_df_with_max_counts_per_stage
-***********************************
+-----------------------------------
 
 Inner function for convert_counts_to_cumulative(). 
 With the maximum number of nymphs developed to or past each developmental stage per plant, 
 making graphs becomes easier.
 
 Usage
------
+*****
 
 create_df_with_max_counts_per_stage(
     self, 
@@ -301,13 +301,13 @@ create_df_with_max_counts_per_stage(
 
 
 prepare_for_plotting
-********************
+--------------------
 
 Prepare the order in which the groups should be plotted.
 
 
 Usage
------
+*****
 
 prepare_for_plotting(
 self,
@@ -315,15 +315,15 @@ order_of_groups)
 
 
 Parameters
-----------
+**********
 
-order_of_groups: string
+order_of_groups: `string`
     List of the group names in the prefered order for plotting
     For example: ['MM', 'LA', 'PI']
 
 
 plot_counts_per_stage
-*********************
+---------------------
 
 Plots the counts per nymphal stage in boxplots. The nymph counts are given as the absolute number of nymphs that 
 developed to or past each stage at the last timepoint and as a fraction of nymphs that developed to or past each 
@@ -336,7 +336,7 @@ The imput dataframe 'max_counts' is created with convert_counts_to_cumulative.
 
 
 Usage
------
+*****
 
 plot_counts_per_stage(
     self,
@@ -355,38 +355,38 @@ plot_counts_per_stage(
 
 
 Parameters
-----------
+**********
 
-grouping_variable: string, default='genotype'
+grouping_variable: `string`, default='genotype'
     The name of the column that contains the names of the grouping variables.
     Examples are genotypes or treatments
-sample_id: string, default='sample_id'
+sample_id: `string`, default='sample_id'
     The name of the column that contains the sample identifiers.
-eggs: string, default='eggs'
+eggs: `string`, default='eggs'
     The name of the column that contains the counts of the eggs.
-first_stage: string, default='first_instar'
+first_stage: `string`, default='first_instar'
     The name of the column that contains the counts of the first developmental stage recorded in the bioassay.
-second_stage: string, default='second_instar'
+second_stage: `string`, default='second_instar'
     The name of the column that contains the counts of the second developmental stage recorded in the bioassay.
-third_stage: string, default='third_instar'
+third_stage: `string`, default='third_instar'
     The name of the column that contains the counts of the third developmental stage recorded in the bioassay.
-fourth_stage: string, default='fourth_instar'
+fourth_stage: `string`, default='fourth_instar'
     The name of the column that contains the counts of the fourth developmental stage recorded in the bioassay.
-absolute_x_axis_label: string, default='genotype'
+absolute_x_axis_label: `string`, default='genotype'
     Label for the x-axis of the boxplots with count data.
-absolute_y_axis_label: string, default='counts (absolute)'
+absolute_y_axis_label: `string`, default='counts (absolute)'
     Label for the y-axis of the boxplots with count data.
-relative_x_axis_label: string, default='genotype'
+relative_x_axis_label: `string`, default='genotype'
     Label for the x-axis of the boxplots with relative development.
-relative_y_axis_label: string, default='relative number of nymphs'
+relative_y_axis_label: `string`, default='relative number of nymphs'
     Label for the y-axis of the boxplots with relative development.
-make_nymphs_relative_to: string, default='first_instar'
+make_nymphs_relative_to: `string`, default='first_instar'
     The name of the column that contains the counts of the developmental stage which should be used to calculate 
     the relative development to all developmental stages.
 
 
 Examples
---------
+********
 
 Example of an input dataframe
 
@@ -402,7 +402,7 @@ Example of an input dataframe
 
 
 plot_development_over_time_in_fitted_model
-******************************************
+------------------------------------------
 
 Fits a 3 parameter log-logistic curve to the development over time to a specified stage. The fitted curve and the
 observed datapoints are plotted and returned with the model parameters. 
@@ -413,7 +413,7 @@ the model.
 
 
 Usage
------
+*****
 
 plot_development_over_time_in_fitted_model(
     self, 
@@ -422,41 +422,41 @@ plot_development_over_time_in_fitted_model(
     time='day',
     x_axis_label='days after infection',
     y_axis_label='development to 4th instar stage (relative to 1st instars)',
-    stage_of_interest='fourth_instar',
+    stage_of_`int`erest='fourth_instar',
     use_relative_data=True,
     make_nymphs_relative_to='first_instar',
     predict_for_n_days=0)
 
 
 Parameters
-----------
+**********
 
-grouping_variable: string, default='genotype'
+grouping_variable: `string`, default='genotype'
     The name of the column that contains the names of the grouping variables.
     Examples are genotypes or treatments
-sample_id: string, default='sample_id'
+sample_id: `string`, default='sample_id'
     The name of the column that contains the sample identifiers.
-time: string, default='day'
+time: `string`, default='day'
     The name of the column that contains the time at which bioassay scoring was performed.
     Examples are the date or the number of days after infection.
-x_axis_label: string, default='days after infection'
+x_axis_label: `string`, default='days after infection'
     Label for the x-axis
-y_axis_label: string, default='development to 4th instar stage (relative to 1st instars)'
+y_axis_label: `string`, default='development to 4th instar stage (relative to 1st instars)'
     Label for the y-axis
-stage_of_interest: string, default='fourth_instar'
-    The name of the column that contains the data of the developmental stage of interest.
-use_relative_data: boolean, default=True
-    If True, the counts for the stage of interest are devided by the stage indicated at 'make_nymphs_relative_to'.
+stage_of_`int`erest: `string`, default='fourth_instar'
+    The name of the column that contains the data of the developmental stage of `int`erest.
+use_relative_data: `bool`, default=True
+    If True, the counts for the stage of `int`erest are devided by the stage indicated at 'make_nymphs_relative_to'.
     The returned relative rate is used for plotting and curve fitting.
-make_nymphs_relative_to: string, default='first_instar'
+make_nymphs_relative_to: `string`, default='first_instar'
     The name of the column that contains the counts of the developmental stage which should be used to calculate 
     therelative development to all developmental stages.
-predict_for_n_days: default=o
+predict_for_n_days: `int`, default=o
     Continue model for n days after final count.
 
 
 Examples
---------
+********
 
 Example of an input dataframe
 
@@ -472,35 +472,35 @@ Example of an input dataframe
 
 
 ll3
-***
+---
 
 A three parameter log-logistic function.
 
 Usage
------
+*****
 
 ll3(x,slope,maximum,emt50):
 
 
 Parameters
-----------
+**********
 
 slope: 
     the slope of the curve
 maximum: 
     the maximum value of the curve
 emt50: 
-    the EmT50, the timepoint at which 50% of nymphs has developed to the stage of interest
+    the EmT50, the timepoint at which 50% of nymphs has developed to the stage of `int`erest
 
 
 Model
------
+*****
 
 y(x) = maximum/(1+np.exp(slope*(np.log(x)-np.log(emt50))))
 
 
 plot_survival_over_time_in_fitted_model
-***************************************
+---------------------------------------
 
 Fits a 3 parameter log-normal curve to the number of living nymphs over time. The fitted curve and the
 observed datapoints are plotted and returned with the model parameters. 
@@ -511,7 +511,7 @@ the model.
 
 
 Usage
------
+*****
 
 plot_survival_over_time_in_fitted_model(
     self,
@@ -520,41 +520,41 @@ plot_survival_over_time_in_fitted_model(
     time='day',
     x_axis_label='days after infection',
     y_axis_label='number of nymphs per plant',
-    stage_of_interest='first_instar',
+    stage_of_`int`erest='first_instar',
     use_relative_data=False,
     make_nymphs_relative_to='eggs',
     predict_for_n_days=0)
 
 
 Parameters
-----------
+**********
 
-grouping_variable: string, default='genotype'
+grouping_variable: `string`, default='genotype'
     The name of the column that contains the names of the grouping variables.
     Examples are genotypes or treatments
-sample_id: string, default='sample_id'
+sample_id: `string`, default='sample_id'
     The name of the column that contains the sample identifiers.
-time: string, default='day'
+time: `string`, default='day'
     The name of the column that contains the time at which bioassay scoring was performed.
     Examples are the date or the number of days after infection.
-x_axis_label: string, default='days after infection'
+x_axis_label: `string`, default='days after infection'
     Label for the x-axis
-y_axis_label: string, default='development to 4th instar stage (relative to 1st instars)'
+y_axis_label: `string`, default='development to 4th instar stage (relative to 1st instars)'
     Label for the y-axis
-stage_of_interest: string, default='first_instar'
-    The name of the column that contains the data of the developmental stage of interest.
-use_relative_data: boolean, default=False
-    If True, the counts for the stage of interest are devided by the stage indicated at 'make_nymphs_relative_to'.
+stage_of_`int`erest: `string`, default='first_instar'
+    The name of the column that contains the data of the developmental stage of `int`erest.
+use_relative_data: `bool`, default=False
+    If True, the counts for the stage of `int`erest are devided by the stage indicated at 'make_nymphs_relative_to'.
     The returned relative rate is used for plotting and curve fitting.
-make_nymphs_relative_to: string, default='eggs'
+make_nymphs_relative_to: `string`, default='eggs'
     The name of the column that contains the counts of the developmental stage which should be used to calculate 
     the relative development to all developmental stages.
-predict_for_n_days: default=o
+predict_for_n_days: `int`, default=o
     Continue model for n days after final count.
 
 
 Examples
---------
+********
 Example of an input dataframe
 
 +-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
@@ -569,19 +569,19 @@ Example of an input dataframe
 
 
 hazard
-******
+------
 
 A three parameter log-normal function.
 
 
 Usage
------
+*****
 
 hazard(x,auc,median,shape)
 
 
 Parameters
-----------
+**********
 
 auc: 
     area under the curve
@@ -592,10 +592,11 @@ shape:
 
 
 model
------
+*****
 
 y(x) = (auc*(shape/median)*pow(x/median,shape-1))/(1+pow(x/median,shape))
    
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 OmicsAnalysis
 #############
@@ -604,19 +605,19 @@ A class to streamline the filtering and exploration of a metabolome dataset.
 
 
 Parameters
-----------
+**********
 
-metabolome_csv: str
+metabolome_csv: `str`
     A path to a .csv file with the metabolome data (scaled or unscaled).
     Shape of the dataframe is usually (n_samples, n_features) with n_features >> n_samples
 
-metabolome_feature_id_col: str, optional
+metabolome_feature_id_col: `str`, optional
     The name of the column that contains the feature identifiers (default is 'feature_id').
     Feature identifiers should be unique (=not duplicated).
 
 
 Attributes
-----------
+**********
 
 metabolome: `pandas.core.frame.DataFrame`, (n_samples, n_features)
     The metabolome Pandas dataframe imported from the .csv file. 
@@ -640,12 +641,12 @@ exp_variance: `pandas.core.frame.DataFrame`, (n_pc, 1)
 metabolome_pca_reduced: `numpy.ndarray`, (n_samples, n_pc)
     Numpy array with sample coordinates in reduced dimensions.
     The dimension of the numpy array is the minimum of the number of samples and features. 
-sparsity: float
+sparsity: `float`
     Metabolome matrix sparsity.
 
 
 Methods
--------
+*******
 
 validate_input_metabolome_df
     Check if the provided metabolome file is suitable. Turns attribute metabolome_validated to True. 
@@ -666,7 +667,7 @@ write_clean_metabolome_to_csv
 
 
 Examples
------
+********
 
 Example of an input metabolome input format (from a csv file)
 
@@ -686,14 +687,14 @@ Example of an input metabolome input format (from a csv file)
 
 
 validate_input_metabolome_df
-****************************
+----------------------------
 
 Validates the dataframe containing the feature identifiers, metabolite values and sample names.
 Will place the 'feature_id_col' column as the index of the validated dataframe. 
 The validated metabolome dataframe is stored as the 'validated_metabolome' attribute. 
 
 Usage
------
+*****
 
 validate_input_metabolome_df(
     self, 
@@ -701,22 +702,22 @@ validate_input_metabolome_df(
 
 
 Parameters
-----------
+**********
 
-metabolome_feature_id: str, optional 
+metabolome_feature_id: `str`, optional 
     The name of the column that contains the feature identifiers (default is 'feature_id').
     Feature identifiers should be unique (=not duplicated).
     
 
 Returns
--------
+*******
 
 self: object
     Object with attribute metabolome_validated set to True if tests are passed. 
 
 
 Examples
------
+********
 
 Example of a valid input metabolome dataframe
 
@@ -732,7 +733,7 @@ Example of a valid input metabolome dataframe
 
 
 discard_features_detected_in_blanks
-***********************************
+-----------------------------------
 
 Removes features present in blanks.
 Steps:
@@ -743,7 +744,7 @@ Steps:
 
 
 Usage
------
+*****
 
 discard_features_detected_in_blanks(
     self, 
@@ -751,28 +752,28 @@ discard_features_detected_in_blanks(
 
 
 Parameters
-----------
+**********
 
-blank_sample_contains: str, optional.
+blank_sample_contains: `str`, optional.
     Column names with this name will be considered blank samples.
     Default is='blank'
 
 Returns
--------
+*******
 
 metabolome: pandas.core.frame.DataFrame
     A filtered Pandas dataframe without features detected in blank samples and with the blank samples removed. 
 
 
 create_density_plot
-*******************
+-------------------
 
 For each grouping variable (e.g. genotype), creates a histogram and density plot of all feature peak areas.
-This plot helps to see whether some groups have a value distribution different from the rest. 
+This plot helps to see whether some groups have a value di`str`ibution different from the rest. 
 The percentage is indicated on the y-axis (bar heights sum to 100).
 
 Usage
------
+*****
 
 create_density_plot(
     self, 
@@ -782,26 +783,26 @@ create_density_plot(
 
 
 Parameters
-----------
+**********
 
-name_grouping_var: str, optional
+name_grouping_var: `str`, optional
     The name used when splitting between replicate and main factor.
     For example "genotype" when splitting MM_rep1 into 'MM' and 'rep1'.
     Default is 'genotype'. 
-n_cols: int, optional
+n_cols: `int`, optional
     The number of columns for the final plot.
-nbins: int, optional
+nbins: `int`, optional
     The number of bins to create. 
 
 Returns
--------
+*******
 
 matplotlib Axes
     Returns the Axes object with the density plots drawn onto it.
 
 
 filter_features_per_group_by_percentile
-***************************************
+---------------------------------------
 
 Filter metabolome dataframe based on a selected percentile threshold.
 Features with a peak area values lower than the selected percentile will be discarded. 
@@ -812,7 +813,7 @@ lower than the median/50th percentile in each group.
 
 
 Usage
------
+*****
 
 filter_features_per_group_by_percentile(
 self, 
@@ -822,19 +823,19 @@ percentile=50)
 
 
 Parameters
-----------
+**********
 
-name_grouping_var: str, optional
+name_grouping_var: `str`, optional
     The name of the grouping variable (default is "genotype")
-separator_replicates: str, optional
+separator_replicates: `str`, optional
     The character used to separate the main grouping variable from biological replicates. 
     Default is "_: (underscore)
-percentile: float, optional
+percentile: `float`, optional
     The percentile threshold. Has to be comprised 0 and 100.
 
 
 Returns
--------
+*******
 
 self: object
     The object with the .metabolome attribute filtered and the filtered_by_percentile_value set to True. 
@@ -844,7 +845,7 @@ self: object
 
 
 filter_out_unreliable_features
-******************************
+------------------------------
 
 Removes features not reliably detectable in multiple biological replicates from the same grouping factor. 
 
@@ -857,7 +858,7 @@ Steps:
 
 
 Usage
------
+*****
 
 filter_out_unreliable_features(
     self,
@@ -867,27 +868,29 @@ filter_out_unreliable_features(
 
 
 Parameters
-------
+**********
 
-name_grouping_var: str, optional
+name_grouping_var: `str`, optional
     The name used when splitting between replicate and main factor.
     For example "genotype" when splitting MM_rep1 into 'MM' and 'rep1'.
     Default is 'genotype'. 
-nb_times_detected: int, optionaldefault=4
+nb_times_detected: `int`, optionaldefault=4
     Number of times a metabolite should be detected to be considered 'reliable'. 
-    Should be equal to the number of biological replicates for a given group of interest (e.g. genotype)
-separator_replicates: string, default="_"
+    Should be equal to the number of biological replicates for a given group of `int`erest (e.g. genotype)
+separator_replicates: `string`, default="_"
     The separator to split sample names into a grouping variable (e.g. genotype) and the biological replicate number (e.g. 1)
 
 
 Returns
--------
+*******
 
 metabolome: ndarray
     A Pandas dataframe with only features considered as reliable, sample names and their values. 
 
+
 Examples
------
+********
+
 Example of an input dataframe
 
 +-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
@@ -917,27 +920,27 @@ Example of an output df (rt-0.06_mz-124.96631 is kicked out because 3x0 and 1x88
 
 
 write_clean_metabolome_to_csv
-*****************************
+-----------------------------
  
 Writes the cleaned metabolome data to the disk as a comma-separated value file.
 
 
 Usage
------
+*****
 
 write_clean_metabolome_to_csv(self, path_of_cleaned_csv="./data_for_manuals/filtered_metabolome.csv"):
 
 
 Parameters
-----------
+**********
 
-path_of_cleaned_csv: str, optional
+path_of_cleaned_csv: `str`, optional
     The path and filename of the .csv file to save.
     Default to "./data_for_manuals/filtered_metabolome.csv" 
 
 
 compute_pca_on_metabolites
-**************************
+--------------------------
 
 Performs a Principal Component Analysis (PCA) on the metabolome data. 
 
@@ -948,7 +951,7 @@ Performs a transpose of the metabolite dataframe if n_samples > n_features (this
 
 
 Usage
------
+*****
 
 compute_pca_on_metabolites(
     self, 
@@ -958,12 +961,12 @@ compute_pca_on_metabolites(
 
 
 Parameters
-----------
+**********
 
 scale: `bool`, optional
     Perform scaling (standardize) the metabolite values to zero mean and unit variance. 
     Default is True. 
-n_principal_components: int, optional
+n_principal_components: `int`, optional
     number of principal components to keep in the PCA analysis.
     if number of PCs > min(n_samples, n_features) then set to the minimum of (n_samples, n_features)
     Default is to calculate 10 components.
@@ -972,7 +975,7 @@ auto_transpose: `bool`, optional.
     Default is True (meaning that transposing will occur if n_samples > n_features).
 
 Returns
--------
+*******
 
 self: object
     Object with .exp_variance: dataframe with explained variance per Principal Component
@@ -981,44 +984,44 @@ self: object
 
 
 impute_missing_values_with_median
-*********************************
+---------------------------------
 
 Imputes missing values with the median of the column.
 This is necessary for PCA to work.
 
 
 Usage
------
+*****
 
 impute_missing_values_with_median(
     self, 
     missing_value_str='np.nan')
 
 
-Params
-------
+Parameters
+**********
 
-missing_value_str: str, optional
+missing_value_str: `str`, optional
     The string that represents missing values in the input dataframe.
     All occurrences of missing_values will be imputed. 
     For pandas’ dataframes with nullable integer dtypes with missing values, missing_values can be set to either np.nan or pd.NA.
 
 
 Returns
--------
+*******
 
 self: object with attribute 'metabolome' updated with imputed values.
 
 
 create_scree_plot
-*****************
+-----------------
 
 Returns a barplot with the explained variance per Principal Component. 
 Has to be preceded by perform_pca()
 
 
 Usage
------
+*****
 
 create_scree_plot(
     self, 
@@ -1026,15 +1029,15 @@ create_scree_plot(
 
 
 Parameters
----------
+**********
 
-plot_file_name: string, default='None'
+plot_file_name: `string`, default='None'
     Path to a file where the plot will be saved.
     For instance 'my_scree_plot.pdf'
 
 
 Returns
--------
+*******
 
 matplotlib Axes
     Returns the Axes object with the scree plot drawn onto it.
@@ -1042,14 +1045,14 @@ matplotlib Axes
 
 
 create_sample_score_plot
-************************
+------------------------
 
 Returns a sample score plot of the samples on PCx vs PCy. 
 Samples are colored based on the grouping variable (e.g. genotype)
 
 
 Usage
------
+*****
 
 create_sample_score_plot(
     self, 
@@ -1062,26 +1065,26 @@ create_sample_score_plot(
 
 
 Parameters
-----------
+**********
 
-pc_x_axis: int, optional 
+pc_x_axis: `int`, optional 
     Principal Component to plot on the x-axis (default is 1 so PC1 will be plotted).
-pc_y_axis: int, optional.
+pc_y_axis: `int`, optional.
     Principal Component to plot on the y-axis (default is 2 so PC2 will be plotted).
-name_grouping_var: str, optional
+name_grouping_var: `str`, optional
     Name of the variable used to color samples (Default is "genotype"). 
-separator_replicates: str, optional.
+separator_replicates: `str`, optional.
     String separator that separates grouping factor from biological replicates (default is underscore "_").
 show_color_legend: bool, optional.
     Add legend for hue (default is True).
-plot_file_name: str, optional 
+plot_file_name: `str`, optional 
     A file name and its path to save the sample score plot (default is None).
     For instance "mydir/sample_score_plot.pdf"
     Path is relative to current working directory.
 
 
 Returns
--------
+*******
 
 matplotlib Axes
     Returns the Axes object with the sample score plot drawn onto it.
@@ -1090,7 +1093,7 @@ matplotlib Axes
 
 
 compute_metabolome_sparsity
-***************************
+---------------------------
 
 Determine the sparsity of the metabolome matrix. 
 Formula: number of non zero values/number of values * 100
@@ -1098,33 +1101,33 @@ The higher the sparsity, the more zero values
 
 
 Usage
------
+*****
 
 compute_metabolome_sparsity(self)
 
 
 Returns
--------
+*******
 
 self: object
-    Object with sparsity attribute filled (sparsity is a float).
+    Object with sparsity attribute filled (sparsity is a `float`).
 
 
 References
-----------
+**********
 
 `<https://stackoverflow.com/questions/38708621/how-to-calculate-percentage-of-sparsity-for-a-numpy-array-matrix>`_
 
 
 plot_features_in_upset_plot
-***************************
+---------------------------
 
 Visuallises the presence of features per group in an UpSet plot. 
 A feature is considered present in a group if the median>0.
 
 
 Usage
------
+*****
 
 plot_features_in_upset_plot(
     self,
@@ -1132,26 +1135,26 @@ plot_features_in_upset_plot(
     plot_file_name=None)
 
 
-Params
-------
+Parameters
+**********
 
-separator_replicates: string, default="_"
+separator_replicates: `string`, default="_"
     The separator to split sample names into a grouping variable (e.g. genotype) and the biological replicate number (e.g. 1)
-plot_file_name: str, optional 
+plot_file_name: `str`, optional 
     A file name and its path to save the sample score plot (default is None).
     For instance "mydir/feature_upset_plot.pdf"
     Path is relative to current working directory.
 
 
 Returns
--------
+*******
 
 Plot:
     UpSet plot with features presence per group.
 
 
 Examples
------
+********
 
 Example of an input dataframe
 
@@ -1166,7 +1169,7 @@ Example of an input dataframe
 +-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
 
 
-
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 FeatureSelection
 ################
@@ -1183,67 +1186,67 @@ A class to perform metabolite feature selection using phenotyping and metabolic 
 
 
 Parameters
-----------
+**********
 
-metabolome_csv: string
+metabolome_csv: `string`
     A path to a .csv file with the cleaned up metabolome data (unreliable features filtered out etc.)
     Use the MetabolomeAnalysis class methods. 
     Shape of the dataframe is usually (n_samples, n_features) with n_features >> n_samples
-phenotype_csv: string
+phenotype_csv: `string`
     A path to a .csv file with the phenotyping data. 
     Should be two columns at least with: 
         - column 1 containing the sample identifiers
         - column 2 containing the phenotypic class e.g. 'resistant' or 'sensitive'
-metabolome_feature_id_col: string, default='feature_id'
+metabolome_feature_id_col: `string`, default='feature_id'
     The name of the column that contains the feature identifiers.
     Feature identifiers should be unique (=not duplicated).
-phenotype_sample_id: string, default='sample_id'
+phenotype_sample_id: `string`, default='sample_id'
     The name of the column that contains the sample identifiers.
     Sample identifiers should be unique (=not duplicated).
 
 
 Attributes
-----------
+**********
 
-metabolome_validated: bool
+metabolome_validated: `bool`
     Is the metabolome file valid for Machine Learning? (default is False)   
 
-phenotype_validated: bool
+phenotype_validated: `bool`
     Is the phenotype file valid for Machine Learning? (default is False)
 
-baseline_performance: float 
+baseline_performance: `float` 
     The baseline performance computed with get_baseline_performance() i.e. using a simple Random Forest model. 
     Search for the best ML model using search_best_model() should perform better than this baseline performance. 
 
-best_ensemble_models_searched: bool
+best_ensemble_models_searched: `bool`
     Is the search for best ensemble model using auto-sklearn already performed? (default is False)
 
-metabolome: pandas.core.frame.DataFrame
+metabolome: `pandas.core.frame.DataFrame`
     The validated metabolome dataframe of shape (n_features, n_samples).
 
-phenotype: pandas.core.frame.DataFrame
+phenotype: `pandas.core.frame.DataFrame`
     A validated phenotype dataframe of shape (n_samples, 1)
     Sample names in the index and one column named 'phenotype' with the sample classes.
 
-baseline_performance: str
+baseline_performance: `str`
     Average balanced accuracy score (-/+ standard deviation) of the basic Random Forest model. 
 
-best_model: sklearn.pipeline.Pipeline
+best_model: `sklearn.pipeline.Pipeline`
     A scikit-learn pipeline that contains one or more steps.
     It is the best performing pipeline found by TPOT automated ML search.
 
-pc_importances: pandas.core.frame.DataFrame
+pc_importances: `pandas.core.frame.DataFrame`
     A Pandas dataframe that contains Principal Components importances using scikit-learn permutation_importance()
     Mean of PC importance over n_repeats.
     Standard deviation over n_repeats.
     Raw permutation importance scores.
 
-feature_loadings: pandas.core.frame.DataFrame
+feature_loadings: `pandas.core.frame.DataFrame`
     A Pandas dataframe that contains feature loadings related to Principal Components
 
 
 Methods
---------
+*******
 
 validate_input_metabolome_df()
     Validates the dataframe read from the 'metabolome_csv' input file.
@@ -1262,7 +1265,7 @@ search_best_model_with_tpot_and_get_feature_importances()
 
 
 Examples
---------
+********
 
 Example of an input metabolome .csv file
 
@@ -1297,7 +1300,7 @@ Example of an input phenotype .csv file
 
 
 validate_input_metabolome_df
-****************************
+----------------------------
 
 Validates the dataframe containing the feature identifiers, metabolite values and sample names.
 Will place the 'feature_id_col' column as the index of the validated dataframe. 
@@ -1305,20 +1308,20 @@ The validated metabolome dataframe is stored as the 'validated_metabolome' attri
 
 
 Usage
------
+*****
 
 validate_input_metabolome_df(self)
 
 
 Returns
---------
+*******
 
 self: object
     Object with metabolome_validated set to True
 
 
 Examples
------
+********
 Example of a validated output metabolome dataframe
 
 +-------------+----------------+----------------+----------------+----------------+
@@ -1333,13 +1336,13 @@ Example of a validated output metabolome dataframe
 
 
 validate_input_phenotype_df
-***************************
+---------------------------
 
 Validates the dataframe containing the phenotype classes and the sample identifiers.
 
 
 Usage
------
+*****
 
 validate_input_phenotype_df(
     self, 
@@ -1347,21 +1350,21 @@ validate_input_phenotype_df(
 
 
 Parameters
-----------
+**********
 
-phenotype_class_col: string, default="phenotype"
+phenotype_class_col: `string`, default="phenotype"
     The name of the column to be used 
 
 
 Returns
--------
+*******
 
 self: object
     Object with phenotype_validated set to True
 
 
 Examples
---------
+********
 
 Example of a validated phenotype dataframe
         
@@ -1383,7 +1386,7 @@ Example of a validated phenotype dataframe
 
 
 get_baseline_performance
-************************
+------------------------
 
 Takes the phenotype and metabolome dataset and compute a simple Random Forest analysis with default hyperparameters. 
 This will give a base performance for a Machine Learning model that has then to be optimised using autosklearn
@@ -1399,23 +1402,23 @@ get_baseline_performance(
 
 
 Parameters
-----------
+**********
 
-kfold: int, optional
-    Cross-validation strategy. Default is to use a 5-fold cross-validation. 
+kfold: `int`, optional
+    Cross-validation `str`ategy. Default is to use a 5-fold cross-validation. 
 
-train_size: float or int, optional
-    If float, should be between 0.5 and 1.0 and represent the proportion of the dataset to include in the train split.
-    If int, represents the absolute number of train samples. If None, the value is automatically set to the complement of the test size.
+train_size: `float` or `int`, optional
+    If `float`, should be between 0.5 and 1.0 and represent the proportion of the dataset to include in the train split.
+    If `int`, represents the absolute number of train samples. If None, the value is automatically set to the complement of the test size.
     Default is 0.8 (80% of the data used for training).
 
-random_state: int, optional
-    Controls both the randomness of the train/test split  samples used when building trees (if bootstrap=True) and the sampling of the features to consider when looking for the best split at each node (if max_features < n_features). See Glossary for details.
+random_state: `int`, optional
+    Controls both the randomness of the train/test split  samples used when building trees (if boot`str`ap=True) and the sampling of the features to consider when looking for the best split at each node (if max_features < n_features). See Glossary for details.
     You can change this value several times to see how it affects the best ensemble model performance.
     Default is 123.
 
 
-scoring_metric: str, optional
+scoring_metric: `str`, optional
     A valid scoring value (default="balanced_accuracy")
     To get a complete list, type:
     >> from sklearn.metrics import SCORERS 
@@ -1424,14 +1427,14 @@ scoring_metric: str, optional
 
 
 Returns
--------
+*******
 
 self: object
     Object with baseline_performance attribute.
 
 
 search_best_model_with_tpot_and_compute_pc_importances
-******************************************************
+------------------------------------------------------
 
 Search for the best ML model with TPOT genetic programming methodology and extracts best Principal Components.
 
@@ -1448,7 +1451,7 @@ See: `<https://github.com/EpistasisLab/tpot/blob/master/tpot/config/classifier.p
 
 
 Usage
------
+*****
 
 search_best_model_with_tpot_and_compute_pc_importances(
     self,
@@ -1465,15 +1468,15 @@ search_best_model_with_tpot_and_compute_pc_importances(
 
 
 Parameters
-----------
+**********
 
-class_of_interest: str
+class_of_interest: `str`
     The name of the class of interest also called "positive class".
     This class will be used to calculate recall_score and precision_score. 
     Recall score = TP / (TP + FN) with TP: true positives and FN: false negatives.
     Precision score = TP / (TP + FP) with TP: true positives and FP: false positives. 
 
-scoring_metric: str, optional
+scoring_metric: `str`, optional
     Function used to evaluate the quality of a given pipeline for the classification problem. 
     Default is 'balanced accuracy'. 
     The following built-in scoring functions can be used:
@@ -1482,31 +1485,31 @@ scoring_metric: str, optional
     'precision' etc. (suffixes apply as with ‘f1’), 'recall' etc. (suffixes apply as with ‘f1’), 
     ‘jaccard’ etc. (suffixes apply as with ‘f1’), 'roc_auc', ‘roc_auc_ovr’, ‘roc_auc_ovo’, ‘roc_auc_ovr_weighted’, ‘roc_auc_ovo_weighted’ 
 
-kfolds: int, optional
-    Number of folds for the stratified K-Folds cross-validation strategy. Default is 3-fold cross-validation. 
+kfolds: `int`, optional
+    Number of folds for the `str`atified K-Folds cross-validation `str`ategy. Default is 3-fold cross-validation. 
     Has to be comprised between 3 and 10 i.e. 3 <= kfolds =< 10
     See https://scikit-learn.org/stable/modules/cross_validation.html
 
-train_size: float or int, optional
-    If float, should be between 0.5 and 1.0 and represent the proportion of the dataset to include in the train split.
-    If int, represents the absolute number of train samples. If None, the value is automatically set to the complement of the test size.
+train_size: `float` or `int`, optional
+    If `float`, should be between 0.5 and 1.0 and represent the proportion of the dataset to include in the train split.
+    If `int`, represents the absolute number of train samples. If None, the value is automatically set to the complement of the test size.
     Default is 0.8 (80% of the data used for training).
 
-max_time_mins: int, optional
+max_time_mins: `int`, optional
     How many minutes TPOT has to optimize the pipeline (in total). Default is 5 minutes.
     This setting will allow TPOT to run until max_time_mins minutes elapsed and then stop.
-    Try short time intervals (5, 10, 15min) and then see if the model score on the test data improves. 
+    Try short time `int`ervals (5, 10, 15min) and then see if the model score on the test data improves. 
 
-max_eval_time_mins: float, optional 
+max_eval_time_mins: `float`, optional 
     How many minutes TPOT has to evaluate a single pipeline. Default is 1min. 
     This time has to be smaller than the 'max_time_mins' setting.
 
-random_state: int, optional
-    Controls both the randomness of the train/test split  samples used when building trees (if bootstrap=True) and the sampling of the features to consider when looking for the best split at each node (if max_features < n_features). See Glossary for details.
+random_state: `int`, optional
+    Controls both the randomness of the train/test split  samples used when building trees (if boot`str`ap=True) and the sampling of the features to consider when looking for the best split at each node (if max_features < n_features). See Glossary for details.
     You can change this value several times to see how it affects the best ensemble model performance.
     Default is 123.
 
-n_permutations: int, optional
+n_permutations: `int`, optional
     Number of permutations used to compute feature importances from the best model using scikit-learn permutation_importance() method.
     Default is 10 permutations.
 
@@ -1514,7 +1517,7 @@ export_best_pipeline: `bool`, optional
     If True, the best fitting pipeline is exported as .py file. This allows for reuse of the pipeline on new datasets.
     Default is True. 
 
-path_for_saving_pipeline: str, optional
+path_for_saving_pipeline: `str`, optional
     The path and filename of the best fitting pipeline to save.
     The name must have a '.py' extension. 
     Default to "./best_fitting_pipeline.py"
@@ -1531,7 +1534,7 @@ self: object
 
 
 get_names_of_top_n_features_from_selected_pc
-********************************************
+--------------------------------------------
 
 Get the names of features with highest loading scores on selected PC  
 
@@ -1541,7 +1544,7 @@ The loadings matrix is available after running the search_best_model_with_tpot_a
 
 
 Usage
------
+*****
 
 get_names_of_top_n_features_from_selected_pc(
     self, 
@@ -1550,12 +1553,12 @@ get_names_of_top_n_features_from_selected_pc(
 
 
 Parameters
-----------
+**********
 
-selected_pc: int, optional
+selected_pc: `int`, optional
     Principal Component to keep. 1-based index (1 selects PC1, 2 selected PC2, etc.)
     Default is 1.
-top_n: int, optional
+top_n: `int`, optional
     Number of features to select. 
     The top_n features with the highest absolute loadings will be selected from the selected_pc PC. 
     For instance, the top 5 features from PC1 will be selected with selected_pc=1 and top_n=5.
@@ -1563,6 +1566,6 @@ top_n: int, optional
 
 
 Returns
--------
+*******
 
 A list of feature names. 
