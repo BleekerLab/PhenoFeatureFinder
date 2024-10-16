@@ -65,7 +65,7 @@ A package named `drc` is available in R for fitting dose-response curves [@Ritz2
 
 $$ f(x) = \frac{m}{1 + \exp(s \times (\log(x) - \log(e_{50})))} $$
 
-where $x$ is time, $m$ is the upper limit (or maximum of individuals that developed to the stage of interest), $s$ is the slope of the linear part of the curve and $e50$ is the EmT50 (the timepoint at which 50% of the individuals have developed to the stage of interest). We added the possibility to compare performance between treatments by fitting a curve with the function:
+where $x$ is time, $m$ is the upper limit (or maximum of individuals that developed to the stage of interest), $s$ is the slope of the linear part of the curve and $e_{50}$ is the EmT50 (the timepoint at which 50% of the individuals have developed to the stage of interest). We added the possibility to compare performance between treatments by fitting a curve with the function:
 
 $$ f(x) = \frac{a \times \frac{s}{m} \times (\frac{x}{m})^{s-1}}{1 + (\frac{x}{m})^{s}} $$
 
