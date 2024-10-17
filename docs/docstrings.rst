@@ -12,14 +12,14 @@ A class to analyse data from developmental bioassays and group the samples in di
 
 
 Parameters
-**********
+----------
 
-bioassay_csv: ``string``
+bioassay_csv: `string`
     A path to a .csv file with the bioassay count data.
 
 
 Attributes
-**********
+----------
 
 bioassay_csv
     The path to the csv file with the input data.
@@ -42,7 +42,7 @@ max_relative
 
 
 Methods
-*******
+-------
 
 reshape_to_wide
     Reshapes the dataframe from a long to a wide format to make the data accessible for pre-processing. With the counts of each developmental stage in a seperate columns.
@@ -605,7 +605,7 @@ A class to streamline the filtering and exploration of a metabolome dataset.
 
 
 Parameters
-**********
+----------
 
 metabolome_csv: `str`
     A path to a .csv file with the metabolome data (scaled or unscaled).
@@ -617,7 +617,7 @@ metabolome_feature_id_col: `str`, optional
 
 
 Attributes
-**********
+----------
 
 metabolome: `pandas.core.frame.DataFrame`, (n_samples, n_features)
     The metabolome Pandas dataframe imported from the .csv file. 
@@ -646,7 +646,7 @@ sparsity: `float`
 
 
 Methods
-*******
+-------
 
 validate_input_metabolome_df
     Check if the provided metabolome file is suitable. Turns attribute metabolome_validated to True. 
@@ -667,7 +667,7 @@ write_clean_metabolome_to_csv
 
 
 Examples
-********
+--------
 
 Example of an input metabolome input format (from a csv file)
 
@@ -1186,7 +1186,7 @@ A class to perform metabolite feature selection using phenotyping and metabolic 
 
 
 Parameters
-**********
+----------
 
 metabolome_csv: `string`
     A path to a .csv file with the cleaned up metabolome data (unreliable features filtered out etc.)
@@ -1206,7 +1206,7 @@ phenotype_sample_id: `string`, default='sample_id'
 
 
 Attributes
-**********
+----------
 
 metabolome_validated: `bool`
     Is the metabolome file valid for Machine Learning? (default is False)   
@@ -1246,7 +1246,7 @@ feature_loadings: `pandas.core.frame.DataFrame`
 
 
 Methods
-*******
+-------
 
 validate_input_metabolome_df()
     Validates the dataframe read from the 'metabolome_csv' input file.
@@ -1265,7 +1265,7 @@ search_best_model_with_tpot_and_get_feature_importances()
 
 
 Examples
-********
+--------
 
 Example of an input metabolome .csv file
 
