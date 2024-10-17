@@ -75,8 +75,7 @@ Reshapes the dataframe from a long to a wide format to make the data accessible 
 with the counts of each developmental stage in a seperate columns.
 
 
-    Usage
-    *****
+**Usage**
 
     reshape_to_wide(
         self,
@@ -87,8 +86,7 @@ with the counts of each developmental stage in a seperate columns.
         time='day')
 
 
-    Parameters
-    **********
+**Parameters**
 
     sample_id: `string`, default='sample_id'
         The name of the column that contains the sample identifiers.
@@ -103,33 +101,32 @@ with the counts of each developmental stage in a seperate columns.
         The name of the column that contains the time at which bioassay scoring was performed.
         Examples are the date or the number of days after infection.
 
-    Examples
-    ********
+**Examples**
 
     Example of an input dataframe
 
-    +-----------+-----------+-------+---------------+-------+
-    | sample_id | genotype  | day   | stage         | count |
-    +===========+===========+=======+===============+=======+
-    | mm_1      |   mm      | 5     | eggs          | 45    |
-    +-----------+-----------+-------+---------------+-------+
-    | mm_1      |   mm      | 5     | first_instar  | 0     |
-    +-----------+-----------+-------+---------------+-------+
-    | mm_1      |   mm      | 5     | second_instar | 0     |
-    +-----------+-----------+-------+---------------+-------+
++-----------+-----------+-------+---------------+-------+
+| sample_id | genotype  | day   | stage         | count |
++===========+===========+=======+===============+=======+
+| mm_1      |   mm      | 5     | eggs          | 45    |
++-----------+-----------+-------+---------------+-------+
+| mm_1      |   mm      | 5     | first_instar  | 0     |
++-----------+-----------+-------+---------------+-------+
+| mm_1      |   mm      | 5     | second_instar | 0     |
++-----------+-----------+-------+---------------+-------+
 
 
     Example of a reshaped output dataframe
 
-    +-----------+-----------+-------+-------+---------------+---------------+---------------+
-    | sample_id | genotype  | day   | eggs  | first_instar  | second instar | third_instar  |
-    +===========+===========+=======+=======+===============+===============+===============+
-    | mm_1      |   mm      | 5     | 45    | 0             | 0             | 0             |
-    +-----------+-----------+-------+-------+---------------+---------------+---------------+
-    | mm_1      |   mm      | 9     | NA    | 10            | 5             | 0             |
-    +-----------+-----------+-------+-------+---------------+---------------+---------------+
-    | mm_1      |   mm      | 11    | NA    | 15            | 17            | 4             |
-    +-----------+-----------+-------+-------+---------------+---------------+---------------+
++-----------+-----------+-------+-------+---------------+---------------+---------------+
+| sample_id | genotype  | day   | eggs  | first_instar  | second instar | third_instar  |
++===========+===========+=======+=======+===============+===============+===============+
+| mm_1      |   mm      | 5     | 45    | 0             | 0             | 0             |
++-----------+-----------+-------+-------+---------------+---------------+---------------+
+| mm_1      |   mm      | 9     | NA    | 10            | 5             | 0             |
++-----------+-----------+-------+-------+---------------+---------------+---------------+
+| mm_1      |   mm      | 11    | NA    | 15            | 17            | 4             |
++-----------+-----------+-------+-------+---------------+---------------+---------------+
 
 
 combine_seperately_counted_versions_of_last_recorded_stage
@@ -141,8 +138,7 @@ when exuviea and last instar stage nymphs were counted seperately.
 Removal of late last stage nymphs could for example be used to prevent adults from emerging and escaping.
 
 
-    Usage
-    *****
+**Usage**
 
     combine_seperately_counted_versions_of_last_recorded_stage(
         self,
@@ -156,8 +152,7 @@ Removal of late last stage nymphs could for example be used to prevent adults fr
         remove_individual_stage_columns=True)
 
 
-    Parameters
-    **********
+**Parameters**
 
     exuviea: `string`, default='exuviea'
         The name of the column that contains the exuviea counts. 
@@ -188,33 +183,32 @@ Removal of late last stage nymphs could for example be used to prevent adults fr
         new_last_stage column.
 
 
-    Examples
-    ********
+**Examples**
 
     Example of an input dataframe
 
-    +-----------+-----------+-------+-------+-----+---------------+-----------+---------------------+--------------------+
-    | sample_id | genotype  | day   | eggs  | ... | third_instar  | exuviea   | early_fourth_instar | late_fourth_instar |
-    +===========+===========+=======+=======+=====+===============+===========+=====================+====================+
-    | mm_1      |   mm      | 5     | 45    | ... | 0             | 0         | 0                   | 0                  |
-    +-----------+-----------+-------+-------+-----+---------------+-----------+---------------------+--------------------+
-    | mm_1      |   mm      | 9     | NA    | ... | 0             | 1         | 5                   | 0                  |
-    +-----------+-----------+-------+-------+-----+---------------+-----------+---------------------+--------------------+
-    | mm_1      |   mm      | 11    | NA    | ... | 4             | 0         | 7                   | 4                  |
-    +-----------+-----------+-------+-------+-----+---------------+-----------+---------------------+--------------------+
++-----------+-----------+-------+-------+-----+---------------+-----------+---------------------+--------------------+
+| sample_id | genotype  | day   | eggs  | ... | third_instar  | exuviea   | early_fourth_instar | late_fourth_instar |
++===========+===========+=======+=======+=====+===============+===========+=====================+====================+
+| mm_1      |   mm      | 5     | 45    | ... | 0             | 0         | 0                   | 0                  |
++-----------+-----------+-------+-------+-----+---------------+-----------+---------------------+--------------------+
+| mm_1      |   mm      | 9     | NA    | ... | 0             | 1         | 5                   | 0                  |
++-----------+-----------+-------+-------+-----+---------------+-----------+---------------------+--------------------+
+| mm_1      |   mm      | 11    | NA    | ... | 4             | 0         | 7                   | 4                  |
++-----------+-----------+-------+-------+-----+---------------+-----------+---------------------+--------------------+
 
 
     Example of an output dataframe
 
-    +-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
-    | sample_id | genotype  | day   | eggs  | first_instar  | second instar | third_instar  | fourth_instar |
-    +===========+===========+=======+=======+===============+===============+===============+===============+
-    | mm_1      |   mm      | 5     | 45    | 0             | 0             | 0             | 0             |
-    +-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
-    | mm_1      |   mm      | 9     | NA    | 10            | 5             | 0             | 6             |
-    +-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
-    | mm_1      |   mm      | 11    | NA    | 15            | 17            | 4             | 12            |
-    +-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
++-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
+| sample_id | genotype  | day   | eggs  | first_instar  | second instar | third_instar  | fourth_instar |
++===========+===========+=======+=======+===============+===============+===============+===============+
+| mm_1      |   mm      | 5     | 45    | 0             | 0             | 0             | 0             |
++-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
+| mm_1      |   mm      | 9     | NA    | 10            | 5             | 0             | 6             |
++-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
+| mm_1      |   mm      | 11    | NA    | 15            | 17            | 4             | 12            |
++-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
 
 
 convert_counts_to_cumulative
@@ -226,8 +220,7 @@ If nymphs in the (late) final nymph stage were removed after each counting momen
 when exuviea and/or early and late last instar stage nymphs were counted seperately, 
 total_last_stage() should be used first.
 
-    Usage
-    *****
+**Usage**
 
     convert_counts_to_cumulative(
         self,
@@ -242,8 +235,7 @@ total_last_stage() should be used first.
         sixth_stage='sixth_instar')
 
 
-    Parameters
-    **********
+**Parameters**
 
     n_developmental_stages: integer, default=4
         The number of developmental stages which were recorded seperately. 
@@ -274,8 +266,7 @@ they should be included in the cumulative count for the stages it had passed.
 Otherwise, the cumulative count could go down over time. This function corrects the cumulative
 count if it is lower than the previous count.
 
-    Usage
-    *****
+**Usage**
 
     correct_cumulative_counts(
         self, 
@@ -290,8 +281,7 @@ Inner function for convert_counts_to_cumulative().
 With the maximum number of nymphs developed to or past each developmental stage per plant, 
 making graphs becomes easier.
 
-    Usage
-    *****
+**Usage**
 
     create_df_with_max_counts_per_stage(
         self, 
@@ -306,16 +296,14 @@ prepare_for_plotting
 Prepare the order in which the groups should be plotted.
 
 
-    Usage
-    *****
+**Usage**
 
     prepare_for_plotting(
     self,
     order_of_groups)
 
 
-    Parameters
-    **********
+**Parameters**
 
     order_of_groups: `string`
         List of the group names in the prefered order for plotting
@@ -335,8 +323,7 @@ treatments) and the hatching rate of the eggs is not taken into acount.
 The imput dataframe 'max_counts' is created with convert_counts_to_cumulative.
 
 
-    Usage
-    *****
+**Usage**
 
     plot_counts_per_stage(
         self,
@@ -354,8 +341,7 @@ The imput dataframe 'max_counts' is created with convert_counts_to_cumulative.
         make_nymphs_relative_to='first_instar')
 
 
-    Parameters
-    **********
+**Parameters**
 
     grouping_variable: `string`, default='genotype'
         The name of the column that contains the names of the grouping variables.
@@ -385,20 +371,19 @@ The imput dataframe 'max_counts' is created with convert_counts_to_cumulative.
         the relative development to all developmental stages.
 
 
-    Examples
-    ********
+**Examples**
 
     Example of an input dataframe
 
-    +-----------+-----------+-------+-------+---------------+---------------+--------------+---------------+
-    | sample_id | genotype  | day   | eggs  | first_instar  | second_instar | third_instar | fourth_instar |
-    +===========+===========+=======+=======+===============+===============+==============+===============+
-    | mm_1      |   mm      | 28    | 45    | 34            | 30            | 30           | 29            |
-    +-----------+-----------+-------+-------+---------------+---------------+--------------+---------------+
-    | mm_2      |   mm      | 28    | 50    | 39            | 33            | 28           | 26            |
-    +-----------+-----------+-------+-------+---------------+---------------+--------------+---------------+
-    | LA_1      |   LA      | 28    | 42    | 30            | 25            | 17           | 4             |
-    +-----------+-----------+-------+-------+---------------+---------------+--------------+---------------+
++-----------+-----------+-------+-------+---------------+---------------+--------------+---------------+
+| sample_id | genotype  | day   | eggs  | first_instar  | second_instar | third_instar | fourth_instar |
++===========+===========+=======+=======+===============+===============+==============+===============+
+| mm_1      |   mm      | 28    | 45    | 34            | 30            | 30           | 29            |
++-----------+-----------+-------+-------+---------------+---------------+--------------+---------------+
+| mm_2      |   mm      | 28    | 50    | 39            | 33            | 28           | 26            |
++-----------+-----------+-------+-------+---------------+---------------+--------------+---------------+
+| LA_1      |   LA      | 28    | 42    | 30            | 25            | 17           | 4             |
++-----------+-----------+-------+-------+---------------+---------------+--------------+---------------+
 
 
 plot_development_over_time_in_fitted_model
@@ -412,8 +397,7 @@ much larger reduced Chi-squared indicates a bad fit. A much smaller reduced Chi-
 the model.
 
 
-    Usage
-    *****
+**Usage**
 
     plot_development_over_time_in_fitted_model(
         self, 
@@ -428,8 +412,7 @@ the model.
         predict_for_n_days=0)
 
 
-    Parameters
-    **********
+**Parameters**
 
     grouping_variable: `string`, default='genotype'
         The name of the column that contains the names of the grouping variables.
@@ -455,20 +438,19 @@ the model.
         Continue model for n days after final count.
 
 
-    Examples
-    ********
+**Examples**
 
     Example of an input dataframe
 
-    +-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
-    | sample_id | genotype  | day   | eggs  | first_instar  | second instar | third_instar  | fourth_instar |
-    +===========+===========+=======+=======+===============+===============+===============+===============+
-    | mm_1      |   mm      | 5     | 45    | 15            | 7             | 0             | 0             |
-    +-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
-    | mm_1      |   mm      | 9     | NA    | 24            | 14            | 6             | 3             |
-    +-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
-    | mm_1      |   mm      | 11    | NA    | 38            | 27            | 16            | 12            |
-    +-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
++-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
+| sample_id | genotype  | day   | eggs  | first_instar  | second instar | third_instar  | fourth_instar |
++===========+===========+=======+=======+===============+===============+===============+===============+
+| mm_1      |   mm      | 5     | 45    | 15            | 7             | 0             | 0             |
++-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
+| mm_1      |   mm      | 9     | NA    | 24            | 14            | 6             | 3             |
++-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
+| mm_1      |   mm      | 11    | NA    | 38            | 27            | 16            | 12            |
++-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
 
 
 ll3
@@ -476,14 +458,12 @@ ll3
 
 A three parameter log-logistic function.
 
-    Usage
-    *****
+**Usage**
 
     ll3(x,slope,maximum,emt50):
 
 
-    Parameters
-    **********
+**Parameters**
 
     slope: 
         the slope of the curve
@@ -493,8 +473,7 @@ A three parameter log-logistic function.
         the EmT50, the timepoint at which 50% of nymphs has developed to the stage of `int`erest
 
 
-    Model
-    *****
+**Model**
 
     y(x) = maximum/(1+np.exp(slope*(np.log(x)-np.log(emt50))))
 
@@ -510,8 +489,7 @@ much larger reduced Chi-squared indicates a bad fit. A much smaller reduced Chi-
 the model.
 
 
-    Usage
-    *****
+**Usage**
 
     plot_survival_over_time_in_fitted_model(
         self,
@@ -526,8 +504,7 @@ the model.
         predict_for_n_days=0)
 
 
-    Parameters
-    **********
+**Parameters**
 
     grouping_variable: `string`, default='genotype'
         The name of the column that contains the names of the grouping variables.
@@ -553,19 +530,18 @@ the model.
         Continue model for n days after final count.
 
 
-    Examples
-    ********
+**Examples**
     Example of an input dataframe
 
-    +-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
-    | sample_id | genotype  | day   | eggs  | first_instar  | second instar | third_instar  | fourth_instar |
-    +===========+===========+=======+=======+===============+===============+===============+===============+
-    | mm_1      |   mm      | 5     | 45    | 15            | 7             | 0             | 0             |
-    +-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
-    | mm_1      |   mm      | 9     | NA    | 24            | 14            | 6             | 3             |
-    +-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
-    | mm_1      |   mm      | 11    | NA    | 38            | 27            | 16            | 12            |
-    +-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
++-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
+| sample_id | genotype  | day   | eggs  | first_instar  | second instar | third_instar  | fourth_instar |
++===========+===========+=======+=======+===============+===============+===============+===============+
+| mm_1      |   mm      | 5     | 45    | 15            | 7             | 0             | 0             |
++-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
+| mm_1      |   mm      | 9     | NA    | 24            | 14            | 6             | 3             |
++-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
+| mm_1      |   mm      | 11    | NA    | 38            | 27            | 16            | 12            |
++-----------+-----------+-------+-------+---------------+---------------+---------------+---------------+
 
 
 hazard
@@ -574,14 +550,12 @@ hazard
 A three parameter log-normal function.
 
 
-    Usage
-    *****
+**Usage**
 
     hazard(x,auc,median,shape)
 
 
-    Parameters
-    **********
+**Parameters**
 
     auc: 
         area under the curve
@@ -591,8 +565,7 @@ A three parameter log-normal function.
         shape of the curve
 
 
-    model
-    *****
+**Model**
 
     y(x) = (auc*(shape/median)*pow(x/median,shape-1))/(1+pow(x/median,shape))
     
@@ -693,43 +666,39 @@ Validates the dataframe containing the feature identifiers, metabolite values an
 Will place the 'feature_id_col' column as the index of the validated dataframe. 
 The validated metabolome dataframe is stored as the 'validated_metabolome' attribute. 
 
-    Usage
-    *****
+**Usage**
 
     validate_input_metabolome_df(
         self, 
         metabolome_feature_id_col='feature_id')
 
 
-    Parameters
-    **********
+**Parameters**
 
     metabolome_feature_id: `str`, optional 
         The name of the column that contains the feature identifiers (default is 'feature_id').
         Feature identifiers should be unique (=not duplicated).
         
 
-    Returns
-    *******
+**Returns**
 
     self: object
         Object with attribute metabolome_validated set to True if tests are passed. 
 
 
-    Examples
-    ********
+**Examples**
 
     Example of a valid input metabolome dataframe
 
-    +-------------+----------------+----------------+----------------+----------------+
-    | feature_id  | genotypeA_rep1 | genotypeA_rep2 | genotypeA_rep3 | genotypeA_rep4 |
-    +=============+================+================+================+================+
-    | metabolite1 |   1246         | 1245           | 12345          | 12458          |
-    +-------------+----------------+----------------+----------------+----------------+
-    | metabolite2 |   0            | 0              | 0              | 0              |
-    +-------------+----------------+----------------+----------------+----------------+
-    | metabolite3 |   10           | 0              | 0              | 154            |
-    +-------------+----------------+----------------+----------------+----------------+
++-------------+----------------+----------------+----------------+----------------+
+| feature_id  | genotypeA_rep1 | genotypeA_rep2 | genotypeA_rep3 | genotypeA_rep4 |
++=============+================+================+================+================+
+| metabolite1 |   1246         | 1245           | 12345          | 12458          |
++-------------+----------------+----------------+----------------+----------------+
+| metabolite2 |   0            | 0              | 0              | 0              |
++-------------+----------------+----------------+----------------+----------------+
+| metabolite3 |   10           | 0              | 0              | 154            |
++-------------+----------------+----------------+----------------+----------------+
 
 
 discard_features_detected_in_blanks
@@ -743,23 +712,20 @@ Steps:
 #. Returns a filtered Pandas dataframe with only features not detected in blank samples
 
 
-    Usage
-    *****
+**Usage**
 
     discard_features_detected_in_blanks(
         self, 
         blank_sample_contains='blank')
 
 
-    Parameters
-    **********
+**Parameters**
 
     blank_sample_contains: `str`, optional.
         Column names with this name will be considered blank samples.
         Default is='blank'
 
-    Returns
-    *******
+**Returns**
 
     metabolome: pandas.core.frame.DataFrame
         A filtered Pandas dataframe without features detected in blank samples and with the blank samples removed. 
@@ -772,8 +738,7 @@ For each grouping variable (e.g. genotype), creates a histogram and density plot
 This plot helps to see whether some groups have a value di`str`ibution different from the rest. 
 The percentage is indicated on the y-axis (bar heights sum to 100).
 
-    Usage
-    *****
+**Usage**
 
     create_density_plot(
         self, 
@@ -782,8 +747,7 @@ The percentage is indicated on the y-axis (bar heights sum to 100).
         nbins=1000)
 
 
-    Parameters
-    **********
+**Parameters**
 
     name_grouping_var: `str`, optional
         The name used when splitting between replicate and main factor.
@@ -794,8 +758,7 @@ The percentage is indicated on the y-axis (bar heights sum to 100).
     nbins: `int`, optional
         The number of bins to create. 
 
-    Returns
-    *******
+**Returns**
 
     matplotlib Axes
         Returns the Axes object with the density plots drawn onto it.
@@ -812,8 +775,7 @@ For instance, selecting the 50th percentile (median) will discard 50% of the fea
 lower than the median/50th percentile in each group. 
 
 
-    Usage
-    *****
+**Usage**
 
     filter_features_per_group_by_percentile(
     self, 
@@ -822,8 +784,7 @@ lower than the median/50th percentile in each group.
     percentile=50)
 
 
-    Parameters
-    **********
+**Parameters**
 
     name_grouping_var: `str`, optional
         The name of the grouping variable (default is "genotype")
@@ -834,8 +795,7 @@ lower than the median/50th percentile in each group.
         The percentile threshold. Has to be comprised 0 and 100.
 
 
-    Returns
-    *******
+**Returns**
 
     self: object
         The object with the .metabolome attribute filtered and the filtered_by_percentile_value set to True. 
@@ -857,8 +817,7 @@ Steps:
 #. Discard the 'not_reliable' features and keep the filtered dataframe. 
 
 
-    Usage
-    *****
+**Usage**
 
     filter_out_unreliable_features(
         self,
@@ -867,8 +826,7 @@ Steps:
         separator_replicates='_')
 
 
-    Parameters
-    **********
+**Parameters**
 
     name_grouping_var: `str`, optional
         The name used when splitting between replicate and main factor.
@@ -881,42 +839,40 @@ Steps:
         The separator to split sample names into a grouping variable (e.g. genotype) and the biological replicate number (e.g. 1)
 
 
-    Returns
-    *******
+**Returns**
 
     metabolome: ndarray
         A Pandas dataframe with only features considered as reliable, sample names and their values. 
 
 
-    Examples
-    ********
+**Examples**
 
     Example of an input dataframe
 
-    +-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
-    | feature_id            | MM_1  	| MM_2  	| MM_3  	| MM_4  	| LA1330_1 	| LA1330_2 	|
-    +=======================+===========+===========+===========+===========+===========+===========+
-    | rt-0.04_mz-241.88396 	| 554   	| 678   	| 674   	| 936   	| 824      	| 940      	|
-    +-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
-    | rt-0.05_mz-143.95911 	| 1364  	| 1340  	| 1692  	| 1948  	| 1928     	| 1956     	|
-    +-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
-    | rt-0.06_mz-124.96631 	| 0      	| 0     	| 0     	| 888   	| 786      	| 668      	|
-    +-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
-    | rt-0.08_mz-553.45905 	| 10972 	| 11190 	| 12172 	| 11820 	| 12026    	| 11604    	|
-    +-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
++-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
+| feature_id            | MM_1  	| MM_2  	| MM_3  	| MM_4  	| LA1330_1 	| LA1330_2 	|
++=======================+===========+===========+===========+===========+===========+===========+
+| rt-0.04_mz-241.88396 	| 554   	| 678   	| 674   	| 936   	| 824      	| 940      	|
++-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
+| rt-0.05_mz-143.95911 	| 1364  	| 1340  	| 1692  	| 1948  	| 1928     	| 1956     	|
++-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
+| rt-0.06_mz-124.96631 	| 0      	| 0     	| 0     	| 888   	| 786      	| 668      	|
++-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
+| rt-0.08_mz-553.45905 	| 10972 	| 11190 	| 12172 	| 11820 	| 12026    	| 11604    	|
++-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
 
 
     Example of an output df (rt-0.06_mz-124.96631 is kicked out because 3x0 and 1x888 in MM groups)
 
-    +-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
-    | feature_id            | MM_1  	| MM_2  	| MM_3  	| MM_4  	| LA1330_1 	| LA1330_2 	|
-    +=======================+===========+===========+===========+===========+===========+===========+
-    | rt-0.04_mz-241.88396 	| 554   	| 678   	| 674   	| 936   	| 824      	| 940      	|
-    +-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
-    | rt-0.05_mz-143.95911 	| 1364  	| 1340  	| 1692  	| 1948  	| 1928     	| 1956     	|
-    +-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
-    | rt-0.08_mz-553.45905 	| 10972 	| 11190 	| 12172 	| 11820 	| 12026    	| 11604    	|
-    +-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
++-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
+| feature_id            | MM_1  	| MM_2  	| MM_3  	| MM_4  	| LA1330_1 	| LA1330_2 	|
++=======================+===========+===========+===========+===========+===========+===========+
+| rt-0.04_mz-241.88396 	| 554   	| 678   	| 674   	| 936   	| 824      	| 940      	|
++-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
+| rt-0.05_mz-143.95911 	| 1364  	| 1340  	| 1692  	| 1948  	| 1928     	| 1956     	|
++-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
+| rt-0.08_mz-553.45905 	| 10972 	| 11190 	| 12172 	| 11820 	| 12026    	| 11604    	|
++-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
 
 
 write_clean_metabolome_to_csv
@@ -925,14 +881,12 @@ write_clean_metabolome_to_csv
 Writes the cleaned metabolome data to the disk as a comma-separated value file.
 
 
-    Usage
-    *****
+**Usage**
 
     write_clean_metabolome_to_csv(self, path_of_cleaned_csv="./data_for_manuals/filtered_metabolome.csv"):
 
 
-    Parameters
-    **********
+**Parameters**
 
     path_of_cleaned_csv: `str`, optional
         The path and filename of the .csv file to save.
@@ -950,8 +904,7 @@ Assumes that number of samples < number of features/metabolites
 Performs a transpose of the metabolite dataframe if n_samples > n_features (this can be turned off with auto_transpose)
 
 
-    Usage
-    *****
+**Usage**
 
     compute_pca_on_metabolites(
         self, 
@@ -960,8 +913,7 @@ Performs a transpose of the metabolite dataframe if n_samples > n_features (this
         auto_transpose=True)
 
 
-    Parameters
-    **********
+**Parameters**
 
     scale: `bool`, optional
         Perform scaling (standardize) the metabolite values to zero mean and unit variance. 
@@ -974,8 +926,7 @@ Performs a transpose of the metabolite dataframe if n_samples > n_features (this
         If n_samples > n_features, performs a transpose of the feature matrix.
         Default is True (meaning that transposing will occur if n_samples > n_features).
 
-    Returns
-    *******
+**Returns**
 
     self: object
         Object with .exp_variance: dataframe with explained variance per Principal Component
@@ -990,16 +941,14 @@ Imputes missing values with the median of the column.
 This is necessary for PCA to work.
 
 
-    Usage
-    *****
+**Usage**
 
     impute_missing_values_with_median(
         self, 
         missing_value_str='np.nan')
 
 
-    Parameters
-    **********
+**Parameters**
 
     missing_value_str: `str`, optional
         The string that represents missing values in the input dataframe.
@@ -1007,8 +956,7 @@ This is necessary for PCA to work.
         For pandas’ dataframes with nullable integer dtypes with missing values, missing_values can be set to either np.nan or pd.NA.
 
 
-    Returns
-    *******
+**Returns**
 
     self: object with attribute 'metabolome' updated with imputed values.
 
@@ -1020,24 +968,21 @@ Returns a barplot with the explained variance per Principal Component.
 Has to be preceded by perform_pca()
 
 
-    Usage
-    *****
+**Usage**
 
     create_scree_plot(
         self, 
         plot_file_name=None)
 
 
-    Parameters
-    **********
+**Parameters**
 
     plot_file_name: `string`, default='None'
         Path to a file where the plot will be saved.
         For instance 'my_scree_plot.pdf'
 
 
-    Returns
-    *******
+**Returns**
 
     matplotlib Axes
         Returns the Axes object with the scree plot drawn onto it.
@@ -1051,8 +996,7 @@ Returns a sample score plot of the samples on PCx vs PCy.
 Samples are colored based on the grouping variable (e.g. genotype)
 
 
-    Usage
-    *****
+**Usage**
 
     create_sample_score_plot(
         self, 
@@ -1064,8 +1008,7 @@ Samples are colored based on the grouping variable (e.g. genotype)
         plot_file_name=None)
 
 
-    Parameters
-    **********
+**Parameters**
 
     pc_x_axis: `int`, optional 
         Principal Component to plot on the x-axis (default is 1 so PC1 will be plotted).
@@ -1083,8 +1026,7 @@ Samples are colored based on the grouping variable (e.g. genotype)
         Path is relative to current working directory.
 
 
-    Returns
-    *******
+**Returns**
 
     matplotlib Axes
         Returns the Axes object with the sample score plot drawn onto it.
@@ -1100,14 +1042,12 @@ Formula: number of non zero values/number of values * 100
 The higher the sparsity, the more zero values 
 
 
-    Usage
-    *****
+**Usage**
 
     compute_metabolome_sparsity(self)
 
 
-    Returns
-    *******
+**Returns**
 
     self: object
         Object with sparsity attribute filled (sparsity is a `float`).
@@ -1126,8 +1066,7 @@ Visuallises the presence of features per group in an UpSet plot.
 A feature is considered present in a group if the median>0.
 
 
-    Usage
-    *****
+**Usage**
 
     plot_features_in_upset_plot(
         self,
@@ -1135,8 +1074,7 @@ A feature is considered present in a group if the median>0.
         plot_file_name=None)
 
 
-    Parameters
-    **********
+**Parameters**
 
     separator_replicates: `string`, default="_"
         The separator to split sample names into a grouping variable (e.g. genotype) and the biological replicate number (e.g. 1)
@@ -1146,27 +1084,25 @@ A feature is considered present in a group if the median>0.
         Path is relative to current working directory.
 
 
-    Returns
-    *******
+**Returns**
 
     Plot:
         UpSet plot with features presence per group.
 
 
-    Examples
-    ********
+**Examples**
 
     Example of an input dataframe
 
-    +-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
-    | feature_id            | MM_1  	| MM_2  	| MM_3  	| MM_4  	| LA1330_1 	| LA1330_2 	|
-    +=======================+===========+===========+===========+===========+===========+===========+
-    | rt-0.04_mz-241.88396 	| 554   	| 678   	| 674   	| 936   	| 824      	| 940      	|
-    +-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
-    | rt-0.05_mz-143.95911 	| 1364  	| 1340  	| 1692  	| 1948  	| 1928     	| 1956     	|
-    +-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
-    | rt-0.08_mz-553.45905 	| 10972 	| 11190 	| 12172 	| 11820 	| 12026    	| 11604    	|
-    +-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
++-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
+| feature_id            | MM_1  	| MM_2  	| MM_3  	| MM_4  	| LA1330_1 	| LA1330_2 	|
++=======================+===========+===========+===========+===========+===========+===========+
+| rt-0.04_mz-241.88396 	| 554   	| 678   	| 674   	| 936   	| 824      	| 940      	|
++-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
+| rt-0.05_mz-143.95911 	| 1364  	| 1340  	| 1692  	| 1948  	| 1928     	| 1956     	|
++-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
+| rt-0.08_mz-553.45905 	| 10972 	| 11190 	| 12172 	| 11820 	| 12026    	| 11604    	|
++-----------------------+-----------+-----------+-----------+-----------+-----------+-----------+
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1307,32 +1243,29 @@ Will place the 'feature_id_col' column as the index of the validated dataframe.
 The validated metabolome dataframe is stored as the 'validated_metabolome' attribute 
 
 
-    Usage
-    *****
+**Usage**
 
     validate_input_metabolome_df(self)
 
 
-    Returns
-    *******
+**Returns**
 
     self: object
         Object with metabolome_validated set to True
 
 
-    Examples
-    ********
+**Examples**
     Example of a validated output metabolome dataframe
 
-    +-------------+----------------+----------------+----------------+----------------+
-    | feature_id  | genotypeA_rep1 | genotypeA_rep2 | genotypeA_rep3 | genotypeA_rep4 |
-    +=============+================+================+================+================+
-    | metabolite1 |   1246         | 1245           | 12345          | 12458          |
-    +-------------+----------------+----------------+----------------+----------------+
-    | metabolite2 |   0            | 0              | 0              | 0              |
-    +-------------+----------------+----------------+----------------+----------------+
-    | metabolite3 |   10           | 0              | 0              | 154            |
-    +-------------+----------------+----------------+----------------+----------------+
++-------------+----------------+----------------+----------------+----------------+
+| feature_id  | genotypeA_rep1 | genotypeA_rep2 | genotypeA_rep3 | genotypeA_rep4 |
++=============+================+================+================+================+
+| metabolite1 |   1246         | 1245           | 12345          | 12458          |
++-------------+----------------+----------------+----------------+----------------+
+| metabolite2 |   0            | 0              | 0              | 0              |
++-------------+----------------+----------------+----------------+----------------+
+| metabolite3 |   10           | 0              | 0              | 154            |
++-------------+----------------+----------------+----------------+----------------+
 
 
 validate_input_phenotype_df
@@ -1341,48 +1274,44 @@ validate_input_phenotype_df
 Validates the dataframe containing the phenotype classes and the sample identifiers.
 
 
-    Usage
-    *****
+**Usage**
 
     validate_input_phenotype_df(
         self, 
         phenotype_class_col="phenotype")
 
 
-    Parameters
-    **********
+**Parameters**
 
     phenotype_class_col: `string`, default="phenotype"
         The name of the column to be used 
 
 
-    Returns
-    *******
+**Returns**
 
     self: object
         Object with phenotype_validated set to True
 
 
-    Examples
-    ********
+**Examples**
 
     Example of a validated phenotype dataframe
             
-    +----------------+-----------+
-    | sample_id      | phenotype | 
-    +================+===========+
-    | genotypeA_rep1 | sensitive | 
-    +----------------+-----------+
-    | genotypeA_rep2 | sensitive |
-    +----------------+-----------+   
-    | genotypeA_rep3 | sensitive |
-    +----------------+-----------+
-    | genotypeA_rep4 | sensitive |
-    +----------------+-----------+ 
-    | genotypeB_rep1 | resistant |
-    +----------------+-----------+   
-    | genotypeB_rep2 | resistant |
-    +----------------+-----------+
++----------------+-----------+
+| sample_id      | phenotype | 
++================+===========+
+| genotypeA_rep1 | sensitive | 
++----------------+-----------+
+| genotypeA_rep2 | sensitive |
++----------------+-----------+   
+| genotypeA_rep3 | sensitive |
++----------------+-----------+
+| genotypeA_rep4 | sensitive |
++----------------+-----------+ 
+| genotypeB_rep1 | resistant |
++----------------+-----------+   
+| genotypeB_rep2 | resistant |
++----------------+-----------+
 
 
 get_baseline_performance
@@ -1401,8 +1330,7 @@ get_baseline_performance(
     scoring_metric='balanced_accuracy')
 
 
-    Parameters
-    **********
+**Parameters**
 
     kfold: `int`, optional
         Cross-validation `str`ategy. Default is to use a 5-fold cross-validation. 
@@ -1426,8 +1354,7 @@ get_baseline_performance(
         balanced accuracy is the average of recall obtained on each class. 
 
 
-    Returns
-    *******
+**Returns**
 
     self: object
         Object with baseline_performance attribute.
@@ -1450,8 +1377,7 @@ defined in the default config (classifier.py).
 See: `<https://github.com/EpistasisLab/tpot/blob/master/tpot/config/classifier.py>`_
 
 
-    Usage
-    *****
+**Usage**
 
     search_best_model_with_tpot_and_compute_pc_importances(
         self,
@@ -1467,8 +1393,7 @@ See: `<https://github.com/EpistasisLab/tpot/blob/master/tpot/config/classifier.p
         path_for_saving_pipeline="./best_fitting_pipeline.py")
 
 
-    Parameters
-    **********
+**Parameters**
 
     class_of_interest: `str`
         The name of the class of interest also called "positive class".
@@ -1523,8 +1448,7 @@ See: `<https://github.com/EpistasisLab/tpot/blob/master/tpot/config/classifier.p
         Default to "./best_fitting_pipeline.py"
 
 
-    Returns
-    *******
+**Returns**
 
     self: object
         The object with best model searched and feature importances computed. 
@@ -1543,8 +1467,7 @@ and extract the names of features.
 The loadings matrix is available after running the search_best_model_with_tpot_and_compute_pc_importances() method.
 
 
-    Usage
-    *****
+**Usage**
 
     get_names_of_top_n_features_from_selected_pc(
         self, 
@@ -1552,8 +1475,7 @@ The loadings matrix is available after running the search_best_model_with_tpot_a
         top_n=5)
 
 
-    Parameters
-    **********
+**Parameters**
 
     selected_pc: `int`, optional
         Principal Component to keep. 1-based index (1 selects PC1, 2 selected PC2, etc.)
@@ -1565,7 +1487,6 @@ The loadings matrix is available after running the search_best_model_with_tpot_a
         Default is 5.
 
 
-    Returns
-    *******
+**Returns**
 
     A list of feature names. 
