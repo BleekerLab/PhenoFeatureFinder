@@ -13,7 +13,7 @@
 * `OmicsAnalysis`
 * `FeatureSelection`
 
-![Overview of the package](user_material/paper/package_figure.png)
+![Overview of the package](user_material/paper/package_figure.png) 
 
 `PhenotypeAnalysis` was designed to analyse development over time through progressive stages in multiple groups or treatments. This could for example be the development of insects through their larval stages over time in different environments, or disease scores of fungal infections in multiple host plants. These types of phenotyping analyses can be challenging, due to the many variables involved (e.g. time, developmental stages, replicates, treatments), especially for researchers whose strength does not lie in data analysis. `PhenotypeAnalysis` offers a set of functions to visualise the development while taking into account those different variables, and to perform the necessary data preprocessing steps. From the output, it is easy to manually assign binary phenotypes to your groups (treatments, genotypes, etc), if you want to use it as input for `FeatureSelection`. 
 
