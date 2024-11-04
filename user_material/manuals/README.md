@@ -9,36 +9,25 @@ Each of the three classes has its own manual and example data to run it.
 
 ## PhenotypeAnalysis
 
-### Manual 
+[Manual](phenotype_analysis_manual.ipynb) 
 
-phenotype_analysis_manual.ipynb
-
-### Data
-
-bioassay_example_data.csv
+[Data](data_for_manuals/bioassay_example_data.csv)
 
 
 ## OmicsAnalysis
 
-### Manual
+[Manual](omics_data_filtering_manual.ipynb)
 
-omics_data_filtering_manual.ipynb
-
-### Data
-
-metabolome_example_data.csv
+[Data](data_for_manuals/metabolome_example_data.csv)
 
 
 ## FeatureSelection
 
-### Manual
+[Manual](feature_selection_manual.ipynb)
 
-feature_selection_manual.ipynb
+[Cleaned omics data](data_for_manuals/cleaned_metabolite_example_data.csv)
 
-### Data
-
-cleaned_metabolite_example_data.csv
-phenotype_example_data.csv
+[Binary phenotype data](data_for_manuals/phenotype_example_data.csv)
 
 
 ## Reference 
