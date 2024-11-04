@@ -55,7 +55,7 @@ The analysis of developmental phenotypes can be challenging, due to the many var
 
 In R, the package `drc` is available for fitting dose-response curves [@Ritz2015], offering an extensive and versatile set of functionalities. However, for the purposes described here `drc` poses some limitations, such as the options for custom pre-processing and analyses of multiple experimental groups simultaneously. Here we implemented pre-processing steps and aimed to decrease the amount of coding needed to obtain a fitted development curve.
 
-# Example implementation
+# Use case example
 
 Plants interact with their (a)biotic environment through a range of specialised metabolites and deal with pathogens and pest attack through constitutive or inducible production of those defence molecules [@Erb2020; @García-Olmedo1998]. High-throughput “-omics” tools including (untargeted) metabolomics have been successfully implemented in plant biology [@Dalio2021], but the accompanying resistance phenotyping often lacks in robustness [@Song2021]. 
 
