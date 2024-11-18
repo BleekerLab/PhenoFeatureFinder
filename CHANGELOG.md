@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.1.3 (18-11-2024)
+
+- A Read the Docs was created for the package.
+- Improved GitHub documentation based on reviewer feedback.
+- This version is archived on Zenodo and used in the JOSS paper.
+
 ## v0.1.2 (23-07-2024)
 
 - Caps in package name at import utils caused an error when using OmicsAnalysis and FeatureSelection.

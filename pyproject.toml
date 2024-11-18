@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "PhenoFeatureFinder"
-version = "0.1.2"
+version = "0.1.3"
 description = "Find metabolic features linked to insect development phenotypes"
 authors = ["Lissy-Anne Denkers", "Marc Galland", "Annabel Dekker", "Valerio Bianchi", "Petra Bleeker <p.m.bleeker@uva.nl>"]
 repository = "https://github.com/BleekerLab/PhenoFeatureFinder"
