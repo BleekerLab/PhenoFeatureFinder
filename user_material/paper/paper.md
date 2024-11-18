@@ -26,7 +26,7 @@ authors:
       given-names: Valerio
       surname: Bianchi
     orcid: 0000-0001-9025-7923
-    affiliation: 3
+    affiliation: "3, 4"
   - name:
       given-names: Petra M.
       surname: Bleeker
@@ -39,6 +39,8 @@ affiliations:
     index: 2
   - name: Enza Zaden R&D B.V., BTR-BM Bioinformatics, Enkhuizen, The Netherlands
     index: 3
+  - name: Wageningen Bioveterinary Research, Wageningen University & Research, Lelystad, Netherlands
+    index: 4
 date: 5 June 2024
 bibliography: paper.bib
 ---
