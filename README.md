@@ -1,6 +1,7 @@
 [![Documentation Status](https://readthedocs.org/projects/phenofeaturefinder/badge/?version=latest)](https://phenofeaturefinder.readthedocs.io/en/latest/?badge=latest)
 ![PyPI - Version](https://img.shields.io/pypi/v/PhenoFeatureFinder)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/PhenoFeatureFinder)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14179966.svg)](https://doi.org/10.5281/zenodo.14179966)
 
 
 
