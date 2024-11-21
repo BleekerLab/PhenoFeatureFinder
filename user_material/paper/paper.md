@@ -53,7 +53,7 @@ bibliography: paper.bib
 
 # Statement of need
 
-The analysis of developmental phenotypes can be challenging, due to the many variables involved (e.g. time, developmental stages, replicates, treatments), especially for researchers whose strength or interest does not lie in data analysis. The same goes for the pre-processing of omics data and linking the omics data and developmental phenotypes. With `PhenoFeatureFinder`, we aim to support such research by combining the nessecary functionalities in one package with easy to follow manuals and examples. 
+The analysis of developmental phenotypes can be challenging, due to the many variables involved (e.g. time, developmental stages, replicates, treatments), especially for researchers whose strength or interest does not lie in data analysis. The same goes for the pre-processing of omics data and linking the omics data and developmental phenotypes. With `PhenoFeatureFinder`, we aim to support such research by combining the necessary functionalities in one package with easy to follow manuals and examples. 
 
 In R, the package `drc` is available for fitting dose-response curves [@Ritz2015], offering an extensive and versatile set of functionalities. However, for the purposes described here `drc` poses some limitations, such as the options for custom pre-processing and analyses of multiple experimental groups simultaneously. Here we implemented pre-processing steps and aimed to decrease the amount of coding needed to obtain a fitted development curve.
 
@@ -71,11 +71,11 @@ A binary classification of plants into "resistant" or "susceptible" helps to ext
 
 To account for missing data when individuals that reached the final developmental stage are removed from the experiment, we implemented an automated correction step. The count data can be transformed to cumulative data to analyse the maximum of individuals that reach each of the developmental stages. Next, the time to reach a specific stage can be compared between treatments by fitting a 3-parameter log-logistic curve [@Muse2021; @Seefeldt1995; @Vliet2013] to the cumulative data for each treatment, with the function:   
 
-$$ f(x) = \frac{m}{1 + \exp(s \times (\log(x) - \log(e_{50})))} $$
+$$ f(x) = \frac{m}{1 + \exp(s (\log(x) - \log(e_{50})))} $$
 
-where $x$ is time, $m$ is the upper limit (or maximum of individuals that developed to the stage of interest), $s$ is the slope of the linear part of the curve and $e_{50}$ is the EmT50 (the timepoint at which 50% of the individuals have developed to the stage of interest). We added the possibility to compare performance between treatments by fitting a curve with the function:
+where $x$ is time, $m$ is the upper limit (or maximum of individuals that developed to the stage of interest), $s$ is the slope of the linear part of the curve and $e_{50}$ is the EmT50 (the time point at which 50% of the individuals have developed to the stage of interest). We added the possibility to compare performance between treatments by fitting a curve with the function:
 
-$$ f(x) = \frac{a \times \frac{s}{m} \times (\frac{x}{m})^{s-1}}{1 + (\frac{x}{m})^{s}} $$
+$$ f(x) = \frac{a \frac{s}{m} (\frac{x}{m})^{s-1}}{1 + (\frac{x}{m})^{s}} $$
 
 Here, $x$ is time, $a$ the area under the curve, $s$ is the shape of the curve and $m$ the median time point. Both functions output a table with the model parameters, confidence intervals and the model fit, together with a plot displaying the observed data and the fitted model. For both functions it is possible to predict the potential maximum beyond the final experimental measurements.
 
@@ -93,6 +93,6 @@ The Amsterdam Data Science Centre is acknowledged for their input and Frans van 
 
 # Author contributions
 
-The software was written by Lissy-Anne Denkers (LD) and Marc Galland (MG), with input imput from Petra Bleeker (PB) and tested by Annabel Dekker (AD) and Valerio Bianchi (VB). The manuals and examples were written by LD with major input from AD and VB. The manuscript was designed, written and revised by LD, MG, AD, VB and PB.
+The software was written by Lissy-Anne Denkers (LD) and Marc Galland (MG), with input from Petra Bleeker (PB) and tested by Annabel Dekker (AD) and Valerio Bianchi (VB). The manuals and examples were written by LD with major input from AD and VB. The manuscript was designed, written and revised by LD, MG, AD, VB and PB.
 
 # References
